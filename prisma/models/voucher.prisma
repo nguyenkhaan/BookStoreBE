@@ -1,0 +1,21 @@
+model Voucher {
+    id            Int            @id @default(autoincrement())
+    name          String
+    eventName     String
+    sale          Decimal
+    status        VoucherStatus
+    usedNumber    Int
+    quantity      Int
+    expiresAt     DateTime
+    voucherUsages VoucherUsage[]
+}
+
+model VoucherUsage {
+    id           Int        @id @default(autoincrement())
+    billId       String
+    bill         BillIncome @relation(fields: [billIncomeId], references: [id])
+    billIncomeId String
+    voucherId    Int
+    voucher      Voucher    @relation(fields: [voucherId], references: [id])
+    usedAt       DateTime?
+}

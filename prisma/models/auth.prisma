@@ -1,9 +1,10 @@
 model Token {
-    id Int @id @default(autoincrement()) 
-    userID Int 
-    token String 
-    type TokenType
-    createdAt DateTime @default(now())
-    usedAt DateTime? 
-    expiresAt DateTime 
+    id         Int       @id @default(autoincrement())
+    token      String
+    type       TokenType
+    customerId Int?
+    employeeId Int?
+    createdAt  DateTime  @default(now())
+    usedAt     DateTime? @default(now())
+    expiresAt  DateTime
 }

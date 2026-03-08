@@ -1,0 +1,24 @@
+model BillIncome {
+    id            String         @id @default(uuid())
+    cost          Decimal        @default(0)
+    status        IncomeStatus   @default(COMPLETE)
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
+    employeeId    Int
+    employee      Employee       @relation(fields: [employeeId], references: [id])
+    customerId    Int
+    customer      Customer       @relation(fields: [customerId], references: [id])
+    voucherUsages VoucherUsage[]
+}
+
+model BillOutcome {
+    id          String        @id @default(uuid())
+    publisherId Int
+    publisher   Publisher     @relation(fields: [publisherId], references: [id])
+    employeeId  Int
+    creator     Employee      @relation(fields: [employeeId], references: [id])
+    cost        Decimal
+    status      OutcomeStatus
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+}

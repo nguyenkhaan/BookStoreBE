@@ -1,12 +1,42 @@
+enum BookCategory {
+    HORROR
+    MANGA
+    SCIENCE_FICTION
+}
 
 enum Role {
-    ADMIN 
-    USER 
-    //Enter more roles if you want 
+    ADMIN
+    EMPLOYEE
+    CUSTOMER
 }
+
+enum IncomeStatus {
+    NOT_STARTED
+    COMPLETE
+    PENDING
+    FAILED
+}
+
+enum OutcomeStatus {
+    NOT_STARTED
+    COMPLETE
+    PENDING
+    FAILED
+}
+
+enum VoucherStatus {
+    APPLYING
+    ENDED
+}
+
 enum TokenType {
-    RESET_PASSWORD 
-    RESET_EMAIL 
-    ACCESS 
-    REFRESH 
+    RESET_PASSWORD
+    ACCESS
+    REFRESH
+    VERIFY_EMAIL
+}
+
+enum EmployeeStatus {
+    WORKING
+    RETIRED
 }

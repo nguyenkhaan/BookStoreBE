@@ -1,0 +1,37 @@
+model Publisher {
+    id           Int           @id @default(autoincrement())
+    name         String        @unique
+    books        Book[]
+    billOutComes BillOutcome[]
+}
+
+model Author {
+    id    Int    @id @default(autoincrement())
+    name  String
+    books Book[]
+
+    @@index([name])
+}
+
+model Inventory {
+    bookId    Int      @id
+    book      Book     @relation(fields: [bookId], references: [id])
+    stock     Int      @default(0)
+    updatedAt DateTime @updatedAt
+}
+
+model Book {
+    id          Int        @id @default(autoincrement())
+    cost        Decimal    @default(0)
+    title       String
+    publisherId Int
+    publisher   Publisher  @relation(fields: [publisherId], references: [id])
+    authorId    Int
+    author      Author     @relation(fields: [authorId], references: [id])
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @default(now())
+    inventory   Inventory?
+
+    @@index([cost])
+    @@index([title])
+}
