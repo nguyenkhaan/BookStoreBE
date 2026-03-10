@@ -27,6 +27,7 @@ export class AuthService
             if (!user) 
                 throw new UnauthorizedException("Employee has not been registered") 
             const results = await Bun.password.verify(password , user.password)  
+            
             if (results) 
                 return user 
             return null  
@@ -38,24 +39,18 @@ export class AuthService
         }
     }
    
-    async login(email : string , password : string) 
+    async login(email : string , password : string , user : any) 
     {
         try 
         {
-            const employee = await this.prismaService.employee.findUnique({
-                where: {
-                    email
-                }
-            })
-            if (!employee)  
-                throw new UnauthorizedException("User has not been registered") 
-            //So sanh password 
-            const result = await Bun.password.verify(password , employee.password) 
+            console.log(email) 
+            console.log(password) 
+            const result = await Bun.password.verify(password , user.password) 
             if (!result) 
                 throw new BadRequestException("Wrong Password") 
             const roles = await this.prismaService.userRole.findMany({
                 where: {
-                    userId : employee.id 
+                    userId : user.id 
                 }, 
                 select: {
                     role: true 
@@ -67,8 +62,8 @@ export class AuthService
             const accessSecretKey = this.configService.get<string>('ACCESS_SECRET_KEY')
             const refreshSecretKey = this.configService.get<string>('REFRESH_SECRET_KEY')
             const payload = {
-                [TokenBody.EMAIL] : employee.email, 
-                [TokenBody.SUB] : employee.id, 
+                [TokenBody.EMAIL] : user.email, 
+                [TokenBody.SUB] : user.id, 
                 [TokenBody.ROLES] : userRoles 
             }
             const accessToken = this.jwtService.sign({
@@ -88,7 +83,7 @@ export class AuthService
             //Store token into table 
             await this.prismaService.token.deleteMany({
                 where: {
-                    employeeId: employee.id,
+                    employeeId: user.id,
                     type: {
                         in: [TokenType.ACCESS, TokenType.REFRESH]
                     }
@@ -100,7 +95,7 @@ export class AuthService
                 data: {
                     token : hashAccessToken, 
                     type: TokenType.ACCESS, 
-                    employeeId: employee.id, 
+                    employeeId: user.id, 
                     expiresAt: new Date(Date.now() + ACCESS_LIVE_TIME)
                 }
             })
@@ -108,14 +103,14 @@ export class AuthService
                 data: {
                     token : hashRefreshToken, 
                     type: TokenType.REFRESH, 
-                    employeeId: employee.id, 
+                    employeeId: user.id, 
                     expiresAt: new Date(Date.now() + REFRESH_LIVE_TIME)
                 }
             })
             
             return {
-                id : employee.id, 
-                email : employee.email, 
+                id : user.id, 
+                email : user.email, 
                 accessToken, 
                 refreshToken
             }
