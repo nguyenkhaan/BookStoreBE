@@ -9,6 +9,8 @@ import { TransformInterceptor } from './bases/interceptors/transform.interceptor
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
+import { AmdinModule } from './modules/admin/admin.module';
+import { EmployeeModule } from './modules/employee/employee.module';
 //Add  e module here
 @Module({
   imports: [
@@ -17,7 +19,9 @@ import { AuthModule } from './modules/auth/auth.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    AuthModule
+    AuthModule, 
+    AmdinModule, 
+    EmployeeModule
   ],
   controllers: [AppController],
   providers: [

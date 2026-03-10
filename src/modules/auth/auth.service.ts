@@ -96,7 +96,7 @@ export class AuthService
                     token : hashAccessToken, 
                     type: TokenType.ACCESS, 
                     employeeId: user.id, 
-                    expiresAt: new Date(Date.now() + ACCESS_LIVE_TIME)
+                    expiresAt: new Date(Date.now() + 1000 * ACCESS_LIVE_TIME)
                 }
             })
                         await this.prismaService.token.create({
@@ -104,7 +104,7 @@ export class AuthService
                     token : hashRefreshToken, 
                     type: TokenType.REFRESH, 
                     employeeId: user.id, 
-                    expiresAt: new Date(Date.now() + REFRESH_LIVE_TIME)
+                    expiresAt: new Date(Date.now() + 1000 * REFRESH_LIVE_TIME)
                 }
             })
             

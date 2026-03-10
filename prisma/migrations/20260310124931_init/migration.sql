@@ -144,6 +144,7 @@ CREATE TABLE "Employee" (
     "phone" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "status" "EmployeeStatus" NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT false,
     "departmentId" INTEGER NOT NULL,
     "positionId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
