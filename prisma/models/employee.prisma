@@ -1,27 +1,33 @@
-model Position {
+model Department {
     id        Int        @id @default(autoincrement())
-    name      String
+    name      String     @unique
+    positions Position[]
     employees Employee[]
 }
 
-model Department {
-    id        Int        @id @default(autoincrement())
-    name      String
-    employees Employee[]
+model Position {
+    id           Int        @id @default(autoincrement())
+    name         String
+    departmentId Int
+    department   Department @relation(fields: [departmentId], references: [id])
+
+    employees    Employee[]
 }
 
 model Employee {
-    id           Int            @id @default(autoincrement())
-    email        String         @unique
+    id           Int        @id @default(autoincrement())
+    email        String     @unique
     password     String
-    phone        String         @unique
+    phone        String     @unique
     name         String
     status       EmployeeStatus
-    positionId   Int
-    position     Position       @relation(fields: [positionId], references: [id])
+
     departmentId Int
-    department   Department     @relation(fields: [departmentId], references: [id])
-    createdAt    DateTime       @default(now())
-    billIncomes  BillIncome[]
-    billOutcomes BillOutcome[]
+    department   Department @relation(fields: [departmentId], references: [id])
+
+    positionId   Int
+    position     Position   @relation(fields: [positionId], references: [id])
+    billIncomes BillIncome[] 
+    billOutcomes BillOutcome[] 
+    createdAt    DateTime   @default(now())
 }

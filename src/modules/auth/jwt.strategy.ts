@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(configService: ConfigService) {
-    const accessSecret = configService.get<string>('ACCESS_SECRET');
+    const accessSecret = configService.get<string>('ACCESS_SECRET_KEY');
     if (!accessSecret) {
       throw new Error('ACCESS_SECRET is not defined');
     }

@@ -8,3 +8,8 @@ model Token {
     usedAt     DateTime? @default(now())
     expiresAt  DateTime
 }
+model UserRole {
+    id Int @id @default(autoincrement()) 
+    userId Int 
+    role Role
+}

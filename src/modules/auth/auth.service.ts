@@ -1,10 +1,11 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { RegisterData } from './dto/auth.dto';
-import { Role, TokenType } from '@prisma/client';
+import {  TokenType } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TokenBody } from '@/bases/commons/enums/token.enum';
+import { ACCESS_LIVE_TIME, REFRESH_LIVE_TIME } from '@/bases/commons/constants/jwt.constant';
+import { hashSHA256 } from '@/utilitis/sha256';
 
 @Injectable()
 export class AuthService 
@@ -16,109 +17,112 @@ export class AuthService
         private readonly configService : ConfigService
     ) {}
     async validateUser(email: string, password: string) {
-      //Ham validate user dung de validate nguoi dung khi ho dang nhap    
-      const user = await this.prismaService.user.findFirst({
-        where: { email },
-      });
-      if (user) {
-        const results = await Bun.password.verify(password, user.password);
-        if (results) return user;
-        return null;
-      }
-      return null;
-    }
-    async register(data : RegisterData) 
-    {
         try 
         {
-            let user = await this.prismaService.user.findFirst({
-                where: {email : data.email}
-            })
-            if (user && user.active) 
-                throw new BadRequestException("User Has Been Registered") 
-            if (user == null) 
-            {
-                //Neu user la    null thi  ao user moi 
-                const hashedPassword = await Bun.password.hash(data.password , {
-                    cost: 10, 
-                    algorithm: 'bcrypt'
-                })
-                user = await this.prismaService.user.create({
-                    data: {
-                        email: data.email, 
-                        password: hashedPassword, 
-                        name: 'Admin', 
-                        active: true  
-                    }
-                })
-                //Gan role cho nguoi dung 
-                await this.prismaService.userRole.create({
-                    data: {
-                        userID: user.id, 
-                        role: Role.USER 
-                    }
-                })
-            } 
-            //tien hanh gui duoing maii verify 
-            //Tien hanh verify tai khoan o day 
-            return {
-                id: user.id, 
-                email : user.email, 
-                name: user.name 
-            }
-
+            const user = await this.prismaService.employee.findFirst({
+                where: {
+                    email 
+                }
+            }) 
+            if (!user) 
+                throw new UnauthorizedException("Employee has not been registered") 
+            const results = await Bun.password.verify(password , user.password)  
+            if (results) 
+                return user 
+            return null  
         } 
-        catch (e) 
+        catch (err) 
         {
-            if (e instanceof BadRequestException) 
-                throw e 
-            throw e 
+            console.log("Valdating User Error: " , err) 
+            throw err 
         }
     }
+   
     async login(email : string , password : string) 
     {
         try 
         {
-            const user = await this.prismaService.user.findFirst({
-                where: {email}
-            }) 
-            if (user == null) 
-                throw new UnauthorizedException("User Has Not Registered") 
-            const accessSecretKey : string = this.configService.get<string>('ACCESS_SECRET') || "" 
-            const refreshSecretKey : string = this.configService.get<string>('REFRESH_SECRET') || "" 
-            //--- Verify Password ---  
-            const results = await Bun.password.verify(password , user.password) 
-            if (!results) 
+            const employee = await this.prismaService.employee.findUnique({
+                where: {
+                    email
+                }
+            })
+            if (!employee)  
+                throw new UnauthorizedException("User has not been registered") 
+            //So sanh password 
+            const result = await Bun.password.verify(password , employee.password) 
+            if (!result) 
                 throw new BadRequestException("Wrong Password") 
-            //--- Access Token --- 
+            const roles = await this.prismaService.userRole.findMany({
+                where: {
+                    userId : employee.id 
+                }, 
+                select: {
+                    role: true 
+                }
+            })
+            const userRoles = roles.map(roleO => roleO.role) 
+            if (!roles) 
+                throw new BadRequestException("Don't have roles") 
+            const accessSecretKey = this.configService.get<string>('ACCESS_SECRET_KEY')
+            const refreshSecretKey = this.configService.get<string>('REFRESH_SECRET_KEY')
+            const payload = {
+                [TokenBody.EMAIL] : employee.email, 
+                [TokenBody.SUB] : employee.id, 
+                [TokenBody.ROLES] : userRoles 
+            }
             const accessToken = this.jwtService.sign({
-                [TokenBody.EMAIL] : email, 
-                [TokenBody.PURPOSE] : TokenType.ACCESS, 
-                [TokenBody.SUB] : user.id, 
-                [TokenBody.ROLES] : [Role.USER], //Chinh thaynh lay role that su cua nguoi dung 
+                ...payload, 
+                [TokenBody.PURPOSE] : TokenType.ACCESS
             } , {
-                secret: accessSecretKey, 
-                expiresIn: '15m'  //Best Practice: Change to jwt constant 
-            })
-
-            //--- Refresh Token --- 
+                expiresIn: ACCESS_LIVE_TIME, 
+                secret: accessSecretKey
+            }) 
             const refreshToken = this.jwtService.sign({
-                [TokenBody.EMAIL] : email, 
-                [TokenBody.PURPOSE] : TokenType.ACCESS, 
-                [TokenBody.SUB] : user.id, 
-                [TokenBody.ROLES] : Role.USER, //Chinh thaynh lay role that su cua nguoi dung 
+                ...payload , 
+                [TokenBody.PURPOSE] : TokenType.REFRESH
             } , {
-                secret: refreshSecretKey , 
-                expiresIn: '14d'
+                expiresIn: REFRESH_LIVE_TIME, 
+                secret: refreshSecretKey 
+            }) 
+            //Store token into table 
+            await this.prismaService.token.deleteMany({
+                where: {
+                    employeeId: employee.id,
+                    type: {
+                        in: [TokenType.ACCESS, TokenType.REFRESH]
+                    }
+                }
             })
+            const hashAccessToken = hashSHA256(accessToken)
+            const hashRefreshToken = hashSHA256(refreshToken)
+            await this.prismaService.token.create({
+                data: {
+                    token : hashAccessToken, 
+                    type: TokenType.ACCESS, 
+                    employeeId: employee.id, 
+                    expiresAt: new Date(Date.now() + ACCESS_LIVE_TIME)
+                }
+            })
+                        await this.prismaService.token.create({
+                data: {
+                    token : hashRefreshToken, 
+                    type: TokenType.REFRESH, 
+                    employeeId: employee.id, 
+                    expiresAt: new Date(Date.now() + REFRESH_LIVE_TIME)
+                }
+            })
+            
             return {
-                email  , access_token : accessToken, refresh_token : refreshToken
+                id : employee.id, 
+                email : employee.email, 
+                accessToken, 
+                refreshToken
             }
         } 
         catch (err) 
         {
-            if (err instanceof UnauthorizedException) 
-                throw err  
+            console.log("Login Error: " , err) 
             throw err 
         }
     }
