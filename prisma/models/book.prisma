@@ -29,6 +29,7 @@ model Book {
     author      Author     @relation(fields: [authorId], references: [id])
     createdAt   DateTime   @default(now())
     updatedAt   DateTime   @default(now())
+    coverImage  String? 
     inventory   Inventory?
     deletedAt DateTime? 
     @@index([cost])

@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { RuleModule } from './modules/rule/rule.module';
+import { MinioModule } from './minio/minio.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -20,6 +21,7 @@ import { RuleModule } from './modules/rule/rule.module';
 		ConfigModule.forRoot({
 			isGlobal: true,
 		}),
+		MinioModule, 
 		AuthModule,
 		AdminModule,
 		EmployeeModule,

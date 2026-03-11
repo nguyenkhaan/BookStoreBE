@@ -104,6 +104,7 @@ CREATE TABLE "Book" (
     "authorId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "coverImage" TEXT,
     "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("id")
@@ -149,6 +150,7 @@ CREATE TABLE "Employee" (
     "password" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "avatar" TEXT,
     "status" "EmployeeStatus" NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT false,
     "departmentId" INTEGER NOT NULL,
