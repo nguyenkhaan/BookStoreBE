@@ -13,31 +13,31 @@ import { AdminModule } from './modules/admin/admin.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 //Add  e module here
 @Module({
-  imports: [
-    TestModule,
-    PrismaModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    AuthModule, 
-    AdminModule, 
-    EmployeeModule
-  ],
-  controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: LoggingInterceptor,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: TransformInterceptor,
-    },
-  ],
+	imports: [
+		TestModule,
+		PrismaModule,
+		ConfigModule.forRoot({
+			isGlobal: true,
+		}),
+		AuthModule,
+		AdminModule,
+		EmployeeModule,
+	],
+	controllers: [AppController],
+	providers: [
+		AppService,
+		{
+			provide: APP_FILTER,
+			useClass: HttpExceptionFilter,
+		},
+		{
+			provide: APP_INTERCEPTOR,
+			useClass: LoggingInterceptor,
+		},
+		{
+			provide: APP_INTERCEPTOR,
+			useClass: TransformInterceptor,
+		},
+	],
 })
 export class AppModule {}
