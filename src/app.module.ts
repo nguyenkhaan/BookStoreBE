@@ -11,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { EmployeeModule } from './modules/employee/employee.module';
+import { RuleModule } from './modules/rule/rule.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -22,6 +23,7 @@ import { EmployeeModule } from './modules/employee/employee.module';
 		AuthModule,
 		AdminModule,
 		EmployeeModule,
+		RuleModule
 	],
 	controllers: [AppController],
 	providers: [
