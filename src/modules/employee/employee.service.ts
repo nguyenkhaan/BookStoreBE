@@ -14,6 +14,15 @@ export class EmployeeService
         private readonly jwtService : JwtService, 
         private readonly configService : ConfigService 
     ) {} 
+    async getEmployeeById(id : number) 
+    {
+        const employee = await this.prismaService.employee.findFirst({
+            where: {
+                id  
+            }
+        }) 
+        return employee 
+    }
     async verifyEmployeeAccount(token: string) 
     {
         try 

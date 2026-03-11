@@ -7,6 +7,8 @@ import { Role, TokenType } from "@prisma/client";
 import { VERIFY_RESET_TIME } from "@/bases/commons/constants/jwt.constant";
 import { ConfigService } from "@nestjs/config";
 import { hashSHA256 } from "@/utilitis/sha256";
+import { EmployeeService } from "../employee/employee.service";
+import { generateRandomPassword } from "@/utilitis/randomPassword";
 
 @Injectable() 
 export class AdminService 
@@ -14,7 +16,8 @@ export class AdminService
     constructor(
         private readonly prismaService : PrismaService, 
         private readonly jwtService : JwtService, 
-        private readonly configService : ConfigService 
+        private readonly configService : ConfigService, 
+        private readonly employeeService : EmployeeService
     ) {} 
     async register(data : RegisterData) 
     {
@@ -30,6 +33,8 @@ export class AdminService
                 cost: 10 
             })
             if (!employee) 
+            {
+                //Register and complete the role 
                 employee = await this.prismaService.employee.create({
                     data: {
                         ...data, 
@@ -37,6 +42,14 @@ export class AdminService
                         active: false 
                     }
                 })
+                await this.prismaService.userRole.create({
+                    data : {
+                        userId: employee.id, 
+                        role : Role.EMPLOYEE
+                    }
+                })
+            }
+                
             //Create verify email token 
             const verifySecretKey = this.configService.get<string>('VERIFY_SECRET_KEY')
             const token = this.jwtService.sign({
@@ -47,13 +60,7 @@ export class AdminService
                 expiresIn : VERIFY_RESET_TIME, 
                 secret: verifySecretKey
             })
-            //Complete the role 
-            await this.prismaService.userRole.create({
-                data : {
-                    userId: employee.id, 
-                    role : Role.EMPLOYEE
-                }
-            })
+
             //Delete and store the token 
             await this.prismaService.token.deleteMany({
                 where: {
@@ -89,9 +96,40 @@ export class AdminService
         }
     }
     
-    async resetPasswordForEmployee() 
+    async resetPasswordToDefault(id : number) 
     {
+        try 
+        {
+            const employee = await this.employeeService.getEmployeeById(id) 
+            if (!employee) 
+                throw new BadRequestException("Cannot Find Employee To Update") 
+            const password = generateRandomPassword() 
+            const hashPassword = await Bun.password.hash(password , {
+                cost: 10, 
+                algorithm: 'bcrypt'
+            }) 
+
+            await this.prismaService.employee.update({
+                where: {id}, 
+                data: {
+                    password : hashPassword
+                }
+            })
+            return {
+                message: "Password has been set to default", 
+                employeeId: id,
+                email : employee.email, 
+                password  
+            }
+        } 
+        catch (err) {
+            if (err instanceof BadRequestException) throw err 
+            console.log(err) 
+            throw err 
+        }
         //Reset to default password and sent this default password to employee's email 
+        
+        
     } 
     async resetEmailForEmployee() 
     {
