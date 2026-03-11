@@ -7,4 +7,5 @@ model Customer {
     active      Boolean      @default(false)
     createdAt   DateTime     @default(now())
     billIncomes BillIncome[]
+    deletedAt DateTime? 
 }

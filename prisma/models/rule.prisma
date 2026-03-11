@@ -5,4 +5,5 @@ model Rule {
     creatorId Int  
     employee      Employee     @relation(fields: [creatorId], references: [id])
     appliedAt DateTime 
+    @@index([title])
 }

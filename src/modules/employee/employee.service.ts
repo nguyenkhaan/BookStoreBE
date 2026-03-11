@@ -1,6 +1,6 @@
 import { TokenBody } from '@/bases/commons/enums/token.enum';
 import { PrismaService } from '@/prisma/prisma.service';
-import { hashSHA256 } from '@/utilitis/sha256';
+import { hashSHA256 } from '@/utlitis/sha256';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';

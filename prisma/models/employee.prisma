@@ -3,6 +3,7 @@ model Department {
     name      String     @unique
     positions Position[]
     employees Employee[]
+    deletedAt DateTime? 
 }
 
 model Position {
@@ -12,6 +13,7 @@ model Position {
     department   Department @relation(fields: [departmentId], references: [id])
 
     employees    Employee[]
+    deletedAt DateTime? 
 }
 
 model Employee {
@@ -31,4 +33,5 @@ model Employee {
     billOutcomes BillOutcome[] 
     riles Rule[] 
     createdAt    DateTime   @default(now())
+    deletedAt DateTime? 
 }

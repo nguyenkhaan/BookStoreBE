@@ -51,6 +51,7 @@ CREATE TABLE "BillIncome" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "employeeId" INTEGER NOT NULL,
     "customerId" INTEGER NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "BillIncome_pkey" PRIMARY KEY ("id")
 );
@@ -64,6 +65,7 @@ CREATE TABLE "BillOutcome" (
     "status" "OutcomeStatus" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "BillOutcome_pkey" PRIMARY KEY ("id")
 );
@@ -102,6 +104,7 @@ CREATE TABLE "Book" (
     "authorId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("id")
 );
@@ -115,6 +118,7 @@ CREATE TABLE "Customer" (
     "password" TEXT NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
 );
@@ -123,6 +127,7 @@ CREATE TABLE "Customer" (
 CREATE TABLE "Department" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Department_pkey" PRIMARY KEY ("id")
 );
@@ -132,6 +137,7 @@ CREATE TABLE "Position" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "departmentId" INTEGER NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Position_pkey" PRIMARY KEY ("id")
 );
@@ -148,6 +154,7 @@ CREATE TABLE "Employee" (
     "departmentId" INTEGER NOT NULL,
     "positionId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Employee_pkey" PRIMARY KEY ("id")
 );
@@ -173,6 +180,7 @@ CREATE TABLE "Voucher" (
     "usedNumber" INTEGER NOT NULL,
     "quantity" INTEGER NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Voucher_pkey" PRIMARY KEY ("id")
 );
@@ -214,6 +222,9 @@ CREATE UNIQUE INDEX "Employee_email_key" ON "Employee"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Employee_phone_key" ON "Employee"("phone");
+
+-- CreateIndex
+CREATE INDEX "Rule_title_idx" ON "Rule"("title");
 
 -- AddForeignKey
 ALTER TABLE "BillIncome" ADD CONSTRAINT "BillIncome_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

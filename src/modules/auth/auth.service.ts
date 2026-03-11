@@ -12,7 +12,7 @@ import {
 	ACCESS_LIVE_TIME,
 	REFRESH_LIVE_TIME,
 } from '@/bases/commons/constants/jwt.constant';
-import { hashSHA256 } from '@/utilitis/sha256';
+import { hashSHA256 } from '@/utlitis/sha256';
 
 @Injectable()
 export class AuthService {

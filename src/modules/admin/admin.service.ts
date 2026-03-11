@@ -6,9 +6,9 @@ import { TokenBody } from '@/bases/commons/enums/token.enum';
 import { Role, TokenType } from '@prisma/client';
 import { VERIFY_RESET_TIME } from '@/bases/commons/constants/jwt.constant';
 import { ConfigService } from '@nestjs/config';
-import { hashSHA256 } from '@/utilitis/sha256';
+import { hashSHA256 } from '@/utlitis/sha256';
 import { EmployeeService } from '../employee/employee.service';
-import { generateRandomPassword } from '@/utilitis/randomPassword';
+import { generateRandomPassword } from '@/utlitis/randomPassword';
 
 @Injectable()
 export class AdminService {
@@ -135,10 +135,13 @@ export class AdminService {
     	        },
     	        data: employeeData
     	    });
-
+			if (!employee) 
+				throw new BadRequestException("Not Found Employee To Update")
     	    return employee;
     	}
     	catch (err) {
+			if (err instanceof BadRequestException) 
+				throw err 
     	    console.log("Update Employee Information Error", err);
     	    throw err;
     	}
