@@ -1,7 +1,7 @@
 export enum ResponseBody {
-    MESSAGE = 'message',
-    ERROR = 'errCode',
-    STATUS = 'status'
+	MESSAGE = 'message',
+	ERROR = 'errCode',
+	STATUS = 'status',
 }
 
 // errCode take notes:

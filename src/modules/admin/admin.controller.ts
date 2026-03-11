@@ -10,7 +10,9 @@ import {
 	Post,
 	Put,
 	Req,
+	UploadedFile,
 	UseGuards,
+	UseInterceptors,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { Roles } from '@/bases/decorators/role.decorators'; //Roles = annotation
@@ -18,6 +20,8 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RegisterData, UpdateEmployeeData } from './dto/admin.dto';
 import { AdminService } from './admin.service';
 import type { Request } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import type { Express } from 'express';
 @Controller('/admin')
 @Roles(Role.ADMIN)
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -27,9 +31,13 @@ export class AdminController {
 	async testing() {
 		return 'Admin endpoint successfully';
 	}
+	@UseInterceptors(FileInterceptor('avatar'))
 	@Post('/employee/register')
-	async register(@Body() data: RegisterData) {
-		const responseData = await this.adminService.register(data);
+	async register(
+		@Body() data: RegisterData,
+		@UploadedFile() file: Express.Multer.File,
+	) {
+		const responseData = await this.adminService.register(data, file);
 		return responseData;
 	}
 	@Patch('/employee/reset-password')
@@ -38,21 +46,25 @@ export class AdminController {
 		const responseData = await this.adminService.resetPasswordToDefault(id);
 		return responseData;
 	}
+	@UseInterceptors(FileInterceptor('avatar'))
 	@Put('/employee/:employeeId')
 	async updateEmployeeInformation(
 		@Param('employeeId', ParseIntPipe) employeeId: number,
 		@Body() updateEmployeeData: UpdateEmployeeData,
+		@UploadedFile() file : Express.Multer.File 
 	) {
 		const responseData = await this.adminService.updateEmployeeInformation(
 			employeeId,
+			file, 
 			updateEmployeeData,
 		);
 		return responseData;
 	}
-	@Delete('employee/:employeeId') 
-	async deleteEmployeeAccount(@Param("employeeId") employeeId : string) 
-	{
-		const responseData = await this.adminService.deleteEmployeeAccount(Number(employeeId)) 
-		return responseData 
-	}	
+	@Delete('employee/:employeeId')
+	async deleteEmployeeAccount(@Param('employeeId') employeeId: string) {
+		const responseData = await this.adminService.deleteEmployeeAccount(
+			Number(employeeId),
+		);
+		return responseData;
+	}
 }

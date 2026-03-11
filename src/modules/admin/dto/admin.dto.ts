@@ -1,5 +1,6 @@
 import { OmitType, PartialType } from '@nestjs/swagger';
 import { EmployeeStatus } from '@prisma/client';
+import { Type } from 'class-transformer';
 
 import {
 	IsEmail,
@@ -30,9 +31,11 @@ export class RegisterData {
 		message: 'Employee status Khong phu hop',
 	})
 	status: EmployeeStatus;
-	@IsNumber()
+	@Type(() => Number)
+	@IsNumber() 
 	@IsNotEmpty()
 	departmentId: number;
+	@Type(() => Number)
 	@IsNumber()
 	@IsNotEmpty()
 	positionId: number;

@@ -21,7 +21,7 @@ import { MinioModule } from './minio/minio.module';
 		ConfigModule.forRoot({
 			isGlobal: true,
 		}),
-		MinioModule, 
+		MinioModule,
 		AuthModule,
 		AdminModule,
 		EmployeeModule,
