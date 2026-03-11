@@ -69,4 +69,12 @@ export class EmployeeService {
 			);
 		}
 	}
+	async updateEmployeeData() //Update employee information 
+	{
+		
+	} 
+	async deActiveEmployeeAccount() 
+	{
+		//Set active in model to false -> In the billing account get all bill 
+	}
 }

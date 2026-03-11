@@ -1,6 +1,6 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { RegisterData } from './dto/admin.dto';
+import { RegisterData, UpdateEmployeeData } from './dto/admin.dto';
 import { JwtService } from '@nestjs/jwt';
 import { TokenBody } from '@/bases/commons/enums/token.enum';
 import { Role, TokenType } from '@prisma/client';
@@ -125,5 +125,22 @@ export class AdminService {
 	}
 	async resetEmailForEmployee() {
 		//Trong truong hop email cua cong ty bi loi thi tien hanh chuyen doi sang email khac
+	}
+	async updateEmployeeInformation(id: number, employeeData: UpdateEmployeeData) 
+	{
+    	try {
+    	    const employee = await this.prismaService.employee.update({
+    	        where: {
+    	            id: id
+    	        },
+    	        data: employeeData
+    	    });
+
+    	    return employee;
+    	}
+    	catch (err) {
+    	    console.log("Update Employee Information Error", err);
+    	    throw err;
+    	}
 	}
 }

@@ -1,4 +1,6 @@
+import { OmitType, PartialType } from '@nestjs/swagger';
 import { EmployeeStatus } from '@prisma/client';
+
 import {
 	IsEmail,
 	IsString,
@@ -35,3 +37,7 @@ export class RegisterData {
 	@IsNotEmpty()
 	positionId: number;
 }
+
+export class UpdateEmployeeData extends PartialType(
+	OmitType(RegisterData, ['password'] as const),
+) {}

@@ -3,15 +3,18 @@ import {
 	Body,
 	Controller,
 	Get,
+	Param,
+	ParseIntPipe,
 	Patch,
 	Post,
+	Put,
 	Req,
 	UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { Roles } from '@/bases/decorators/role.decorators'; //Roles = annotation
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RegisterData } from './dto/admin.dto';
+import { RegisterData, UpdateEmployeeData } from './dto/admin.dto';
 import { AdminService } from './admin.service';
 import type { Request } from 'express';
 @Controller('/admin')
@@ -33,5 +36,10 @@ export class AdminController {
 		const { id } = req.body;
 		const responseData = await this.adminService.resetPasswordToDefault(id);
 		return responseData;
+	}
+	@Put("/update-employee/:employeeId") 
+	async updateEmployeeInformation(@Param("employeeId" , ParseIntPipe) employeeId : number , @Body() updateEmployeeData : UpdateEmployeeData) {
+		const responseData = await this.adminService.updateEmployeeInformation(employeeId , updateEmployeeData) 
+		return responseData 
 	}
 }
