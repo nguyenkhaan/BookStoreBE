@@ -28,7 +28,7 @@ export class AuthController
     } 
     @Post('testing') 
     // @UseGuards(JwtAuthGuard)
-    @Roles([Role[Role.CUSTOMER]]) 
+    @Roles(Role.CUSTOMER) 
     @UseGuards(JwtAuthGuard , RolesGuard)  //Run Guards in order. You can see it in the console.log  
     async test() 
     {

@@ -153,6 +153,17 @@ CREATE TABLE "Employee" (
 );
 
 -- CreateTable
+CREATE TABLE "Rule" (
+    "id" SERIAL NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "creatorId" INTEGER NOT NULL,
+    "appliedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Rule_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Voucher" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
@@ -233,6 +244,9 @@ ALTER TABLE "Employee" ADD CONSTRAINT "Employee_departmentId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "Employee" ADD CONSTRAINT "Employee_positionId_fkey" FOREIGN KEY ("positionId") REFERENCES "Position"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Rule" ADD CONSTRAINT "Rule_creatorId_fkey" FOREIGN KEY ("creatorId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "VoucherUsage" ADD CONSTRAINT "VoucherUsage_billIncomeId_fkey" FOREIGN KEY ("billIncomeId") REFERENCES "BillIncome"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

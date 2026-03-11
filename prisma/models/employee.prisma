@@ -29,5 +29,6 @@ model Employee {
     position     Position   @relation(fields: [positionId], references: [id])
     billIncomes BillIncome[] 
     billOutcomes BillOutcome[] 
+    riles Rule[] 
     createdAt    DateTime   @default(now())
 }
