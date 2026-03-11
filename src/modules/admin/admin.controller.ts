@@ -27,18 +27,18 @@ export class AdminController {
 	async testing() {
 		return 'Admin endpoint successfully';
 	}
-	@Post('register')
+	@Post('/employee/register')
 	async register(@Body() data: RegisterData) {
 		const responseData = await this.adminService.register(data);
 		return responseData;
 	}
-	@Patch('reset-password-employee')
+	@Patch('/employee/reset-password')
 	async resetPasswordToDefault(@Req() req: Request) {
 		const { id } = req.body;
 		const responseData = await this.adminService.resetPasswordToDefault(id);
 		return responseData;
 	}
-	@Put('/update-employee/:employeeId')
+	@Put('/employee/:employeeId')
 	async updateEmployeeInformation(
 		@Param('employeeId', ParseIntPipe) employeeId: number,
 		@Body() updateEmployeeData: UpdateEmployeeData,
@@ -49,7 +49,7 @@ export class AdminController {
 		);
 		return responseData;
 	}
-	@Delete('delete-employee/:employeeId') 
+	@Delete('employee/:employeeId') 
 	async deleteEmployeeAccount(@Param("employeeId") employeeId : string) 
 	{
 		const responseData = await this.adminService.deleteEmployeeAccount(Number(employeeId)) 
