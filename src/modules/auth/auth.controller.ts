@@ -35,4 +35,46 @@ export class AuthController
         
         return "Testing successfully" 
     }
+    @UseGuards(JwtAuthGuard) 
+    @Get("logout") 
+    async logout(@Req() req : Request) 
+    {
+        const user = req.user as any
+        
+        if (user) {
+            console.log(user) 
+            const id = user.id
+            const roles = user.roles 
+            console.log(id, roles) 
+            const responseData = await this.authService.logout(id , roles) 
+            return responseData
+        } 
+        return {
+            message: "Logout failed" 
+        }
+    }
+    @UseGuards(JwtAuthGuard) 
+    @Get("me")
+    async me(@Req() req : Request) 
+    {
+        const user = req.user as any 
+        console.log(user) 
+        if (user) 
+        {
+            const {email , id , roles} = user 
+            return {
+                email, id, roles 
+            }
+        }
+        return {
+            errCode: 1, 
+            message: "Cannot get information" 
+        } //Tra ve thong tin co ban cho ben nguoi dung 
+    }
+
 }
+/* Jwt Payload 
+  purpose: "ACCESS",
+  email: "nguyenkhaan2006@gmail.com",
+  roles: [ "EMPLOYEE" ],
+*/ 

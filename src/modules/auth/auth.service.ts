@@ -1,6 +1,6 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import {  TokenType } from '@prisma/client';
+import {  Role, TokenType } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TokenBody } from '@/bases/commons/enums/token.enum';
@@ -89,8 +89,9 @@ export class AuthService
                     }
                 }
             })
-            const hashAccessToken = hashSHA256(accessToken)
+            // const hashAccessToken = hashSHA256(accessToken)
             const hashRefreshToken = hashSHA256(refreshToken)
+            /*  -- Don't store access token 
             await this.prismaService.token.create({
                 data: {
                     token : hashAccessToken, 
@@ -99,7 +100,8 @@ export class AuthService
                     expiresAt: new Date(Date.now() + 1000 * ACCESS_LIVE_TIME)
                 }
             })
-                        await this.prismaService.token.create({
+                */
+            await this.prismaService.token.create({
                 data: {
                     token : hashRefreshToken, 
                     type: TokenType.REFRESH, 
@@ -118,6 +120,43 @@ export class AuthService
         catch (err) 
         {
             console.log("Login Error: " , err) 
+            throw err 
+        }
+    }
+    async logout(userId : number , roles: Role[]) 
+    {
+        try 
+        {
+            //Xoa tat ca token co lien quan den userId 
+            if (roles.includes(Role.EMPLOYEE) || roles.includes(Role.ADMIN)) 
+            {
+                await this.prismaService.token.deleteMany({
+                    where: {
+                        employeeId: userId,
+                        type: {
+                            in: [TokenType.ACCESS, TokenType.REFRESH]
+                        }
+                    }
+                })
+            }
+            else 
+            {
+                await this.prismaService.token.deleteMany({
+                where: {
+                        customerId: userId,
+                        type: {
+                            in: [TokenType.ACCESS, TokenType.REFRESH]
+                        }
+                    }
+                })
+            }
+            return {
+                message: "Logout successfully" 
+            }
+        } 
+        catch (err) 
+        {
+            console.log("Loutout Error: " , err) 
             throw err 
         }
     }
