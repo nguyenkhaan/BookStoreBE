@@ -1,5 +1,15 @@
 import { Roles } from '@/bases/decorators/role.decorators';
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Param,
+	Post,
+	Put,
+	Req,
+	UseGuards,
+} from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '@/bases/guards/role.guard';
@@ -22,17 +32,23 @@ export class RuleController {
 		const responseData = await this.ruleService.createRule(ruleData, id);
 		return responseData;
 	}
-    	@Roles(Role.ADMIN)
+	@Roles(Role.ADMIN)
 	@UseGuards(JwtAuthGuard, RolesGuard)
-	@Put("/:ruleId")
-	async updateRule(@Body() ruleData: UpdateRuleData, @Req() req: Request , @Param('ruleId') ruleId : number) {
-		const responseData = await this.ruleService.updateRule(Number(ruleId) , ruleData);
+	@Put('/:ruleId')
+	async updateRule(
+		@Body() ruleData: UpdateRuleData,
+		@Param('ruleId') ruleId: string,
+	) {
+		const responseData = await this.ruleService.updateRule(
+			Number(ruleId),
+			ruleData,
+		);
 		return responseData;
 	}
-    @Roles(Role.ADMIN)
+	@Roles(Role.ADMIN)
 	@UseGuards(JwtAuthGuard, RolesGuard)
-	@Delete("/:ruleId")
-	async deleteRule(@Req() req: Request , @Param('ruleId') ruleId : number) {
+	@Delete('/:ruleId')
+	async deleteRule(@Param('ruleId') ruleId: string) {
 		const responseData = await this.ruleService.deleteRule(Number(ruleId));
 		return responseData;
 	}

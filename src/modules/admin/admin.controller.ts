@@ -2,6 +2,7 @@ import { RolesGuard } from '@/bases/guards/role.guard';
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	Param,
 	ParseIntPipe,
@@ -37,9 +38,21 @@ export class AdminController {
 		const responseData = await this.adminService.resetPasswordToDefault(id);
 		return responseData;
 	}
-	@Put("/update-employee/:employeeId") 
-	async updateEmployeeInformation(@Param("employeeId" , ParseIntPipe) employeeId : number , @Body() updateEmployeeData : UpdateEmployeeData) {
-		const responseData = await this.adminService.updateEmployeeInformation(employeeId , updateEmployeeData) 
-		return responseData 
+	@Put('/update-employee/:employeeId')
+	async updateEmployeeInformation(
+		@Param('employeeId', ParseIntPipe) employeeId: number,
+		@Body() updateEmployeeData: UpdateEmployeeData,
+	) {
+		const responseData = await this.adminService.updateEmployeeInformation(
+			employeeId,
+			updateEmployeeData,
+		);
+		return responseData;
 	}
+	@Delete('delete-employee/:employeeId') 
+	async deleteEmployeeAccount(@Param("employeeId") employeeId : string) 
+	{
+		const responseData = await this.adminService.deleteEmployeeAccount(Number(employeeId)) 
+		return responseData 
+	}	
 }

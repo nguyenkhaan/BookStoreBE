@@ -23,7 +23,7 @@ import { RuleModule } from './modules/rule/rule.module';
 		AuthModule,
 		AdminModule,
 		EmployeeModule,
-		RuleModule
+		RuleModule,
 	],
 	controllers: [AppController],
 	providers: [

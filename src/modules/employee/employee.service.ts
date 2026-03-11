@@ -17,6 +17,7 @@ export class EmployeeService {
 		const employee = await this.prismaService.employee.findFirst({
 			where: {
 				id,
+				deletedAt: null,
 			},
 		});
 		return employee;
@@ -69,12 +70,10 @@ export class EmployeeService {
 			);
 		}
 	}
-	async updateEmployeeData() //Update employee information 
-	{
-		
-	} 
-	async deActiveEmployeeAccount() 
-	{
-		//Set active in model to false -> In the billing account get all bill 
+	async updateEmployeeData() {
+		//Update employee information
+	}
+	async deActiveEmployeeAccount() {
+		//Set active in model to false -> In the billing account get all bill
 	}
 }

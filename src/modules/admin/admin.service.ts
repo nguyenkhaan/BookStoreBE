@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { hashSHA256 } from '@/utlitis/sha256';
 import { EmployeeService } from '../employee/employee.service';
 import { generateRandomPassword } from '@/utlitis/randomPassword';
+import { ResponseBody } from '@/bases/commons/enums/response.enum';
 
 @Injectable()
 export class AdminService {
@@ -126,24 +127,45 @@ export class AdminService {
 	async resetEmailForEmployee() {
 		//Trong truong hop email cua cong ty bi loi thi tien hanh chuyen doi sang email khac
 	}
-	async updateEmployeeInformation(id: number, employeeData: UpdateEmployeeData) 
-	{
-    	try {
-    	    const employee = await this.prismaService.employee.update({
-    	        where: {
-    	            id: id
-    	        },
-    	        data: employeeData
-    	    });
-			if (!employee) 
-				throw new BadRequestException("Not Found Employee To Update")
-    	    return employee;
-    	}
-    	catch (err) {
-			if (err instanceof BadRequestException) 
-				throw err 
-    	    console.log("Update Employee Information Error", err);
-    	    throw err;
-    	}
+	async updateEmployeeInformation(
+		id: number,
+		employeeData: UpdateEmployeeData,
+	) {
+		try {
+			const employee = await this.prismaService.employee.update({
+				where: {
+					id: id,
+				},
+				data: employeeData,
+			});
+			if (!employee)
+				throw new BadRequestException('Not Found Employee To Update');
+			return employee;
+		} catch (err) {
+			if (err instanceof BadRequestException) throw err;
+			console.log('Update Employee Information Error', err);
+			throw err;
+		}
+	}
+	async deleteEmployeeAccount(employeeId: number) {
+		try {
+			const employee = this.employeeService.getEmployeeById(employeeId);
+			if (employee != null)
+				await this.prismaService.employee.update({
+					where: {
+						id: employeeId,
+					},
+					data: {
+						deletedAt: new Date(),
+					},
+				});
+			return {
+				[ResponseBody.MESSAGE] : 'Delete Account Successfully',
+				[ResponseBody.ERROR] : 0 
+			};
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
 	}
 }
