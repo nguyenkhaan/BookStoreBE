@@ -51,17 +51,19 @@ export class AdminController {
 	async updateEmployeeInformation(
 		@Param('employeeId', ParseIntPipe) employeeId: number,
 		@Body() updateEmployeeData: UpdateEmployeeData,
-		@UploadedFile() file : Express.Multer.File 
+		@UploadedFile() file: Express.Multer.File,
 	) {
 		const responseData = await this.adminService.updateEmployeeInformation(
 			employeeId,
-			file, 
+			file,
 			updateEmployeeData,
 		);
 		return responseData;
 	}
 	@Delete('employee/:employeeId')
-	async deleteEmployeeAccount(@Param('employeeId' , ParseIntPipe) employeeId: number) {
+	async deleteEmployeeAccount(
+		@Param('employeeId', ParseIntPipe) employeeId: number,
+	) {
 		const responseData = await this.adminService.deleteEmployeeAccount(
 			Number(employeeId),
 		);

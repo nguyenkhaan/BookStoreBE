@@ -21,14 +21,12 @@ export class AdminService {
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService,
 		private readonly employeeService: EmployeeService,
-		private readonly minioService : MinioService
+		private readonly minioService: MinioService,
 	) {}
 	async register(data: RegisterData, file: Express.Multer.File) {
-		try 
-		{
-			let fileUrl : string|null = null 
-			if (file) 
-				fileUrl = await this.minioService.uploadFile(file) 
+		try {
+			let fileUrl: string | null = null;
+			if (file) fileUrl = await this.minioService.uploadFile(file);
 			let employee = await this.prismaService.employee.findFirst({
 				where: { email: data.email },
 			});
@@ -45,7 +43,7 @@ export class AdminService {
 						...data,
 						password: hashPassword,
 						active: false,
-						avatar: fileUrl  
+						avatar: fileUrl,
 					},
 				});
 				await this.prismaService.userRole.create({
@@ -138,39 +136,39 @@ export class AdminService {
 	}
 	async updateEmployeeInformation(
 		id: number,
-		file : Express.Multer.File, 
+		file: Express.Multer.File,
 		employeeData: UpdateEmployeeData,
 	) {
 		try {
 			const oldEmployee = await this.prismaService.employee.findUnique({
 				where: {
-					id : id 
-				}
-			})
-			let url = null 
-			if (!oldEmployee) 
+					id: id,
+				},
+			});
+			let url = null;
+			if (!oldEmployee)
 				throw new BadRequestException('Not Found Employee To Update');
-			let oldFileName : string | null = oldEmployee.avatar 
-			if (file) 
-			{
-				if (oldFileName) await this.minioService.deleteFile(oldFileName) 
-					oldFileName = await this.minioService.uploadFile(file) 
-			// his.minioService.getFileUrl(oldFileName)) 
-				url = await this.minioService.getFileUrl(oldFileName) 
+			let oldFileName: string | null = oldEmployee.avatar;
+			if (file) {
+				if (oldFileName)
+					await this.minioService.deleteFile(oldFileName);
+				oldFileName = await this.minioService.uploadFile(file);
+				// his.minioService.getFileUrl(oldFileName))
+				url = await this.minioService.getFileUrl(oldFileName);
 			}
 			const employee = await this.prismaService.employee.update({
 				where: {
 					id: id,
 				},
 				data: {
-					...employeeData, 
-					avatar: oldFileName 
+					...employeeData,
+					avatar: oldFileName,
 				},
 			});
 			return {
-				...employee, 
-				avatar : url? url : DEFAULT_AVATAR 
-			}
+				...employee,
+				avatar: url ? url : DEFAULT_AVATAR,
+			};
 		} catch (err) {
 			if (err instanceof BadRequestException) throw err;
 			console.log('Update Employee Information Error', err);

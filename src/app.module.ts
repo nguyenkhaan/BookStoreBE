@@ -27,7 +27,7 @@ import { BookModule } from './modules/book/book.module';
 		AdminModule,
 		EmployeeModule,
 		RuleModule,
-		BookModule 
+		BookModule,
 	],
 	controllers: [AppController],
 	providers: [

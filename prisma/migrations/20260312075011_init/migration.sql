@@ -87,6 +87,24 @@ CREATE TABLE "Author" (
 );
 
 -- CreateTable
+CREATE TABLE "AuthorBook" (
+    "id" SERIAL NOT NULL,
+    "bookId" INTEGER NOT NULL,
+    "authorId" INTEGER NOT NULL,
+
+    CONSTRAINT "AuthorBook_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PublisherBook" (
+    "id" SERIAL NOT NULL,
+    "bookId" INTEGER NOT NULL,
+    "publisherId" INTEGER NOT NULL,
+
+    CONSTRAINT "PublisherBook_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Inventory" (
     "bookId" INTEGER NOT NULL,
     "stock" INTEGER NOT NULL DEFAULT 0,
@@ -100,8 +118,6 @@ CREATE TABLE "Book" (
     "id" SERIAL NOT NULL,
     "cost" DECIMAL(65,30) NOT NULL DEFAULT 0,
     "title" TEXT NOT NULL,
-    "publisherId" INTEGER NOT NULL,
-    "authorId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "coverImage" TEXT,
@@ -241,13 +257,19 @@ ALTER TABLE "BillOutcome" ADD CONSTRAINT "BillOutcome_publisherId_fkey" FOREIGN 
 ALTER TABLE "BillOutcome" ADD CONSTRAINT "BillOutcome_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "AuthorBook" ADD CONSTRAINT "AuthorBook_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "Author"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AuthorBook" ADD CONSTRAINT "AuthorBook_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PublisherBook" ADD CONSTRAINT "PublisherBook_publisherId_fkey" FOREIGN KEY ("publisherId") REFERENCES "Publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PublisherBook" ADD CONSTRAINT "PublisherBook_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Inventory" ADD CONSTRAINT "Inventory_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Book" ADD CONSTRAINT "Book_publisherId_fkey" FOREIGN KEY ("publisherId") REFERENCES "Publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Book" ADD CONSTRAINT "Book_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "Author"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Position" ADD CONSTRAINT "Position_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "Department"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

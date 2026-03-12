@@ -1,5 +1,15 @@
-import { IsInt, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import {
+  IsArray,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min
+} from "class-validator";
+
+import { Transform, Type } from "class-transformer";
 import { PartialType } from "@nestjs/swagger";
+
 export class CreateBookData {
 
   @IsString()
@@ -7,20 +17,22 @@ export class CreateBookData {
 
   @IsNumber()
   @Min(0)
+  @Type(() => Number)
   cost: number;
 
-  @IsInt()
-  publisherId: number;
+  @Transform(({ value }) => JSON.parse(value))
+  @IsArray()
+  @IsInt({ each: true })
+  publisherIds: number[];
 
-  @IsInt()
-  authorId: number;
+  @Transform(({ value }) => JSON.parse(value))
+  @IsArray()
+  @IsInt({ each: true })
+  authorIds: number[];
 
   @IsOptional()
-  @IsString()
-  coverImage?: string;
-
-  @IsOptional()
   @IsInt()
+  @Type(() => Number)
   @Min(0)
   stock?: number;
 }

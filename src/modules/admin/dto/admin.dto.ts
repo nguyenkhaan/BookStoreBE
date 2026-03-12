@@ -32,7 +32,7 @@ export class RegisterData {
 	})
 	status: EmployeeStatus;
 	@Type(() => Number)
-	@IsNumber() 
+	@IsNumber()
 	@IsNotEmpty()
 	departmentId: number;
 	@Type(() => Number)

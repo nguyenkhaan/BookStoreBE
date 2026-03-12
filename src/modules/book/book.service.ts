@@ -1,318 +1,341 @@
-import { ResponseBody } from "@/bases/commons/enums/response.enum";
-import { MinioService } from "@/minio/minio.service";
-import { PrismaService } from "@/prisma/prisma.service";
-import { Injectable } from "@nestjs/common";
-import { CreateBookData, UpdateBookData } from "./dto/book.dto";
-import type { Express } from "express";
-@Injectable() 
-export class BookService 
-{
-    constructor(
-        private readonly prismaService : PrismaService, 
-        private readonly minioService : MinioService
-    ) {}  
-    private async findPublisherById(id : number) 
-    {
-        try 
-        {
-            const publisher = await this.prismaService.publisher.findFirst({
-                where: {
-                    id 
-                }, 
-                select: {
-                    name : true 
-                }
-            })
-            return publisher
-        } 
-        catch (err) 
-        {
-            console.log(err) 
-            throw err 
-        }
-    } 
-    private async findAuthorById(id : number) 
-    {
-        try 
-        {
-            const publisher = await this.prismaService.author.findFirst({
-                where: {
-                    id 
-                }, 
-                select: {
-                    name : true 
-                }
-            })
-            return publisher
-        } 
-        catch (err) 
-        {
-            console.log(err) 
-            throw err 
-        }
-    }
-    async getAllBooks() 
-    {
-        try 
-        {
-            let books = await this.prismaService.book.findMany({
-                where: {
-                    deletedAt: null 
-                }
-            })
-            const booksWithUrl = await Promise.all(
-                books.map(async (book) => {
-                    if (book.coverImage) {
-                        const url = await this.minioService.getFileUrl(book.coverImage)
-                        return {
-                            ...book, 
-                            coverImage: url 
-                        }
-                    }
-                    return book 
-                })
-            )
-            return booksWithUrl
-        } 
-        catch (err) 
-        {
-            console.log(err) 
-            throw err 
-        }
-    }
-    async getBookById(bookId : number) 
-    {
-        try 
-        {
-            const book = await this.prismaService.book.findFirst({
-                where: {id : bookId}
-            })
-            if (!book) 
-                return {
-                    [ResponseBody.ERROR] : 0, 
-                    [ResponseBody.MESSAGE] : "Book Not Found" 
-                } 
-            return book
-        } 
-        catch (err) 
-        {
-            console.log(err) 
-            throw err 
-        }
-    }
-    async createBook(createBookData: CreateBookData, file: Express.Multer.File) 
-    {
-        try 
-        {
-            const publisher = await this.findPublisherById(createBookData.publisherId)
-            if (!publisher)
-                return {
-                    [ResponseBody.ERROR]: 5,
-                    [ResponseBody.MESSAGE]: "Publisher Not Found"
-                }
+import { ResponseBody } from '@/bases/commons/enums/response.enum';
+import { MinioService } from '@/minio/minio.service';
+import { PrismaService } from '@/prisma/prisma.service';
+import { Injectable } from '@nestjs/common';
+import { CreateBookData, UpdateBookData } from './dto/book.dto';
+import type { Express } from 'express';
+@Injectable()
+export class BookService {
+	constructor(
+		private readonly prismaService: PrismaService,
+		private readonly minioService: MinioService,
+	) {}
+	private async findPublisherById(id: number) {
+		try {
+			const publisher = await this.prismaService.publisher.findFirst({
+				where: {
+					id,
+				},
+				select: {
+					name: true,
+				},
+			});
+			return publisher;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
+	private async findAuthorById(id: number) {
+		try {
+			const publisher = await this.prismaService.author.findFirst({
+				where: {
+					id,
+				},
+				select: {
+					name: true,
+				},
+			});
+			return publisher;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
+	async getAllBooks() {
+		try {
+			let books = await this.prismaService.book.findMany({
+				where: {
+					deletedAt: null,
+				},
+			});
+			const booksWithUrl = await Promise.all(
+				books.map(async (book) => {
+					if (book.coverImage) {
+						const url = await this.minioService.getFileUrl(
+							book.coverImage,
+						);
+						return {
+							...book,
+							coverImage: url,
+						};
+					}
+					return book;
+				}),
+			);
+			return booksWithUrl;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
+	async getBookById(bookId: number) {
+		try {
+			const book = await this.prismaService.book.findFirst({
+				where: { id: bookId },
+			});
+			if (!book)
+				return {
+					[ResponseBody.ERROR]: 0,
+					[ResponseBody.MESSAGE]: 'Book Not Found',
+				};
+			return book;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
+	async createBook(
+		createBookData: CreateBookData,
+		file: Express.Multer.File,
+	) {
+		try {
+			const authors = await this.prismaService.author.findMany({
+				where: {
+					id: { in: createBookData.authorIds },
+				},
+				select: { id: true },
+			});
 
-            const author = await this.findAuthorById(createBookData.authorId)
-            if (!author)
-                return {
-                    [ResponseBody.ERROR]: 5,
-                    [ResponseBody.MESSAGE]: "Author Not Found"
-                }
+			if (authors.length !== createBookData.authorIds.length)
+				return {
+					[ResponseBody.ERROR]: 5,
+					[ResponseBody.MESSAGE]: 'Author Not Found',
+				};
 
-            let fileName: string | null = null
+			const publishers = await this.prismaService.publisher.findMany({
+				where: {
+					id: { in: createBookData.publisherIds },
+				},
+				select: { id: true },
+			});
 
-            if (file) {
-                fileName = await this.minioService.uploadFile(file)
-            }
+			if (publishers.length !== createBookData.publisherIds.length)
+				return {
+					[ResponseBody.ERROR]: 5,
+					[ResponseBody.MESSAGE]: 'Publisher Not Found',
+				};
 
-            const book = await this.prismaService.book.create({
-                data: {
-                    title: createBookData.title,
-                    cost: createBookData.cost,
-                    publisherId: createBookData.publisherId,
-                    authorId: createBookData.authorId,
-                    coverImage: fileName
-                }
-            })
+			let fileName: string | null = null;
 
-            if (createBookData.stock !== undefined) {
-                await this.prismaService.inventory.create({
-                    data: {
-                        bookId: book.id,
-                        stock: createBookData.stock
-                    }
-                })
-            }
-            return book 
-        } 
-        catch (err) 
-        {
-            console.log(err)
-            throw err
-        }
-    }
-    async updateBookById(id: number, updateBook: UpdateBookData, file: Express.Multer.File) 
-    {
-        try 
-        {
-            const book = await this.prismaService.book.findFirst({
-                where: {
-                    id,
-                    deletedAt: null
-                }
-            })
+			if (file) {
+				fileName = await this.minioService.uploadFile(file);
+			}
 
-            if (!book)
-                return {
-                    [ResponseBody.ERROR]: 5,
-                    [ResponseBody.MESSAGE]: "Book Not Found"
-                }
+			const book = await this.prismaService.book.create({
+				data: {
+					title: createBookData.title,
+					cost: createBookData.cost,
+					coverImage: fileName,
 
-            if (updateBook.publisherId) {
-                const publisher = await this.findPublisherById(updateBook.publisherId)
-                if (!publisher)
-                    return {
-                        [ResponseBody.ERROR]: 5,
-                        [ResponseBody.MESSAGE]: "Publisher Not Found"
-                    }
-            }
+					authors: {
+						create: createBookData.authorIds.map((id) => ({
+							author: { connect: { id } },
+						})),
+					},
 
-            if (updateBook.authorId) {
-                const author = await this.findAuthorById(updateBook.authorId)
-                if (!author)
-                    return {
-                        [ResponseBody.ERROR]: 5,
-                        [ResponseBody.MESSAGE]: "Author Not Found"
-                    }
-            }
+					publishers: {
+						create: createBookData.publisherIds.map((id) => ({
+							publisher: { connect: { id } },
+						})),
+					},
 
-            let fileName = book.coverImage
-            if (file) {
-                if (book.coverImage) {
-                    await this.minioService.deleteFile(book.coverImage)
-                }
-                fileName = await this.minioService.uploadFile(file)
-            }
+					inventory:
+						createBookData.stock !== undefined
+							? {
+									create: {
+										stock: createBookData.stock,
+									},
+								}
+							: undefined,
+				},
+			});
 
-            const updatedBook = await this.prismaService.book.update({
-                where: { id },
-                data: {
-                    ...updateBook,
-                    coverImage: fileName
-                }
-            })
+			return book;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
+	async updateBookById(
+		id: number,
+		updateBook: UpdateBookData,
+		file: Express.Multer.File,
+	) {
+		try {
+			const book = await this.prismaService.book.findFirst({
+				where: {
+					id,
+					deletedAt: null,
+				},
+			});
 
-            if (updateBook.stock !== undefined) {
-                await this.prismaService.inventory.upsert({
-                    where: {
-                        bookId: id
-                    },
-                    update: {
-                        stock: updateBook.stock
-                    },
-                    create: {
-                        bookId: id,
-                        stock: updateBook.stock
-                    }
-                })
-            }
+			if (!book)
+				return {
+					[ResponseBody.ERROR]: 5,
+					[ResponseBody.MESSAGE]: 'Book Not Found',
+				};
 
-            return updatedBook
-        } 
-        catch (err) 
-        {
-            console.log(err)
-            throw err
-        }
-    }
-    async deleteBookById(id : number) 
-    {
-        //soft: delete 
-        try 
-        {
-            const book = await this.prismaService.book.findFirst({
-                where: {
-                    id,
-                    deletedAt: null
-                }
-            })
+			if (updateBook.authorIds) {
+				const authors = await this.prismaService.author.findMany({
+					where: { id: { in: updateBook.authorIds } },
+				});
 
-            if (!book)
-                return {
-                    [ResponseBody.ERROR]: 5,
-                    [ResponseBody.MESSAGE]: "Book Not Found"
-                }
+				if (authors.length !== updateBook.authorIds.length)
+					return {
+						[ResponseBody.ERROR]: 5,
+						[ResponseBody.MESSAGE]: 'Author Not Found',
+					};
+			}
 
-            await this.prismaService.book.update({
-                where: { id },
-                data: {
-                    deletedAt: new Date()
-                }
-            })
+			if (updateBook.publisherIds) {
+				const publishers = await this.prismaService.publisher.findMany({
+					where: { id: { in: updateBook.publisherIds } },
+				});
 
-            return {
-                [ResponseBody.ERROR]: 0,
-                [ResponseBody.MESSAGE]: "Delete Book Successfully"
-            }
-        } 
-        catch (err) 
-        {
-            console.log(err)
-            throw err
-        }
-    }
-    async statisticBook() 
-    {
-        try 
-        {
-            const totalBookTitle = await this.prismaService.book.count({
-                where: {
-                    deletedAt: null 
-                }
-            })
-            
-            const totalQuantity = await this.prismaService.inventory.aggregate({
-                where: {
-                  book: {
-                    deletedAt: null
-                  }
-                },
-                _sum: {
-                  stock: true
-                }
-            })
-    
-            const results = await this.prismaService.$queryRaw<
-             { total: number }[]
-                >`
+				if (publishers.length !== updateBook.publisherIds.length)
+					return {
+						[ResponseBody.ERROR]: 5,
+						[ResponseBody.MESSAGE]: 'Publisher Not Found',
+					};
+			}
+
+			let fileName = book.coverImage;
+
+			if (file) {
+				if (book.coverImage) {
+					await this.minioService.deleteFile(book.coverImage);
+				}
+
+				fileName = await this.minioService.uploadFile(file);
+			}
+
+			const updatedBook = await this.prismaService.book.update({
+				where: { id },
+				data: {
+					title: updateBook.title,
+					cost: updateBook.cost,
+					coverImage: fileName,
+
+					...(updateBook.authorIds && {
+						authors: {
+							deleteMany: {},
+							create: updateBook.authorIds.map((id) => ({
+								author: { connect: { id } },
+							})),
+						},
+					}),
+
+					...(updateBook.publisherIds && {
+						publishers: {
+							deleteMany: {},
+							create: updateBook.publisherIds.map((id) => ({
+								publisher: { connect: { id } },
+							})),
+						},
+					}),
+				},
+			});
+
+			if (updateBook.stock !== undefined) {
+				await this.prismaService.inventory.upsert({
+					where: { bookId: id },
+					update: { stock: updateBook.stock },
+					create: {
+						bookId: id,
+						stock: updateBook.stock,
+					},
+				});
+			}
+
+			return updatedBook;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
+	async deleteBookById(id: number) {
+		//soft: delete
+		try {
+			const book = await this.prismaService.book.findFirst({
+				where: {
+					id,
+					deletedAt: null,
+				},
+			});
+
+			if (!book)
+				return {
+					[ResponseBody.ERROR]: 5,
+					[ResponseBody.MESSAGE]: 'Book Not Found',
+				};
+
+			await this.prismaService.book.update({
+				where: { id },
+				data: {
+					deletedAt: new Date(),
+				},
+			});
+
+			return {
+				[ResponseBody.ERROR]: 0,
+				[ResponseBody.MESSAGE]: 'Delete Book Successfully',
+			};
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
+	async statisticBook() {
+		try {
+            console.log("Hello") 
+			const totalBookTitle = await this.prismaService.book.count({
+				where: {
+					deletedAt: null,
+				},
+			});
+
+			const totalQuantity = await this.prismaService.inventory.aggregate({
+				where: {
+					book: {
+						deletedAt: null,
+					},
+				},
+				_sum: {
+					stock: true,
+				},
+			});
+
+			const results = await this.prismaService.$queryRaw<
+				{ total: number }[]
+			>`
                 SELECT SUM(b.cost * i.stock) as total
                 FROM "Book" b
                 JOIN "Inventory" i ON b.id = i."bookId"
                 WHERE b."deletedAt" IS NULL
                 `;
-            const totalStockValue = results[0].total ?? 0 
-            //Tinh so luong sach sap het hang 
-            const outOfStocks = await this.prismaService.inventory.count({
-                where: {
-                    book: {
-                        deletedAt: null 
-                    }, 
-                    stock: {
-                        lt: 50 //Dua ra cac cuon sach co so luong duoi 50 cuon 
-                    }
-                }
-            })
-            return {
-                totalBookTitle, 
-                totalQuantity, 
-                totalStockValue, 
-                outOfStocks 
-            }
-        } 
-        catch (err) 
-        {
-            console.log("Book Statistic Error: " , err) 
-            throw err 
-        }
-    } 
-
+			const totalStockValue = results[0].total ?? 0;
+			//Tinh so luong sach sap het hang
+			const outOfStocks = await this.prismaService.inventory.count({
+				where: {
+					book: {
+						deletedAt: null,
+					},
+					stock: {
+						lt: 50, //Dua ra cac cuon sach co so luong duoi 50 cuon
+						gt: 0,
+					},
+				},
+			});
+			return {
+				totalBookTitle,
+				totalQuantity : totalQuantity._sum.stock,
+				totalStockValue,
+				outOfStocks,
+			};
+		} catch (err) {
+			console.log('Book Statistic Error: ', err);
+			throw err;
+		}
+	}
 }
