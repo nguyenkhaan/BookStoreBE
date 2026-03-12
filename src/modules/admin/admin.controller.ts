@@ -61,7 +61,7 @@ export class AdminController {
 		return responseData;
 	}
 	@Delete('employee/:employeeId')
-	async deleteEmployeeAccount(@Param('employeeId') employeeId: string) {
+	async deleteEmployeeAccount(@Param('employeeId' , ParseIntPipe) employeeId: number) {
 		const responseData = await this.adminService.deleteEmployeeAccount(
 			Number(employeeId),
 		);

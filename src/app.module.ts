@@ -13,6 +13,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { EmployeeModule } from './modules/employee/employee.module';
 import { RuleModule } from './modules/rule/rule.module';
 import { MinioModule } from './minio/minio.module';
+import { BookModule } from './modules/book/book.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -26,6 +27,7 @@ import { MinioModule } from './minio/minio.module';
 		AdminModule,
 		EmployeeModule,
 		RuleModule,
+		BookModule 
 	],
 	controllers: [AppController],
 	providers: [
