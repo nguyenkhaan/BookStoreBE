@@ -4,6 +4,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { CreateBookData, UpdateBookData } from './dto/book.dto';
 import type { Express } from 'express';
+import convertExcelToJson from '@/utlitis/excelToJson';
 @Injectable()
 export class BookService {
 	constructor(
@@ -338,4 +339,12 @@ export class BookService {
 			throw err;
 		}
 	}
+    async uploadBookData(file : Express.Multer.File) 
+    {
+        const buffer = file.buffer 
+        //Map data 
+        const jsonData = await convertExcelToJson(buffer) 
+        console.log(jsonData) 
+        return jsonData
+    }
 }
