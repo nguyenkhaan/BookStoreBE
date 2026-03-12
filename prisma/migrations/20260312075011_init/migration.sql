@@ -51,6 +51,7 @@ CREATE TABLE "BillIncome" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "employeeId" INTEGER NOT NULL,
     "customerId" INTEGER NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "BillIncome_pkey" PRIMARY KEY ("id")
 );
@@ -64,6 +65,7 @@ CREATE TABLE "BillOutcome" (
     "status" "OutcomeStatus" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "BillOutcome_pkey" PRIMARY KEY ("id")
 );
@@ -85,6 +87,24 @@ CREATE TABLE "Author" (
 );
 
 -- CreateTable
+CREATE TABLE "AuthorBook" (
+    "id" SERIAL NOT NULL,
+    "bookId" INTEGER NOT NULL,
+    "authorId" INTEGER NOT NULL,
+
+    CONSTRAINT "AuthorBook_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PublisherBook" (
+    "id" SERIAL NOT NULL,
+    "bookId" INTEGER NOT NULL,
+    "publisherId" INTEGER NOT NULL,
+
+    CONSTRAINT "PublisherBook_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Inventory" (
     "bookId" INTEGER NOT NULL,
     "stock" INTEGER NOT NULL DEFAULT 0,
@@ -98,10 +118,10 @@ CREATE TABLE "Book" (
     "id" SERIAL NOT NULL,
     "cost" DECIMAL(65,30) NOT NULL DEFAULT 0,
     "title" TEXT NOT NULL,
-    "publisherId" INTEGER NOT NULL,
-    "authorId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "coverImage" TEXT,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("id")
 );
@@ -115,6 +135,7 @@ CREATE TABLE "Customer" (
     "password" TEXT NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
 );
@@ -123,6 +144,7 @@ CREATE TABLE "Customer" (
 CREATE TABLE "Department" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Department_pkey" PRIMARY KEY ("id")
 );
@@ -132,6 +154,7 @@ CREATE TABLE "Position" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "departmentId" INTEGER NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Position_pkey" PRIMARY KEY ("id")
 );
@@ -143,12 +166,26 @@ CREATE TABLE "Employee" (
     "password" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "avatar" TEXT,
     "status" "EmployeeStatus" NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT false,
     "departmentId" INTEGER NOT NULL,
     "positionId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Employee_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Rule" (
+    "id" SERIAL NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "creatorId" INTEGER NOT NULL,
+    "appliedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Rule_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -161,6 +198,7 @@ CREATE TABLE "Voucher" (
     "usedNumber" INTEGER NOT NULL,
     "quantity" INTEGER NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Voucher_pkey" PRIMARY KEY ("id")
 );
@@ -203,6 +241,9 @@ CREATE UNIQUE INDEX "Employee_email_key" ON "Employee"("email");
 -- CreateIndex
 CREATE UNIQUE INDEX "Employee_phone_key" ON "Employee"("phone");
 
+-- CreateIndex
+CREATE INDEX "Rule_title_idx" ON "Rule"("title");
+
 -- AddForeignKey
 ALTER TABLE "BillIncome" ADD CONSTRAINT "BillIncome_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -216,13 +257,19 @@ ALTER TABLE "BillOutcome" ADD CONSTRAINT "BillOutcome_publisherId_fkey" FOREIGN 
 ALTER TABLE "BillOutcome" ADD CONSTRAINT "BillOutcome_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "AuthorBook" ADD CONSTRAINT "AuthorBook_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "Author"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AuthorBook" ADD CONSTRAINT "AuthorBook_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PublisherBook" ADD CONSTRAINT "PublisherBook_publisherId_fkey" FOREIGN KEY ("publisherId") REFERENCES "Publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PublisherBook" ADD CONSTRAINT "PublisherBook_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Inventory" ADD CONSTRAINT "Inventory_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Book" ADD CONSTRAINT "Book_publisherId_fkey" FOREIGN KEY ("publisherId") REFERENCES "Publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Book" ADD CONSTRAINT "Book_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "Author"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Position" ADD CONSTRAINT "Position_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "Department"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -232,6 +279,9 @@ ALTER TABLE "Employee" ADD CONSTRAINT "Employee_departmentId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "Employee" ADD CONSTRAINT "Employee_positionId_fkey" FOREIGN KEY ("positionId") REFERENCES "Position"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Rule" ADD CONSTRAINT "Rule_creatorId_fkey" FOREIGN KEY ("creatorId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "VoucherUsage" ADD CONSTRAINT "VoucherUsage_billIncomeId_fkey" FOREIGN KEY ("billIncomeId") REFERENCES "BillIncome"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

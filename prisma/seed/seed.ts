@@ -51,7 +51,40 @@ async function positionSeeder()
 
     console.log("Seeding Position Successfully")
 }
-
+async function publisherSeeder() 
+{
+    const publishers = [
+        {
+            name: 'NXB Kim Dong' 
+        }, 
+        {
+            name: 'NXB Kim Tien'
+        }, 
+        {
+            name: 'NXB Kim Manh'
+        }
+    ] 
+    await prismaClient.publisher.createMany({
+        data : publishers
+    })
+} 
+async function authorSeeder() 
+{
+    const authors = [
+        {
+            name: "Na Tra"
+        }, 
+        {
+            name: "Ly Tinh" 
+        }, 
+        {
+            name: "Ton Ngo Khong"
+        }
+    ]
+    await prismaClient.author.createMany({
+        data: authors 
+    })
+}
 async function adminSeeder()
 {
     const ADMIN_EMAIL = 'admin@gmail.com'
@@ -86,7 +119,8 @@ async function adminSeeder()
             departmentId: department!.id,
             positionId: position!.id, 
             phone: "081829292", 
-            status: EmployeeStatus.WORKING 
+            status: EmployeeStatus.WORKING, 
+            active: true 
         }
     })
     //Create roles 
@@ -113,7 +147,8 @@ async function seeder()
         await departmentSeeder()
         await positionSeeder()
         await adminSeeder()
-
+        await authorSeeder() 
+        await publisherSeeder() 
         console.log("Seeding completed")
 
     } catch (error) {

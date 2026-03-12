@@ -9,31 +9,41 @@ import { TransformInterceptor } from './bases/interceptors/transform.interceptor
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { EmployeeModule } from './modules/employee/employee.module';
+import { RuleModule } from './modules/rule/rule.module';
+import { MinioModule } from './minio/minio.module';
+import { BookModule } from './modules/book/book.module';
 //Add  e module here
 @Module({
-  imports: [
-    TestModule,
-    PrismaModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    AuthModule
-  ],
-  controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: LoggingInterceptor,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: TransformInterceptor,
-    },
-  ],
+	imports: [
+		TestModule,
+		PrismaModule,
+		ConfigModule.forRoot({
+			isGlobal: true,
+		}),
+		MinioModule,
+		AuthModule,
+		AdminModule,
+		EmployeeModule,
+		RuleModule,
+		BookModule,
+	],
+	controllers: [AppController],
+	providers: [
+		AppService,
+		{
+			provide: APP_FILTER,
+			useClass: HttpExceptionFilter,
+		},
+		{
+			provide: APP_INTERCEPTOR,
+			useClass: LoggingInterceptor,
+		},
+		{
+			provide: APP_INTERCEPTOR,
+			useClass: TransformInterceptor,
+		},
+	],
 })
 export class AppModule {}

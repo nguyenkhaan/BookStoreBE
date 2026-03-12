@@ -1,18 +1,32 @@
 model Publisher {
     id           Int           @id @default(autoincrement())
     name         String        @unique
-    books        Book[]
     billOutComes BillOutcome[]
+    books PublisherBook[] 
 }
 
 model Author {
     id    Int    @id @default(autoincrement())
     name  String
-    books Book[]
-
+    books AuthorBook[]
     @@index([name])
 }
+model AuthorBook {
+    id Int @id @default(autoincrement()) 
+    bookId Int 
+    authorId Int 
+    author Author @relation(fields: [authorId], references: [id])
+    book   Book   @relation(fields: [bookId], references: [id])
 
+}
+model PublisherBook {
+    id Int @id @default(autoincrement()) 
+    bookId Int 
+    publisher Publisher @relation(fields: [publisherId], references: [id])
+    book   Book   @relation(fields: [bookId], references: [id])
+    publisherId Int 
+
+}
 model Inventory {
     bookId    Int      @id
     book      Book     @relation(fields: [bookId], references: [id])
@@ -24,14 +38,13 @@ model Book {
     id          Int        @id @default(autoincrement())
     cost        Decimal    @default(0)
     title       String
-    publisherId Int
-    publisher   Publisher  @relation(fields: [publisherId], references: [id])
-    authorId    Int
-    author      Author     @relation(fields: [authorId], references: [id])
+    authors AuthorBook[] 
+    publishers PublisherBook[] 
     createdAt   DateTime   @default(now())
     updatedAt   DateTime   @default(now())
+    coverImage  String? 
     inventory   Inventory?
-
+    deletedAt DateTime? 
     @@index([cost])
     @@index([title])
 }

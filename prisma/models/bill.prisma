@@ -9,6 +9,7 @@ model BillIncome {
     customerId    Int
     customer      Customer       @relation(fields: [customerId], references: [id])
     voucherUsages VoucherUsage[]
+    deletedAt DateTime? 
 }
 
 model BillOutcome {
@@ -21,4 +22,5 @@ model BillOutcome {
     status      OutcomeStatus
     createdAt   DateTime      @default(now())
     updatedAt   DateTime      @updatedAt
+    deletedAt DateTime? 
 }

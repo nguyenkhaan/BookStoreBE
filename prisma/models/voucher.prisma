@@ -8,6 +8,7 @@ model Voucher {
     quantity      Int
     expiresAt     DateTime
     voucherUsages VoucherUsage[]
+    deletedAt DateTime? 
 }
 
 model VoucherUsage {

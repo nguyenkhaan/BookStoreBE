@@ -3,6 +3,7 @@ model Department {
     name      String     @unique
     positions Position[]
     employees Employee[]
+    deletedAt DateTime? 
 }
 
 model Position {
@@ -12,6 +13,7 @@ model Position {
     department   Department @relation(fields: [departmentId], references: [id])
 
     employees    Employee[]
+    deletedAt DateTime? 
 }
 
 model Employee {
@@ -20,8 +22,9 @@ model Employee {
     password     String
     phone        String     @unique
     name         String
+    avatar       String? 
     status       EmployeeStatus
-
+    active      Boolean  @default(false)
     departmentId Int
     department   Department @relation(fields: [departmentId], references: [id])
 
@@ -29,5 +32,7 @@ model Employee {
     position     Position   @relation(fields: [positionId], references: [id])
     billIncomes BillIncome[] 
     billOutcomes BillOutcome[] 
+    riles Rule[] 
     createdAt    DateTime   @default(now())
+    deletedAt DateTime? 
 }

@@ -1,0 +1,9 @@
+model Rule {
+    id Int @id @default(autoincrement()) 
+    title String 
+    content String @db.Text 
+    creatorId Int  
+    employee      Employee     @relation(fields: [creatorId], references: [id])
+    appliedAt DateTime 
+    @@index([title])
+}
