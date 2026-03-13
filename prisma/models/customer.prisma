@@ -1,13 +1,14 @@
 model Customer {
-    id          Int          @id @default(autoincrement())
-    code        String        @unique 
-    name        String
-    email       String       @unique
-    phone       String       @unique
-    password    String
-    active      Boolean      @default(false)
-    createdAt   DateTime     @default(now())
-    billIncomes BillIncome[]
-    deletedAt DateTime? 
-    //Them hang thanh vien : BRONZE, SILVER, GOLD, DINAMOND 
+    id              Int             @id @default(autoincrement())
+    code            String        @unique 
+    name            String
+    email           String       @unique
+    phone           String       @unique
+    password        String
+    active          Boolean      @default(false)
+    createdAt       DateTime     @default(now())
+    billIncomes     BillIncome[]
+    bill            Bill[] 
+    deletedAt       DateTime? 
+    grade           MemberGrade    
 }

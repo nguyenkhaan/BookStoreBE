@@ -1,23 +1,22 @@
 model Voucher {
-    id            Int            @id @default(autoincrement())
-    name          String   //Them ma khuyen mai (code) 
-    eventName     String
-    sale          Decimal
-    status        VoucherStatus
-    usedNumber    Int
-    quantity      Int
-    expiresAt     DateTime
-    voucherUsages VoucherUsage[]
-    deletedAt DateTime? 
-    //Them loai giam gia: %, so tien VND 
+    id              Int            @id @default(autoincrement())
+    name            String   //Them ma khuyen mai (code) 
+    eventName       String
+    sale            Decimal
+    status          VoucherStatus
+    usedNumber      Int
+    quantity        Int
+    expiresAt       DateTime
+    voucherUsages   VoucherUsage[]
+    deletedAt       DateTime? 
+    type            VoucherType
 }
 
-model VoucherUsage {
-    id           Int        @id @default(autoincrement())
-    billId       String
-    bill         BillIncome @relation(fields: [billIncomeId], references: [id])
-    billIncomeId String
-    voucherId    Int
-    voucher      Voucher    @relation(fields: [voucherId], references: [id])
-    usedAt       DateTime?
+model VoucherUsage {            
+    id              Int        @id @default(autoincrement())
+    bill            Bill       @relation(fields: [billId], references: [id])
+    billId          Int 
+    voucherId       Int
+    voucher         Voucher    @relation(fields: [voucherId], references: [id])
+    usedAt          DateTime?
 }

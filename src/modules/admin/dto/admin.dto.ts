@@ -25,13 +25,13 @@ export class RegisterData {
 	@Matches(/^\d{10,11}$/, {
 		message: 'Phone number must between 10 and 11 numbers',
 	})
-	@IsString() 
+	@IsString()
 	phone: string;
-	@Matches(EmployeeCodeRegex , {
-		message: "Employee Code must be in format NV001"
+	@Matches(EmployeeCodeRegex, {
+		message: 'Employee Code must be in format NV001',
 	})
-	@IsString() 
-	code : string 
+	@IsString()
+	code: string;
 	@IsString()
 	name: string;
 	@IsEnum(EmployeeStatus, {

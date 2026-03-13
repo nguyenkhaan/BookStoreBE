@@ -1,31 +1,22 @@
-//Mot hoa don co nhieu phieu thu ----- model Bill 
-model BillIncome {
-    id            String         @id @default(uuid())   //Them code (So Phieu Thu, sua id thanh Integer)
-    cost          Decimal        @default(0)
-    status        IncomeStatus   @default(COMPLETE)
-    createdAt     DateTime       @default(now())
-    updatedAt     DateTime       @updatedAt
-    employeeId    Int
-    employee      Employee       @relation(fields: [employeeId], references: [id])
-    customerId    Int
-    customer      Customer       @relation(fields: [customerId], references: [id])
-    voucherUsages VoucherUsage[]
-    deletedAt DateTime? 
-    //Them ghi chu va hinh thuc thanh toan 
-}
-//Them phuong thuc thanh toan. 
+model Bill {
+    id      Int @id @default(autoincrement()) 
+    code    String @unique 
 
-model BillOutcome {
-    id          String        @id @default(uuid()) //Them code (So Phieu Nhap, sua id thanh Integer)
-    publisherId Int
-    publisher   Publisher     @relation(fields: [publisherId], references: [id])
-    employeeId  Int
-    creator     Employee      @relation(fields: [employeeId], references: [id])
-    cost        Decimal
-    status      OutcomeStatus
-    createdAt   DateTime      @default(now())
-    updatedAt   DateTime      @updatedAt
-    deletedAt DateTime? 
-    //Chinh sua lai, nhap bao nhieu sach, them truong so luong ? 
-    //Them ghi chu 
+    customerId      Int 
+    customer        Customer        @relation(fields: [customerId], references: [id])
+    billDetail      BillDetail[] 
+    voucherUsage    VoucherUsage[] 
+    status          BillStatus 
+    temporaryCost   Decimal         @default(0)   //Tam tinh - Tam thu bao nhieu tien truoc 
+    createdAt       DateTime 
+    updatedAt       DateTime        @updatedAt
+    
+} 
+model BillDetail {
+    id              Int             @id @default(autoincrement()) 
+    bookId          Int 
+    book            Book            @relation(fields: [bookId], references: [id])
+    billId          Int 
+    bill            Bill            @relation(fields: [billId], references: [id])
+    quantity        Int 
 }

@@ -1,0 +1,33 @@
+
+model BillIncome {
+    id                  Int               @id @default(autoincrement())   //Them code (So Phieu Thu, sua id thanh Integer)
+    code                String           @unique
+    cost                Decimal           @default(0)
+    status              IncomeStatus      @default(COMPLETE)
+    createdAt           DateTime          @default(now())
+    updatedAt           DateTime          @updatedAt
+    employeeId          Int
+    employee            Employee          @relation(fields: [employeeId], references: [id])
+    customerId          Int
+    customer            Customer          @relation(fields: [customerId], references: [id])
+    shortDescription    String      @db.Text 
+    deletedAt           DateTime? 
+
+}
+//Them phuong thuc thanh toan. 
+
+model BillOutcome {
+    id                  Int         @id @default(autoincrement()) //Them code (So Phieu Nhap, sua id thanh Integer)
+    code                String      @unique
+    publisherId         Int
+    publisher           Publisher     @relation(fields: [publisherId], references: [id])
+    employeeId          Int
+    creator             Employee      @relation(fields: [employeeId], references: [id])
+    cost                Decimal
+    status              OutcomeStatus
+    createdAt           DateTime      @default(now())
+    updatedAt           DateTime      @updatedAt
+    deletedAt           DateTime? 
+    //Chinh sua lai, nhap bao nhieu sach, them truong so luong ? 
+    //Them ghi chu 
+}
