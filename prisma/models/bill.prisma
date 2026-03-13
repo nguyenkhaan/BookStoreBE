@@ -1,5 +1,6 @@
+//Mot hoa don co nhieu phieu thu ----- model Bill 
 model BillIncome {
-    id            String         @id @default(uuid())
+    id            String         @id @default(uuid())   //Them code (So Phieu Thu, sua id thanh Integer)
     cost          Decimal        @default(0)
     status        IncomeStatus   @default(COMPLETE)
     createdAt     DateTime       @default(now())
@@ -10,10 +11,12 @@ model BillIncome {
     customer      Customer       @relation(fields: [customerId], references: [id])
     voucherUsages VoucherUsage[]
     deletedAt DateTime? 
+    //Them ghi chu va hinh thuc thanh toan 
 }
+//Them phuong thuc thanh toan. 
 
 model BillOutcome {
-    id          String        @id @default(uuid())
+    id          String        @id @default(uuid()) //Them code (So Phieu Nhap, sua id thanh Integer)
     publisherId Int
     publisher   Publisher     @relation(fields: [publisherId], references: [id])
     employeeId  Int
@@ -23,4 +26,6 @@ model BillOutcome {
     createdAt   DateTime      @default(now())
     updatedAt   DateTime      @updatedAt
     deletedAt DateTime? 
+    //Chinh sua lai, nhap bao nhieu sach, them truong so luong ? 
+    //Them ghi chu 
 }

@@ -48,4 +48,5 @@ model Book {
     deletedAt DateTime? 
     @@index([cost])
     @@index([title])
+    //Them the loai vao database. Nam xuat ban 
 }

@@ -36,4 +36,5 @@ model Employee {
     riles Rule[] 
     createdAt    DateTime   @default(now())
     deletedAt DateTime? 
+    //Them salary 
 }

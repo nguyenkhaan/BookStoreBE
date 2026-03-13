@@ -1,6 +1,6 @@
 model Voucher {
     id            Int            @id @default(autoincrement())
-    name          String
+    name          String   //Them ma khuyen mai (code) 
     eventName     String
     sale          Decimal
     status        VoucherStatus
@@ -9,6 +9,7 @@ model Voucher {
     expiresAt     DateTime
     voucherUsages VoucherUsage[]
     deletedAt DateTime? 
+    //Them loai giam gia: %, so tien VND 
 }
 
 model VoucherUsage {

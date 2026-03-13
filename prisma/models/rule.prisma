@@ -6,4 +6,5 @@ model Rule {
     employee      Employee     @relation(fields: [creatorId], references: [id])
     appliedAt DateTime 
     @@index([title])
+    //Them loai qui dinh, trang thai (status - DANG AP DUNG...), updatedAt, shortDescription (Mo ta ngan)
 }

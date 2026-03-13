@@ -9,4 +9,5 @@ model Customer {
     createdAt   DateTime     @default(now())
     billIncomes BillIncome[]
     deletedAt DateTime? 
+    //Them hang thanh vien : BRONZE, SILVER, GOLD, DINAMOND 
 }
