@@ -10,6 +10,7 @@ import {
 	Matches,
 	IsEnum,
 	IsNumber,
+	Min,
 } from 'class-validator';
 export class RegisterData {
 	@IsNotEmpty()
@@ -30,6 +31,10 @@ export class RegisterData {
 	@Matches(EmployeeCodeRegex, {
 		message: 'Employee Code must be in format NV001',
 	})
+	@IsNumber()
+	@Min(0)
+	salary: number;
+
 	@IsString()
 	code: string;
 	@IsString()
