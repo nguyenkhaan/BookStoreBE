@@ -76,6 +76,12 @@ async function publisherSeeder()
         }, 
         {
             name: 'NXB Kim Manh'
+        }, 
+        {
+            name: 'NXB Kim Dung'
+        }, 
+        {
+            name : 'NXB Ninh Ha'
         }
     ] 
     await prismaClient.publisher.createMany({
@@ -93,6 +99,12 @@ async function authorSeeder()
         }, 
         {
             name: "Ton Ngo Khong"
+        }, 
+        {
+            name: 'Duong Tien'
+        }, 
+        {
+            name : 'Hao Thien Khuyen'
         }
     ]
     await prismaClient.author.createMany({

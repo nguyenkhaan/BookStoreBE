@@ -7,11 +7,13 @@ export class UploadBookService
         {
             const ams =  data.reduce((res , curr) => {
                 res.push({
-                    code : curr.BookCode, 
-                    title: curr.title, 
-                    authorIds: curr.Author.split(',').map((x : string) => Number(x)), 
-                    publisherId: curr.Publisher.split(',').map((x : string) => Number(x)), 
-                    coverImage : curr.CoverImage 
+                    code : curr.Code, 
+                    title: curr.Title, 
+                    authorIds: String(curr.Author).split(',').map((x : string) => Number(x)), 
+                    publisherIds: String(curr.Publisher).split(',').map((x : string) => Number(x)), 
+                    coverImage : curr.CoverImage, 
+                    stock : curr.Stock, 
+                    cost : curr.Cost 
                 }) 
                 return res 
             } , [])
