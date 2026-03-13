@@ -36,6 +36,7 @@ model Inventory {
 
 model Book {
     id          Int        @id @default(autoincrement())
+    code String @unique 
     cost        Decimal    @default(0)
     title       String
     authors AuthorBook[] 

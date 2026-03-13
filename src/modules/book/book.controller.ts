@@ -18,6 +18,7 @@ import { BookService } from './book.service';
 import { CreateBookData, UpdateBookData } from './dto/book.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express } from 'express';
+
 @Controller('book')
 export class BookController {
 	constructor(private readonly bookService: BookService) {}
@@ -26,6 +27,15 @@ export class BookController {
 		const books = await this.bookService.getAllBooks();
 		return books;
 	}
+    @UseInterceptors(FileInterceptor("data"))
+    @Post("/upload") 
+    async uploadBookExcels(
+        @UploadedFile() file : Express.Multer.File 
+    ) 
+    {
+        const responseData = await this.bookService.uploadBookData(file) 
+        return responseData 
+    }
     @Get('/statistic')
 	async statisticBookInformation() {
         console.log("Running") 

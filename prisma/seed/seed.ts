@@ -16,6 +16,12 @@ async function departmentSeeder()
         },
         {
             name: 'Baking Department'
+        }, 
+        {
+            name: 'Booking Department' 
+        }, 
+        {
+            name : 'Cooking Department'
         }
     ]
 
@@ -41,6 +47,14 @@ async function positionSeeder()
         {
             name: 'Employee', 
             departmentId: 3 
+        }, 
+        {
+            name: 'Architecture', 
+            departmentId : 4, 
+        }, 
+        {
+            name: 'BA', 
+            departmentId : 5 
         }
     ]
 
@@ -62,6 +76,12 @@ async function publisherSeeder()
         }, 
         {
             name: 'NXB Kim Manh'
+        }, 
+        {
+            name: 'NXB Kim Dung'
+        }, 
+        {
+            name : 'NXB Ninh Ha'
         }
     ] 
     await prismaClient.publisher.createMany({
@@ -79,6 +99,12 @@ async function authorSeeder()
         }, 
         {
             name: "Ton Ngo Khong"
+        }, 
+        {
+            name: 'Duong Tien'
+        }, 
+        {
+            name : 'Hao Thien Khuyen'
         }
     ]
     await prismaClient.author.createMany({
@@ -115,6 +141,7 @@ async function adminSeeder()
         create: {
             email: ADMIN_EMAIL,
             password: hashPassword,
+            code: 'NV000', 
             name: "Admin",
             departmentId: department!.id,
             positionId: position!.id, 

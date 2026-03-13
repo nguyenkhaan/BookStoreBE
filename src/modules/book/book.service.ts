@@ -4,6 +4,8 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { CreateBookData, UpdateBookData } from './dto/book.dto';
 import type { Express } from 'express';
+import convertExcelToJson from '@/utlitis/excelToJson';
+import { UploadBookService } from './helpers/book.upload';
 @Injectable()
 export class BookService {
 	constructor(
@@ -126,6 +128,7 @@ export class BookService {
 				data: {
 					title: createBookData.title,
 					cost: createBookData.cost,
+					code : createBookData.code, 
 					coverImage: fileName,
 
 					authors: {
@@ -338,4 +341,84 @@ export class BookService {
 			throw err;
 		}
 	}
+    async uploadBookData(file : Express.Multer.File) 
+    {
+		try 
+		{
+			//Oh No, Transaction Boundary Error :((( - Gekido, Activate. Jouchaku 
+			const buffer = file.buffer 
+			//Map data 
+			const jsonData = await convertExcelToJson(buffer) 
+			const uploadBookMappingData = UploadBookService.mapUploadData(jsonData) 
+			await this.prismaService.$transaction(async (tx) => {
+				
+				//Create books 
+				await tx.book.createMany({
+					data: uploadBookMappingData.map((x : any) => ({
+						code : x.code, 
+						coverImage : x.coverImage, 
+						title : x.title, 
+						cost : x.cost 
+					})), 
+					skipDuplicates: true 
+				})
+				//Find Books 
+				const createdBooks = await tx.book.findMany({
+					where: {
+						code : {
+							in : uploadBookMappingData.map((x : any) => x.code)
+						}
+					}
+				})
+				//Mapping Book with code ^-^ 
+				const bookMap = new Map(
+					createdBooks.map(book => [book.code, book])
+				)
+				const authorBookData: any[] = [];
+      			const publisherBookData: any[] = [];
+      			const inventoryData: any[] = [];
+				for(const row of uploadBookMappingData) 
+				{
+					const book = bookMap.get(row.code) 
+					if (!book) continue 
+					//AuthorBook 
+					for (const authorId of row.authorIds) 
+						authorBookData.push({
+							authorId, 
+							bookId : book.id 
+						})
+					//Publisher Data 
+					for (const publisherId of row.publisherIds) 
+						publisherBookData.push({
+							publisherId , 
+							bookId : book.id 
+						})
+					//Invetory 
+					inventoryData.push({
+						bookId : book.id, 
+						stock : row.stock 
+					})
+				}
+				await tx.authorBook.createMany({
+					data: authorBookData 
+				}) 
+
+				await tx.publisherBook.createMany({
+					data : publisherBookData
+				}) 
+				await tx.inventory.createMany({
+					data : inventoryData
+				})
+			})
+			return {
+				[ResponseBody.ERROR] : 0, 
+				[ResponseBody.MESSAGE] : "Insert book successfully" 
+			} 
+		} 
+		catch (err) 
+		{
+			console.log("Error" , err) 
+			throw err  
+		}
+    }
 }

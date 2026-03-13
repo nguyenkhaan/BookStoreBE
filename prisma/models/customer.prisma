@@ -1,5 +1,6 @@
 model Customer {
     id          Int          @id @default(autoincrement())
+    code        String        @unique 
     name        String
     email       String       @unique
     phone       String       @unique

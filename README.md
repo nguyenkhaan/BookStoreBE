@@ -294,3 +294,10 @@ bun test
 # License
 
 - Belong to Cloudian 
+
+/**
+Khach Hang: KH001 
+Sach: BK001 
+Nhan Vien: NV001 
+
+**/ 
