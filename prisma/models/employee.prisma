@@ -18,6 +18,7 @@ model Position {
 
 model Employee {
     id           Int        @id @default(autoincrement())
+    code String @unique 
     email        String     @unique
     password     String
     phone        String     @unique

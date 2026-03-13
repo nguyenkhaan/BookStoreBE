@@ -116,6 +116,7 @@ CREATE TABLE "Inventory" (
 -- CreateTable
 CREATE TABLE "Book" (
     "id" SERIAL NOT NULL,
+    "code" TEXT NOT NULL,
     "cost" DECIMAL(65,30) NOT NULL DEFAULT 0,
     "title" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -129,6 +130,7 @@ CREATE TABLE "Book" (
 -- CreateTable
 CREATE TABLE "Customer" (
     "id" SERIAL NOT NULL,
+    "code" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
@@ -162,6 +164,7 @@ CREATE TABLE "Position" (
 -- CreateTable
 CREATE TABLE "Employee" (
     "id" SERIAL NOT NULL,
+    "code" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
@@ -221,10 +224,16 @@ CREATE UNIQUE INDEX "Publisher_name_key" ON "Publisher"("name");
 CREATE INDEX "Author_name_idx" ON "Author"("name");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Book_code_key" ON "Book"("code");
+
+-- CreateIndex
 CREATE INDEX "Book_cost_idx" ON "Book"("cost");
 
 -- CreateIndex
 CREATE INDEX "Book_title_idx" ON "Book"("title");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Customer_code_key" ON "Customer"("code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Customer_email_key" ON "Customer"("email");
@@ -234,6 +243,9 @@ CREATE UNIQUE INDEX "Customer_phone_key" ON "Customer"("phone");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Department_name_key" ON "Department"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Employee_code_key" ON "Employee"("code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Employee_email_key" ON "Employee"("email");

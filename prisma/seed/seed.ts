@@ -16,6 +16,12 @@ async function departmentSeeder()
         },
         {
             name: 'Baking Department'
+        }, 
+        {
+            name: 'Booking Department' 
+        }, 
+        {
+            name : 'Cooking Department'
         }
     ]
 
@@ -41,6 +47,14 @@ async function positionSeeder()
         {
             name: 'Employee', 
             departmentId: 3 
+        }, 
+        {
+            name: 'Architecture', 
+            departmentId : 4, 
+        }, 
+        {
+            name: 'BA', 
+            departmentId : 5 
         }
     ]
 
@@ -115,6 +129,7 @@ async function adminSeeder()
         create: {
             email: ADMIN_EMAIL,
             password: hashPassword,
+            code: 'NV000', 
             name: "Admin",
             departmentId: department!.id,
             positionId: position!.id, 

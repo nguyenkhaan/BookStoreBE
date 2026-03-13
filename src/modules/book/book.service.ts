@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateBookData, UpdateBookData } from './dto/book.dto';
 import type { Express } from 'express';
 import convertExcelToJson from '@/utlitis/excelToJson';
+import { UploadBookService } from './helpers/book.upload';
 @Injectable()
 export class BookService {
 	constructor(
@@ -127,6 +128,7 @@ export class BookService {
 				data: {
 					title: createBookData.title,
 					cost: createBookData.cost,
+					code : createBookData.code, 
 					coverImage: fileName,
 
 					authors: {
@@ -341,10 +343,22 @@ export class BookService {
 	}
     async uploadBookData(file : Express.Multer.File) 
     {
-        const buffer = file.buffer 
-        //Map data 
-        const jsonData = await convertExcelToJson(buffer) 
-        console.log(jsonData) 
-        return jsonData
+		try 
+		{
+			const buffer = file.buffer 
+			//Map data 
+			const jsonData = await convertExcelToJson(buffer) 
+			//Lap qua danh sach cac mang, sau do chuyen doi cac truong thanh turong tuong ung 
+			
+			const data = UploadBookService.mapUploadData(jsonData) 
+			console.log(data) 
+			//Lay lai danh sach book da tao ??? 
+		//Fix the database to have the book code table 
+		} 
+		catch (err) 
+		{
+			console.log("Error" , err) 
+			throw err  
+		}
     }
 }
