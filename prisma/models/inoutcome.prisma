@@ -1,5 +1,5 @@
 
-model BillIncome {
+model BillIncome {   //
     id                  Int               @id @default(autoincrement())   //Them code (So Phieu Thu, sua id thanh Integer)
     code                String           @unique
     cost                Decimal           @default(0)
@@ -8,15 +8,15 @@ model BillIncome {
     updatedAt           DateTime          @updatedAt
     employeeId          Int
     employee            Employee          @relation(fields: [employeeId], references: [id])
-    customerId          Int
-    customer            Customer          @relation(fields: [customerId], references: [id])
+    billId              Int
+    bill                Bill          @relation(fields: [billId], references: [id])
     shortDescription    String      @db.Text 
     deletedAt           DateTime? 
 
 }
 //Them phuong thuc thanh toan. 
 
-model BillOutcome {
+model BillOutcome {   //Phieu nhap 
     id                  Int         @id @default(autoincrement()) //Them code (So Phieu Nhap, sua id thanh Integer)
     code                String      @unique
     publisherId         Int

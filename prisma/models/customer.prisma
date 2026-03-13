@@ -7,7 +7,6 @@ model Customer {
     password        String
     active          Boolean      @default(false)
     createdAt       DateTime     @default(now())
-    billIncomes     BillIncome[]
     bill            Bill[] 
     deletedAt       DateTime? 
     grade           MemberGrade    

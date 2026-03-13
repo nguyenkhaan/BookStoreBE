@@ -1,11 +1,11 @@
 model Bill {
     id      Int @id @default(autoincrement()) 
     code    String @unique 
-
     customerId      Int 
     customer        Customer        @relation(fields: [customerId], references: [id])
     billDetail      BillDetail[] 
     voucherUsage    VoucherUsage[] 
+    billIncome      BillIncome[] 
     status          BillStatus 
     temporaryCost   Decimal         @default(0)   //Tam tinh - Tam thu bao nhieu tien truoc 
     createdAt       DateTime 

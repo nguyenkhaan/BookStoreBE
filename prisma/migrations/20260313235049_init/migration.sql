@@ -202,7 +202,7 @@ CREATE TABLE "BillIncome" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "employeeId" INTEGER NOT NULL,
-    "customerId" INTEGER NOT NULL,
+    "billId" INTEGER NOT NULL,
     "shortDescription" TEXT NOT NULL,
     "deletedAt" TIMESTAMP(3),
 
@@ -350,7 +350,7 @@ ALTER TABLE "Employee" ADD CONSTRAINT "Employee_positionId_fkey" FOREIGN KEY ("p
 ALTER TABLE "BillIncome" ADD CONSTRAINT "BillIncome_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "BillIncome" ADD CONSTRAINT "BillIncome_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "BillIncome" ADD CONSTRAINT "BillIncome_billId_fkey" FOREIGN KEY ("billId") REFERENCES "Bill"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "BillOutcome" ADD CONSTRAINT "BillOutcome_publisherId_fkey" FOREIGN KEY ("publisherId") REFERENCES "Publisher"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
