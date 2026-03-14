@@ -2,26 +2,31 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { CreateVoucherData, UpdateVoucherData } from './dto/voucher.dto';
 import { VoucherStatus } from '@prisma/client';
+import { TransactionClient } from 'generated/prisma/internal/prismaNamespace';
 
 @Injectable()
 export class VoucherService {
 	constructor(private readonly prismaService: PrismaService) {}
-	checkVoucherInUse(voucher : any) 
-	{
-		return (voucher.status == VoucherStatus.APPLYING) && (voucher.quantity > 0) && (voucher.expiresAt > (new Date()))
+	checkVoucherInUse(voucher: any) {
+		return (
+			voucher.status == VoucherStatus.APPLYING &&
+			voucher.quantity > 0 &&
+			voucher.expiresAt > new Date()
+		);
 	}
-	async decreaseVoucher(id: number) {
-	  const result = await this.prismaService.voucher.updateMany({
-	    where: {
-	      id,
-	      quantity: { gt: 0 }
-	    },
-	    data: {
-	      quantity: { decrement: 1 }
-	    }
-	  });
-  
-	  return result.count === 1;
+	async decreaseVoucher(id: number , tx : TransactionClient) 
+	{
+		const result = await tx.voucher.updateMany({
+			where: {
+				id,
+				quantity: { gt: 0 },
+			},
+			data: {
+				quantity: { decrement: 1 },
+			},
+		});
+
+		return result.count === 1;
 	}
 	async getAllVouchers() {
 		try {
