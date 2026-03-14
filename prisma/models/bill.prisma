@@ -8,7 +8,7 @@ model Bill {
     billIncome      BillIncome[] 
     status          BillStatus 
     temporaryCost   Decimal         @default(0)   //Tam tinh - Tam thu bao nhieu tien truoc 
-    createdAt       DateTime 
+    createdAt       DateTime        @default(now())
     updatedAt       DateTime        @updatedAt
     
 } 

@@ -87,6 +87,18 @@ export class BookService {
 			throw err;
 		}
 	}
+	async getBookByCode(code : string) {
+		try {
+			const book = await this.prismaService.book.findFirst({
+				where: {code}
+			}) 
+			return book 
+		} 
+		catch (err) {
+			console.log(err) 
+			throw err 
+		}
+	}
 	async createBook(
 		createBookData: CreateBookData,
 		file: Express.Multer.File,
@@ -129,8 +141,8 @@ export class BookService {
 					title: createBookData.title,
 					cost: createBookData.cost,
 					code: createBookData.code,
+					year : createBookData.year, 
 					coverImage: fileName,
-
 					authors: {
 						create: createBookData.authorIds.map((id) => ({
 							author: { connect: { id } },
@@ -358,6 +370,7 @@ export class BookService {
 						coverImage: x.coverImage,
 						title: x.title,
 						cost: x.cost,
+						year : x.year 
 					})),
 					skipDuplicates: true,
 				});

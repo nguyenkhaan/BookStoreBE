@@ -38,12 +38,17 @@ export class BookController {
 		console.log('Running');
 		//Thong ke tong so luong dau sach, tong so tien sach,...
 		const responseData = await this.bookService.statisticBook();
-		return responseData;
+		return responseData
 	}
 	@Get('/:bookId')
 	async getBookById(@Param('bookId', ParseIntPipe) bookId: number) {
 		const responseData = await this.bookService.getBookById(Number(bookId));
-		return responseData;
+		return responseData
+	}
+	@Get("/code/:code") 
+	async getBookByCode(@Param('code') code : string) {
+		const responseData = await this.bookService.getBookByCode(code) 
+		return responseData
 	}
 	@Post()
 	@UseInterceptors(FileInterceptor('coverImage'))

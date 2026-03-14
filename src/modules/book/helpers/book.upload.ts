@@ -14,6 +14,7 @@ export class UploadBookService {
 					coverImage: curr.CoverImage,
 					stock: curr.Stock,
 					cost: curr.Cost,
+					year : curr.Year 
 				});
 				return res;
 			}, []);
