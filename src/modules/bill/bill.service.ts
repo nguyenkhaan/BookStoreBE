@@ -1,14 +1,14 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
-import { VoucherType } from '@prisma/client';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { VoucherStatus, VoucherType } from '@prisma/client';
 import { CreateBillData, UpdateBillData } from './dto/bill.dto';
-import { VoucherService } from '../voucher/voucher.service';
+// import { VoucherService } from '../voucher/voucher.service';
 
 @Injectable()
 export class BillService {
 	constructor(
 		private readonly prismaService: PrismaService,
-		private readonly voucherService: VoucherService,
+		// private readonly voucherService: VoucherService,
 	) {}
 	async getAllBills() {
 		try {
@@ -22,31 +22,7 @@ export class BillService {
 					},
 				},
 			});
-			console.log(bills) 
-			const result = bills.map((bill) => {
-				let total = bill.billDetail.reduce((sum, item) => {
-					return sum + item.quantity * Number(item.book.cost);
-				}, 0);
-
-				for (const v of bill.voucherUsage) {
-					const voucher = v.voucher;
-					const isUse =
-						this.voucherService.checkVoucherInUse(voucher);
-					if (!isUse) continue;
-					if (voucher.type == VoucherType.PERCENT)
-						total = Math.max(
-							0,
-							total - (total * Number(voucher.sale)) / 100,
-						);
-					else total = Math.max(0, total - Number(voucher.sale));
-				}
-				return {
-					...bill,
-					totalCost: total,
-				};
-			});
-			console.log(result) 
-			return result;
+			return bills;
 		} catch (err) {
 			console.log('Get All Bills Error: ', err);
 			throw err;
@@ -55,61 +31,111 @@ export class BillService {
 	async createBill(createBillData: CreateBillData) {
 		try {
 			return await this.prismaService.$transaction(async (tx) => {
+				const bookIds = createBillData.billDetails.map((b) => b.bookId);
+
+				const books = await tx.book.findMany({
+					where: { id: { in: bookIds } },
+				});
+
+				const bookMap = new Map(books.map((b) => [b.id, b]));
+
+				let totalCost = 0;
+
+				for (const item of createBillData.billDetails) {
+					const book = bookMap.get(item.bookId);
+
+					if (!book) throw new BadRequestException('Book not found');
+
+					totalCost += item.quantity * Number(book.cost);
+				}
+
+				const voucherUsageData = [];
+
+				if (createBillData.vouchers) {
+					for (const v of createBillData.vouchers) {
+						const voucher = await tx.voucher.findUnique({
+							where: { id: v.voucherId },
+						});
+
+						if (
+							!voucher ||
+							voucher.status === VoucherStatus.ENDED ||
+							voucher.deletedAt != null ||
+							voucher.expiresAt < new Date() ||
+							voucher.quantity <= 0
+						)
+							throw new BadRequestException('Voucher invalid');
+
+						if (voucher.type === VoucherType.PERCENT)
+							totalCost = Math.max(
+								0,
+								totalCost -
+									(totalCost * Number(voucher.sale)) / 100,
+							);
+						else
+							totalCost = Math.max(
+								0,
+								totalCost - Number(voucher.sale),
+							);
+
+						//Decrrease voucher
+
+						await tx.voucher.update({
+							where: { id: voucher.id },
+							data: {
+								quantity: {
+									decrement: 1,
+								},
+							},
+						});
+
+						voucherUsageData.push({
+							voucherId: voucher.id,
+						});
+					}
+				}
+
 				const bill = await tx.bill.create({
 					data: {
 						code: createBillData.code,
 						customerId: createBillData.customerId,
-						temporaryCost: createBillData.temporaryCost || 0,
 						status: createBillData.status,
+						cost: Math.max(
+							0,
+							totalCost - (createBillData.temporaryCost || 0),
+						),
 					},
 				});
-								//Giam so luong voucher xuong
-				if (createBillData.vouchers) {
-					for (const v of createBillData.vouchers) {
-						const success = await this.voucherService.decreaseVoucher(
-							v.voucherId, tx 
-						);
-						if (!success)
-							throw new Error('Voucher không hợp lệ hoặc đã hết');
-					}
-				}
 
-				const voucherUsageData = [];
-				const billDetailData = [];
-				//Create voucher usage 
-				if (createBillData.vouchers) {
-					for (const v of createBillData.vouchers) {
-						voucherUsageData.push({
-							billId: bill.id,
-							voucherId: v.voucherId,
-						});
-					}
-					await tx.voucherUsage.createMany({
-						data: voucherUsageData,
-					});
-				}
-				//Create bill data 
 				if (createBillData.billDetails) {
-					for (const b of createBillData.billDetails) {
-						billDetailData.push({
-							quantity: b.quantity,
+					const billDetailData = createBillData.billDetails.map(
+						(b) => ({
 							bookId: b.bookId,
+							quantity: b.quantity,
 							billId: bill.id,
-						});
-					}
+						}),
+					);
+
 					await tx.billDetail.createMany({
 						data: billDetailData,
 					});
 				}
 
+				if (voucherUsageData.length > 0) {
+					await tx.voucherUsage.createMany({
+						data: voucherUsageData.map((v) => ({
+							voucherId: v.voucherId,
+							billId: bill.id,
+						})),
+					});
+				}
+
 				return {
 					bill,
-					voucherUsage: voucherUsageData,
-					billDetail: billDetailData,
 				};
-			})
+			});
 		} catch (err) {
-			(console.log('Create Bill Error'), err);
+			console.log('Create Bill Error:', err);
 			throw err;
 		}
 	}
@@ -123,7 +149,6 @@ export class BillService {
 					data: {
 						code: updateBillData.code,
 						customerId: updateBillData.customerId,
-						temporaryCost: updateBillData.temporaryCost,
 						status: updateBillData.status,
 					},
 				});
@@ -137,7 +162,6 @@ export class BillService {
 					where: { billId: id },
 				});
 
-				
 				if (updateBillData.billDetails) {
 					const billDetailData = updateBillData.billDetails.map(
 						(b) => ({

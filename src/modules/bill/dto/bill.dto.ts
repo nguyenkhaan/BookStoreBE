@@ -31,8 +31,8 @@ class CreateVoucherUsageData {
 export class CreateBillData {
 	@IsString()
 	@IsNotEmpty()
-	@Matches(BillCodeRegex , {
-		message: "Bill code must be in format HD001"
+	@Matches(BillCodeRegex, {
+		message: 'Bill code must be in format HD001',
 	})
 	code: string;
 
@@ -52,7 +52,8 @@ export class CreateBillData {
 
 	@IsOptional()
 	temporaryCost?: number;
-
+	@IsOptional()
+	cost?: number;
 	@IsEnum(BillStatus)
 	status: BillStatus;
 }

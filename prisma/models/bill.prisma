@@ -7,7 +7,7 @@ model Bill {
     voucherUsage    VoucherUsage[] 
     billIncome      BillIncome[] 
     status          BillStatus 
-    temporaryCost   Decimal         @default(0)   //Tam tinh - Tam thu bao nhieu tien truoc 
+    cost            Decimal         @default(0)    //So tien con lai cua hoa don 
     createdAt       DateTime        @default(now())
     updatedAt       DateTime        @updatedAt
     

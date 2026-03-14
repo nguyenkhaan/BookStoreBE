@@ -1,5 +1,14 @@
 import { Roles } from '@/bases/decorators/role.decorators';
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Get,
+	Param,
+	ParseIntPipe,
+	Post,
+	Put,
+	UseGuards,
+} from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '@/bases/guards/role.guard';
@@ -22,9 +31,15 @@ export class BillController {
 		const responseData = await this.billService.createBill(createBillData);
 		return responseData;
 	}
-	@Put("/:billId")
-	async updateBill(@Param('billId' , ParseIntPipe) billId : number , @Body() updateBillData : UpdateBillData) {
-		const responseData = await this.billService.updateBill(billId , updateBillData) 
-		return responseData 
+	@Put('/:billId')
+	async updateBill(
+		@Param('billId', ParseIntPipe) billId: number,
+		@Body() updateBillData: UpdateBillData,
+	) {
+		const responseData = await this.billService.updateBill(
+			billId,
+			updateBillData,
+		);
+		return responseData;
 	}
 }

@@ -14,8 +14,18 @@ export class VoucherService {
 			voucher.expiresAt > new Date()
 		);
 	}
-	async decreaseVoucher(id: number , tx : TransactionClient) 
-	{
+	async checkVoucherInUseById(id: number) {
+		const voucher = await this.prismaService.voucher.findFirst({
+			where: { id },
+		});
+		if (!voucher) return false;
+		return (
+			voucher.status == VoucherStatus.APPLYING &&
+			voucher.quantity > 0 &&
+			voucher.expiresAt > new Date()
+		);
+	}
+	async decreaseVoucher(id: number, tx: TransactionClient) {
 		const result = await tx.voucher.updateMany({
 			where: {
 				id,

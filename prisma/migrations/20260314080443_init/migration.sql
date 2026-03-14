@@ -63,8 +63,8 @@ CREATE TABLE "Bill" (
     "code" TEXT NOT NULL,
     "customerId" INTEGER NOT NULL,
     "status" "BillStatus" NOT NULL,
-    "temporaryCost" DECIMAL(65,30) NOT NULL DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL,
+    "cost" DECIMAL(65,30) NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Bill_pkey" PRIMARY KEY ("id")

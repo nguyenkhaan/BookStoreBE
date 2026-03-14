@@ -9,6 +9,6 @@ import { VoucherService } from '../voucher/voucher.service';
 @Module({
 	imports: [AuthModule, VoucherModule],
 	controllers: [BillController],
-	providers: [BillService , VoucherService],
+	providers: [BillService, VoucherService],
 })
 export class BillModule {}
