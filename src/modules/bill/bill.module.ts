@@ -1,3 +1,3 @@
 /**
- * Tao moi 1 bill va billDetal ? 
+ * Tao moi 1 bill va billDetal ?
  */

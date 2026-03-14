@@ -1,74 +1,70 @@
-import { BillStatus } from '@prisma/client'
+import { BillStatus } from '@prisma/client';
 import {
-  IsInt,
-  IsString,
-  IsOptional,
-  IsNotEmpty,
-  IsArray,
-  ValidateNested,
-  Min,
-  IsEnum
-} from 'class-validator'
-import { Type } from 'class-transformer'
-import { PartialType } from '@nestjs/swagger'
+	IsInt,
+	IsString,
+	IsOptional,
+	IsNotEmpty,
+	IsArray,
+	ValidateNested,
+	Min,
+	IsEnum,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { PartialType } from '@nestjs/swagger';
 
 class CreateBillDetailData {
+	@IsInt()
+	bookId: number;
 
-  @IsInt()
-  bookId: number
-
-  @IsInt()
-  @Min(1)
-  quantity: number
+	@IsInt()
+	@Min(1)
+	quantity: number;
 }
 
 class CreateVoucherUsageData {
-
-  @IsInt()
-  voucherId: number
+	@IsInt()
+	voucherId: number;
 }
 
 export class CreateBillData {
+	@IsString()
+	@IsNotEmpty()
+	code: string;
 
-  @IsString()
-  @IsNotEmpty()
-  code: string
+	@IsInt()
+	customerId: number;
 
-  @IsInt()
-  customerId: number
+	@IsArray()
+	@ValidateNested({ each: true })
+	@Type(() => CreateBillDetailData)
+	billDetails: CreateBillDetailData[];
 
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateBillDetailData)
-  billDetails: CreateBillDetailData[]
+	@IsOptional()
+	@IsArray()
+	@ValidateNested({ each: true })
+	@Type(() => CreateVoucherUsageData)
+	vouchers?: CreateVoucherUsageData[];
 
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateVoucherUsageData)
-  vouchers?: CreateVoucherUsageData[]
+	@IsOptional()
+	temporaryCost?: number;
 
-  @IsOptional()
-  temporaryCost?: number
-
-  @IsEnum(BillStatus) 
-  status: BillStatus
+	@IsEnum(BillStatus)
+	status: BillStatus;
 }
 
 class UpdateVoucherUsageData extends CreateVoucherUsageData {}
 class UpdateBillDetailData extends CreateBillDetailData {}
 
 export class UpdateBillData extends PartialType(CreateBillData) {
+	@IsOptional()
+	@IsArray()
+	@ValidateNested({ each: true })
+	@Type(() => UpdateBillDetailData)
+	billDetails?: UpdateBillDetailData[];
 
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => UpdateBillDetailData)
-  billDetails?: UpdateBillDetailData[]
-
-  @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => UpdateVoucherUsageData)
-  vouchers?: UpdateVoucherUsageData[]
+	@IsOptional()
+	@IsArray()
+	@ValidateNested({ each: true })
+	@Type(() => UpdateVoucherUsageData)
+	vouchers?: UpdateVoucherUsageData[];
 }
