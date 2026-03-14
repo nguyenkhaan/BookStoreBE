@@ -13,6 +13,33 @@ export class EmployeeService {
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService,
 	) {}
+	async getAllEmployee() {
+		try {
+			const employees = await this.prismaService.employee.findMany({
+				select: {
+					email: true,
+					avatar: true,
+					phone: true,
+					id: true,
+					code: true,
+					position: {
+						select: {
+							name: true,
+						},
+					},
+					department: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			});
+			return employees;
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
 	async getEmployeeById(id: number) {
 		const employee = await this.prismaService.employee.findFirst({
 			where: {
@@ -68,6 +95,38 @@ export class EmployeeService {
 			throw new BadRequestException(
 				'Invalid or expired verification token',
 			);
+		}
+	}
+	async getEmployeeProfile(id: number) {
+		try {
+			const employee = await this.prismaService.employee.findFirst({
+				where: {
+					id,
+				},
+				select: {
+					email: true,
+					avatar: true,
+					phone: true,
+					id: true,
+					code: true,
+					position: {
+						select: {
+							name: true,
+						},
+					},
+					department: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			});
+			if (!employee)
+				throw new BadRequestException('Employee Profile Not Found');
+			return employee;
+		} catch (err) {
+			console.log('Get Employee Profile Error: ', err);
+			throw err;
 		}
 	}
 	async updateEmployeeData() {

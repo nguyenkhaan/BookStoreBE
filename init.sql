@@ -1,1 +1,1 @@
--- Run this Script to create customers 
+-- Run this Script to create customers (FOR TESTING ONLY) 
