@@ -30,8 +30,8 @@ import { VoucherModule } from './modules/voucher/voucher.module';
 		EmployeeModule,
 		RuleModule,
 		BookModule,
-		BillModule, 
-		VoucherModule
+		BillModule,
+		VoucherModule,
 	],
 	controllers: [AppController],
 	providers: [

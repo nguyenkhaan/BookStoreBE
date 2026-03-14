@@ -1,16 +1,13 @@
-import { Module } from "@nestjs/common";
-import { AuthModule } from "../auth/auth.module";
+import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module';
 
-import { BillController } from "./bill.controller";
-import { BillService } from "./bill.service";
+import { BillController } from './bill.controller';
+import { BillService } from './bill.service';
+import { VoucherModule } from '../voucher/voucher.module';
 
 @Module({
-    imports: [AuthModule], 
-    controllers: [BillController], 
-    providers: [BillService]
-
-}) 
-export class BillModule 
-{
-
-}
+	imports: [AuthModule , VoucherModule],
+	controllers: [BillController],
+	providers: [BillService],
+})
+export class BillModule {}
