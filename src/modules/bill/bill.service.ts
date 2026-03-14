@@ -35,6 +35,9 @@ export class BillService {
 
 				const books = await tx.book.findMany({
 					where: { id: { in: bookIds } },
+					include: {
+						inventory : true 
+					}
 				});
 
 				const bookMap = new Map(books.map((b) => [b.id, b]));
@@ -47,8 +50,23 @@ export class BillService {
 					if (!book) throw new BadRequestException('Book not found');
 
 					totalCost += item.quantity * Number(book.cost);
+					const updated = await tx.inventory.update({
+						where: {
+							bookId : item.bookId, 
+							stock: {
+								gte : item.quantity
+							}
+						}, 
+						data: {
+							stock : {
+								decrement: item.quantity 
+							}
+						}
+					})
+					if (updated.stock == 0) 
+						throw new BadRequestException("Don't have enough books") 
 				}
-
+				//Voucher 
 				const voucherUsageData = [];
 
 				if (createBillData.vouchers) {

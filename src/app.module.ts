@@ -16,6 +16,7 @@ import { MinioModule } from './minio/minio.module';
 import { BookModule } from './modules/book/book.module';
 import { BillModule } from './modules/bill/bill.module';
 import { VoucherModule } from './modules/voucher/voucher.module';
+import { EmailModule } from './modules/email/email.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -32,6 +33,7 @@ import { VoucherModule } from './modules/voucher/voucher.module';
 		BookModule,
 		BillModule,
 		VoucherModule,
+		EmailModule,
 	],
 	controllers: [AppController],
 	providers: [

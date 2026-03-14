@@ -215,8 +215,10 @@ CREATE TABLE "BillOutcome" (
     "code" TEXT NOT NULL,
     "publisherId" INTEGER NOT NULL,
     "employeeId" INTEGER NOT NULL,
+    "bookId" INTEGER NOT NULL,
     "cost" DECIMAL(65,30) NOT NULL,
     "status" "OutcomeStatus" NOT NULL,
+    "quantity" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
@@ -357,6 +359,9 @@ ALTER TABLE "BillOutcome" ADD CONSTRAINT "BillOutcome_publisherId_fkey" FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE "BillOutcome" ADD CONSTRAINT "BillOutcome_employeeId_fkey" FOREIGN KEY ("employeeId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BillOutcome" ADD CONSTRAINT "BillOutcome_bookId_fkey" FOREIGN KEY ("bookId") REFERENCES "Book"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Rule" ADD CONSTRAINT "Rule_creatorId_fkey" FOREIGN KEY ("creatorId") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -51,6 +51,7 @@ model Book {
     coverImage      String? 
     inventory       Inventory?
     deletedAt       DateTime? 
+    billOutcomes    BillOutcome[] 
     @@index([cost])
     @@index([title])
     

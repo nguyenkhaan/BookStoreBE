@@ -17,17 +17,18 @@ model BillIncome {   //
 //Them phuong thuc thanh toan. 
 
 model BillOutcome {   //Phieu nhap 
-    id                  Int         @id @default(autoincrement()) //Them code (So Phieu Nhap, sua id thanh Integer)
+    id                  Int         @id @default(autoincrement())
     code                String      @unique
     publisherId         Int
     publisher           Publisher     @relation(fields: [publisherId], references: [id])
     employeeId          Int
     creator             Employee      @relation(fields: [employeeId], references: [id])
+    bookId              Int 
+    book                Book      @relation(fields: [bookId], references: [id])  
     cost                Decimal
     status              OutcomeStatus
+    quantity            Int             @default(0) 
     createdAt           DateTime      @default(now())
     updatedAt           DateTime      @updatedAt
     deletedAt           DateTime? 
-    //Chinh sua lai, nhap bao nhieu sach, them truong so luong ? 
-    //Them ghi chu 
 }
