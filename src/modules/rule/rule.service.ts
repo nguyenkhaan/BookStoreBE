@@ -1,6 +1,6 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UpdateRuleData } from './dto/rule.dto';
+import { CreateRuleData, UpdateRuleData } from './dto/rule.dto';
 
 @Injectable()
 export class RuleService {
@@ -15,7 +15,7 @@ export class RuleService {
 		}
 	}
 
-	async createRule(data: any, creatorId: number) {
+	async createRule(data: CreateRuleData, creatorId: number) {
 		try {
 			if (!creatorId)
 				throw new BadRequestException('Token Invalid or Expires');
@@ -25,6 +25,9 @@ export class RuleService {
 					content: data.content,
 					appliedAt: new Date(data.appliedAt),
 					creatorId: creatorId,
+					status : data.status, 
+					shortDescription: data.shortDescription, 
+					type: data.type
 				},
 			});
 			return rule;
