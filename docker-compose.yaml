@@ -42,7 +42,7 @@ services:
     ports:
       - "4000:4000"
     env_file:
-      - /opt/jobportal/.env
+      - /opt/bookstore/.env
     depends_on:
       postgres:
         condition: service_healthy
