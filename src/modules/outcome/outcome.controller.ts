@@ -1,11 +1,11 @@
 import { Roles } from '@/bases/decorators/role.decorators';
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '@/bases/guards/role.guard';
 import { OutcomeService } from './outcome.service';
 import type { Request } from 'express';
-import { CreateOutcomeData } from './dto/outcome.dto';
+import { CreateOutcomeData, UpdateOutcomeData } from './dto/outcome.dto';
 @Controller('outcome')
 @Roles(Role.EMPLOYEE)
 @UseGuards(JwtAuthGuard, RolesGuard) //Danh sach phieu nhap (Nhap hang)
@@ -38,8 +38,28 @@ export class OutcomeController {
         const employeeId = user.id 
         if (employeeId) 
         {
-            console.log(createOutcomeData)
+            console.log(employeeId) 
+            const responseData = await this.outcomeService.createOutcomeBill(employeeId , createOutcomeData) 
+            return responseData
         } 
-        throw new UnauthorizedException("Employee Unauthorized")
+        else throw new UnauthorizedException("Employee Unauthorized")
+    }
+    @Put("/:outcomeId")
+    async updateOutcomeBill(
+            @Param('outcomeId', ParseIntPipe) outcomeId: number,
+            @Body() updateOutcomeData : UpdateOutcomeData
+    ) {
+            const responseData = await this.outcomeService.updateOutcomeBill(
+                outcomeId,
+                updateOutcomeData,
+            );
+            return responseData;
+    }
+    @Delete("/:outcomeId")
+    async deleteOutcomeBill(
+            @Param('outcomeId', ParseIntPipe) outcomeId: number,
+    ) {
+            const responseData = await this.outcomeService.deleteOutcomeBill(outcomeId);
+            return responseData;
     }
 }

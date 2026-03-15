@@ -1,6 +1,6 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateOutcomeData } from './dto/outcome.dto';
+import { CreateOutcomeData, UpdateOutcomeData } from './dto/outcome.dto';
 
 @Injectable()
 export class OutcomeService {
@@ -38,7 +38,7 @@ export class OutcomeService {
 			const outcomeBill = await this.prismaService.billOutcome.findFirst({
 				where: {
 					id,
-                    deletedAt : null 
+                    deletedAt : null, 
 				},
 				select: {
 					id: true,
@@ -103,7 +103,7 @@ export class OutcomeService {
     {
         try 
         {
-                await this.prismaService.$transaction(async (tx) => {
+                const results = await this.prismaService.$transaction(async (tx) => {
                 const res = await tx.billOutcome.create({
                     data: {
                         code : createOutcomeData.code, 
@@ -127,8 +127,8 @@ export class OutcomeService {
                     }
                 })
                 return res 
-
             })
+			return results
         } 
         catch (err) 
         {
@@ -136,4 +136,59 @@ export class OutcomeService {
             throw err 
         }
     }
+	async updateOutcomeBill(billOutcomeId : number , updateOutcomeData : UpdateOutcomeData) 
+	{
+		try 
+		{
+			const results = await this.prismaService.$transaction(async (tx) => {
+				const bill = await tx.billOutcome.update({
+					where : {
+						id : billOutcomeId, 
+						deletedAt: null 
+					} , 
+					data: { 
+						...updateOutcomeData
+					 } 
+				})
+				if (updateOutcomeData.bookId) 
+				{
+					await tx.inventory.update({
+						where: {
+							bookId : updateOutcomeData.bookId
+						}, 
+						data: {
+							stock : updateOutcomeData.quantity
+						}
+					})
+				}
+				return bill 
+			})
+			return results
+		} 
+		catch (err) 
+		{
+			console.log("Update outcome bill err" , err)  
+			throw err 
+		}
+	}
+	async deleteOutcomeBill(billOutcomeId : number) 
+	{
+		try 
+		{
+			const bill = await this.prismaService.billOutcome.update({
+				where: {
+					id : billOutcomeId
+				}, 
+				data: {
+					deletedAt : new Date() 
+				}
+			})
+			return bill
+		} 
+		catch (err) 
+		{
+			console.log("Delete Outcome Bill Error: " , err) 
+			throw err 
+		}
+	}
 }
