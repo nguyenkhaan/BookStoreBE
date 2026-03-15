@@ -1,4 +1,11 @@
-import { IsInt, IsString, IsEnum, IsNumber, Min, IsNotEmpty } from 'class-validator';
+import {
+	IsInt,
+	IsString,
+	IsEnum,
+	IsNumber,
+	Min,
+	IsNotEmpty,
+} from 'class-validator';
 import { OutcomeStatus } from '@prisma/client';
 import { PartialType } from '@nestjs/swagger';
 
@@ -14,12 +21,12 @@ export class CreateOutcomeData {
 
 	@IsEnum(OutcomeStatus)
 	status: OutcomeStatus;
-	@IsInt() 
-	@Min(0) 
-	quantity : number 
-	@IsInt() 
-	@Min(1) 
-	@IsNotEmpty() 
-	bookId : number 
+	@IsInt()
+	@Min(0)
+	quantity: number;
+	@IsInt()
+	@Min(1)
+	@IsNotEmpty()
+	bookId: number;
 }
 export class UpdateOutcomeData extends PartialType(CreateOutcomeData) {}

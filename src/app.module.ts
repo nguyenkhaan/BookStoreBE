@@ -17,6 +17,7 @@ import { BookModule } from './modules/book/book.module';
 import { BillModule } from './modules/bill/bill.module';
 import { VoucherModule } from './modules/voucher/voucher.module';
 import { OutcomeModule } from './modules/outcome/outcome.module';
+import { IncomeModule } from './modules/income/income.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -33,7 +34,8 @@ import { OutcomeModule } from './modules/outcome/outcome.module';
 		BookModule,
 		BillModule,
 		VoucherModule,
-		OutcomeModule
+		OutcomeModule,
+		IncomeModule
 	],
 	controllers: [AppController],
 	providers: [

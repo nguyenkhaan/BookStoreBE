@@ -8,7 +8,7 @@ export class OutcomeService {
 	async getAllOutcome() {
 		try {
 			const outcomeBills = await this.prismaService.billOutcome.findMany({
-                where: { deletedAt : null }, 
+				where: { deletedAt: null },
 				select: {
 					id: true,
 					code: true,
@@ -38,7 +38,7 @@ export class OutcomeService {
 			const outcomeBill = await this.prismaService.billOutcome.findFirst({
 				where: {
 					id,
-                    deletedAt : null, 
+					deletedAt: null,
 				},
 				select: {
 					id: true,
@@ -71,7 +71,7 @@ export class OutcomeService {
 			const outcomeBill = await this.prismaService.billOutcome.findFirst({
 				where: {
 					code,
-                    deletedAt : null 
+					deletedAt: null,
 				},
 				select: {
 					id: true,
@@ -99,96 +99,93 @@ export class OutcomeService {
 			throw err;
 		}
 	}
-    async createOutcomeBill(creatorId : number , createOutcomeData : CreateOutcomeData) 
-    {
-        try 
-        {
-                const results = await this.prismaService.$transaction(async (tx) => {
-                const res = await tx.billOutcome.create({
-                    data: {
-                        code : createOutcomeData.code, 
-                        cost : createOutcomeData.cost, 
-                        status : createOutcomeData.status, 
-                        quantity : createOutcomeData.quantity, 
-                        publisherId : createOutcomeData.publisherId, 
-                        employeeId : creatorId, 
-                        bookId : createOutcomeData.bookId
-                    }
-                })
-                //Tang so luong stock len 
-                await tx.inventory.update({
-                    where: {
-                        bookId : createOutcomeData.bookId
-                    }, 
-                    data: {
-                        stock : {
-                            increment: createOutcomeData.quantity
-                        }
-                    }
-                })
-                return res 
-            })
-			return results
-        } 
-        catch (err) 
-        {
-            console.log("Create Outcome Error: " , err) 
-            throw err 
-        }
-    }
-	async updateOutcomeBill(billOutcomeId : number , updateOutcomeData : UpdateOutcomeData) 
-	{
-		try 
-		{
-			const results = await this.prismaService.$transaction(async (tx) => {
-				const bill = await tx.billOutcome.update({
-					where : {
-						id : billOutcomeId, 
-						deletedAt: null 
-					} , 
-					data: { 
-						...updateOutcomeData
-					 } 
-				})
-				if (updateOutcomeData.bookId) 
-				{
+	async createOutcomeBill(
+		creatorId: number,
+		createOutcomeData: CreateOutcomeData,
+	) {
+		try {
+			const results = await this.prismaService.$transaction(
+				async (tx) => {
+					const res = await tx.billOutcome.create({
+						data: {
+							code: createOutcomeData.code,
+							cost: createOutcomeData.cost,
+							status: createOutcomeData.status,
+							quantity: createOutcomeData.quantity,
+							publisherId: createOutcomeData.publisherId,
+							employeeId: creatorId,
+							bookId: createOutcomeData.bookId,
+						},
+					});
+					//Tang so luong stock len
 					await tx.inventory.update({
 						where: {
-							bookId : updateOutcomeData.bookId
-						}, 
+							bookId: createOutcomeData.bookId,
+						},
 						data: {
-							stock : updateOutcomeData.quantity
-						}
-					})
-				}
-				return bill 
-			})
-			return results
-		} 
-		catch (err) 
-		{
-			console.log("Update outcome bill err" , err)  
-			throw err 
+							stock: {
+								increment: createOutcomeData.quantity,
+							},
+						},
+					});
+					return res;
+				},
+			);
+			return results;
+		} catch (err) {
+			console.log('Create Outcome Error: ', err);
+			throw err;
 		}
 	}
-	async deleteOutcomeBill(billOutcomeId : number) 
-	{
-		try 
-		{
+	async updateOutcomeBill(
+		billOutcomeId: number,
+		updateOutcomeData: UpdateOutcomeData,
+	) {
+		try {
+			const results = await this.prismaService.$transaction(
+				async (tx) => {
+					const bill = await tx.billOutcome.update({
+						where: {
+							id: billOutcomeId,
+							deletedAt: null,
+						},
+						data: {
+							...updateOutcomeData,
+						},
+					});
+					if (updateOutcomeData.bookId) {
+						await tx.inventory.update({
+							where: {
+								bookId: updateOutcomeData.bookId,
+							},
+							data: {
+								stock: updateOutcomeData.quantity,
+							},
+						});
+					}
+					return bill;
+				},
+			);
+			return results;
+		} catch (err) {
+			console.log('Update outcome bill err', err);
+			throw err;
+		}
+	}
+	async deleteOutcomeBill(billOutcomeId: number) {
+		try {
 			const bill = await this.prismaService.billOutcome.update({
 				where: {
-					id : billOutcomeId
-				}, 
+					id: billOutcomeId,
+				},
 				data: {
-					deletedAt : new Date() 
-				}
-			})
-			return bill
-		} 
-		catch (err) 
-		{
-			console.log("Delete Outcome Bill Error: " , err) 
-			throw err 
+					deletedAt: new Date(),
+				},
+			});
+			return bill;
+		} catch (err) {
+			console.log('Delete Outcome Bill Error: ', err);
+			throw err;
 		}
 	}
 }
