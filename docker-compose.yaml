@@ -42,14 +42,7 @@ services:
     ports:
       - "4000:4000"
     env_file:
-      - .env
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/app_db
-      MINIO_ENDPOINT: minio
-      MINIO_PORT: 9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-      MINIO_USE_SSL: "false"
+      - /opt/jobportal/.env
     depends_on:
       postgres:
         condition: service_healthy
