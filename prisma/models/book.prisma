@@ -15,9 +15,9 @@ model Author {
 model AuthorBook {
     id          Int @id @default(autoincrement()) 
     bookId      Int 
+    book        Book   @relation(fields: [bookId], references: [id])
     authorId    Int 
     author      Author @relation(fields: [authorId], references: [id])
-    book        Book   @relation(fields: [bookId], references: [id])
 
 }
 
