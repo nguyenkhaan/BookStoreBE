@@ -1,8 +1,7 @@
 import { EmployeeCodeRegex } from '@/bases/commons/regex/app.regex';
-import { OmitType, PartialType } from '@nestjs/swagger';
 import { EmployeeStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
-
+import { PartialType , OmitType} from '@nestjs/mapped-types';
 import {
 	IsEmail,
 	IsString,
@@ -10,6 +9,7 @@ import {
 	Matches,
 	IsEnum,
 	IsNumber,
+	Min,
 } from 'class-validator';
 export class RegisterData {
 	@IsNotEmpty()
@@ -25,13 +25,17 @@ export class RegisterData {
 	@Matches(/^\d{10,11}$/, {
 		message: 'Phone number must between 10 and 11 numbers',
 	})
-	@IsString() 
+	@IsString()
 	phone: string;
-	@Matches(EmployeeCodeRegex , {
-		message: "Employee Code must be in format NV001"
+	@Matches(EmployeeCodeRegex, {
+		message: 'Employee Code must be in format NV001',
 	})
-	@IsString() 
-	code : string 
+	@IsNumber()
+	@Min(0)
+	salary: number;
+
+	@IsString()
+	code: string;
 	@IsString()
 	name: string;
 	@IsEnum(EmployeeStatus, {

@@ -27,18 +27,15 @@ export class BookController {
 		const books = await this.bookService.getAllBooks();
 		return books;
 	}
-    @UseInterceptors(FileInterceptor("data"))
-    @Post("/upload") 
-    async uploadBookExcels(
-        @UploadedFile() file : Express.Multer.File 
-    ) 
-    {
-        const responseData = await this.bookService.uploadBookData(file) 
-        return responseData 
-    }
-    @Get('/statistic')
+	@UseInterceptors(FileInterceptor('data'))
+	@Post('/upload')
+	async uploadBookExcels(@UploadedFile() file: Express.Multer.File) {
+		const responseData = await this.bookService.uploadBookData(file);
+		return responseData;
+	}
+	@Get('/statistic')
 	async statisticBookInformation() {
-        console.log("Running") 
+		console.log('Running');
 		//Thong ke tong so luong dau sach, tong so tien sach,...
 		const responseData = await this.bookService.statisticBook();
 		return responseData;
@@ -46,6 +43,11 @@ export class BookController {
 	@Get('/:bookId')
 	async getBookById(@Param('bookId', ParseIntPipe) bookId: number) {
 		const responseData = await this.bookService.getBookById(Number(bookId));
+		return responseData;
+	}
+	@Get('/code/:code')
+	async getBookByCode(@Param('code') code: string) {
+		const responseData = await this.bookService.getBookByCode(code);
 		return responseData;
 	}
 	@Post()
@@ -84,5 +86,4 @@ export class BookController {
 		const responseData = await this.bookService.deleteBookById(bookId);
 		return responseData;
 	}
-
 }

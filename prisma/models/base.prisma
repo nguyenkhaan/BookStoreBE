@@ -9,7 +9,21 @@ enum Role {
     EMPLOYEE
     CUSTOMER
 }
-
+enum MemberGrade {
+    BRONZE 
+    GOLD 
+    SILVER 
+    DIAMOND 
+}
+enum RuleType {
+    HUMAN 
+    WORKING 
+    ADMINISTRATIVE  
+}
+enum VoucherType {
+    VND 
+    PERCENT 
+}
 enum IncomeStatus {
     NOT_STARTED
     COMPLETE
@@ -39,4 +53,14 @@ enum TokenType {
 enum EmployeeStatus {
     WORKING
     RETIRED
+}
+enum RuleStatus {
+    APPLYING 
+    REJECT 
+    
+}
+enum BillStatus {
+    COMPLETE 
+    PENDING 
+    
 }

@@ -147,7 +147,8 @@ async function adminSeeder()
             positionId: position!.id, 
             phone: "081829292", 
             status: EmployeeStatus.WORKING, 
-            active: true 
+            active: true, 
+            salary: 1000
         }
     })
     //Create roles 

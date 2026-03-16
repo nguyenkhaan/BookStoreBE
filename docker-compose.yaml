@@ -42,7 +42,7 @@ services:
     ports:
       - "4000:4000"
     env_file:
-      - .env
+      - /opt/bookstore/.env
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/app_db
       MINIO_ENDPOINT: minio
