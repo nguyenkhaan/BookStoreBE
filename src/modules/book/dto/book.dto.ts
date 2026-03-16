@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 
 import { Transform, Type } from 'class-transformer';
-import { PartialType } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/mapped-types';
 import { BookCodeRegex } from '@/bases/commons/regex/app.regex';
 
 export class CreateBookData {

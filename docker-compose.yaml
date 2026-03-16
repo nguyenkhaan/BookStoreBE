@@ -42,7 +42,7 @@ services:
     ports:
       - "4000:4000"
     env_file:
-      - /opt/bookstore/.env
+      - /home/cloud/workspace/web/BookStore/BookStoreBE/.env
     depends_on:
       postgres:
         condition: service_healthy

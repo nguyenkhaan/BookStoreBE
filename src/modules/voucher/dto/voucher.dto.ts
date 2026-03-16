@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/mapped-types';
 import { VoucherStatus, VoucherType } from '@prisma/client';
 import {
 	IsString,
