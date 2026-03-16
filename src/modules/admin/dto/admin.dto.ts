@@ -1,8 +1,7 @@
 import { EmployeeCodeRegex } from '@/bases/commons/regex/app.regex';
-import { OmitType, PartialType } from '@nestjs/swagger';
 import { EmployeeStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
-
+import { PartialType , OmitType} from '@nestjs/mapped-types';
 import {
 	IsEmail,
 	IsString,

@@ -2,8 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { INestApplication } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { apiReference } from '@scalar/nestjs-api-reference';
+
 
 async function bootstrap() {
 	const port = process.env.PORT || 4000;
@@ -17,7 +16,7 @@ async function bootstrap() {
 		}),
 	);
 
-	processSwagger(app);
+	await processSwagger(app);
 	await app.listen(port);
 
 	// --- Configuration for Display ---
@@ -48,7 +47,10 @@ async function bootstrap() {
     `);
 
 	//Api documentation : https://www.linkedin.com/pulse/write-api-documentation-like-pro-nestjs-mikayel-hovhannisyan-vqc5f
-	function processSwagger(app: INestApplication): void {
+	async function processSwagger(app: INestApplication): Promise<void> {
+		if (process.env.NODE_ENV === 'production') return 
+		const { SwaggerModule, DocumentBuilder } = await import('@nestjs/swagger') 
+		const { apiReference } = await import('@scalar/nestjs-api-reference')
 		const config = new DocumentBuilder()
 			.setTitle('Backend API Documentation')
 			.build();

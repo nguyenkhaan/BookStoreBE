@@ -10,7 +10,7 @@
     "*.{jsx,js,ts,tsx}": "eslint --max-warnings=0"
   },
   "scripts": {
-    "build": "bun run scripts/build.ts",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json", 
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "dev": "NODE_ENV=development bun run --bun --watch src/main.ts",
@@ -22,7 +22,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prepare": "husky"
+    "prepare": "command -v husky >/dev/null 2>&1 && husky"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -48,6 +48,7 @@
     "prisma": "^7.4.2",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "tsc-alias": "^1.8.16",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
