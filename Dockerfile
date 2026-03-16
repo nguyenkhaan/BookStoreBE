@@ -14,7 +14,7 @@ RUN cd /temp/prod && bun install --frozen-lockfile --production --ignore-scripts
 # build stage
 FROM base AS prerelease
 COPY --from=install /temp/dev/node_modules node_modules
-COPY prisma ./prisma
+COPY . .
 
 RUN bunx prisma generate
 
@@ -22,14 +22,12 @@ RUN bunx prisma generate
 RUN mkdir -p node_modules/@prisma && \
     cp -r generated/prisma node_modules/@prisma/client
 
-COPY . .
 ENV NODE_ENV=production
 RUN bun run build
 
 # release stage
 FROM base AS release
 COPY --from=install /temp/prod/node_modules node_modules
-
 COPY --from=prerelease /usr/src/app/package.json .
 COPY --from=prerelease /usr/src/app/dist dist
 COPY --from=prerelease /usr/src/app/generated generated
