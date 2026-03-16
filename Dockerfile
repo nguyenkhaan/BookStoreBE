@@ -15,7 +15,7 @@ RUN cd /temp/prod && bun install --frozen-lockfile --production --ignore-scripts
 FROM base AS prerelease
 COPY --from=install /temp/dev/node_modules node_modules
 COPY prisma ./prisma
-RUN bunx prisma generate
+RUN bunx prisma generate --schema=prisma/models/schema.prisma
 COPY . .
 ENV NODE_ENV=production
 RUN bun run build
