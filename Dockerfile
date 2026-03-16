@@ -16,6 +16,8 @@ FROM base AS prerelease
 COPY --from=install /temp/dev/node_modules node_modules
 COPY prisma ./prisma
 RUN bunx prisma generate --schema=prisma/models/schema.prisma
+RUN mkdir -p node_modules/@prisma && \
+    cp -r generated/prisma node_modules/@prisma/client
 COPY . .
 ENV NODE_ENV=production
 RUN bun run build
