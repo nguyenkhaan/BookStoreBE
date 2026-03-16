@@ -42,4 +42,7 @@ export class UpdateRuleData {
 	shortDescription: string;
 	@IsOptional()
 	type?: RuleType;
+	@IsEnum(RuleStatus) 
+	@IsOptional() 
+	status? : RuleStatus
 }
