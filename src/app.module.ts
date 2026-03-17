@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TestModule } from './modules/test/test.module';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpExceptionFilter } from './bases/filters/http-exception.filter';
 import { LoggingInterceptor } from './bases/interceptors/logging.interceptos';
 import { TransformInterceptor } from './bases/interceptors/transform.interceptor';
@@ -20,6 +20,9 @@ import { OutcomeModule } from './modules/outcome/outcome.module';
 import { IncomeModule } from './modules/income/income.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisOptions } from './configs/app-redis-options.constants';
+import { RedisModule } from './modules/redis/redis.module';
+import { RateLimitGuard } from './bases/guards/rate-limit.guard';
+import { BlacklistGuard } from './bases/guards/blacklist.guard';
 //Add  e module here
 @Module({
 	imports: [
@@ -29,6 +32,7 @@ import { RedisOptions } from './configs/app-redis-options.constants';
 			isGlobal: true,
 		}), 
 		CacheModule.registerAsync(RedisOptions), 
+		RedisModule, 
 		MinioModule,
 		AuthModule,
 		AdminModule,
@@ -38,7 +42,7 @@ import { RedisOptions } from './configs/app-redis-options.constants';
 		BillModule,
 		VoucherModule,
 		OutcomeModule,
-		IncomeModule
+		IncomeModule, 
 	],
 	controllers: [AppController],
 	providers: [
@@ -54,7 +58,16 @@ import { RedisOptions } from './configs/app-redis-options.constants';
 		{
 			provide: APP_INTERCEPTOR,
 			useClass: TransformInterceptor,
-		},
+		}, 
+		{
+			provide: APP_GUARD, 
+			useClass : RateLimitGuard
+		}, 
+		{
+			provide: APP_GUARD, 
+			useClass : BlacklistGuard
+		}
+
 	],
 })
 export class AppModule {}

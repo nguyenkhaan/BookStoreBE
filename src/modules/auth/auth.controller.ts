@@ -13,6 +13,11 @@ export class AuthController {
 	async verify(@Query('token') token: String) {
 		console.log(token);
 	}
+	@Get("/test") 
+	async testingAuth() 
+	{
+		return "Get this to have rate limit" 
+	}
 	@Post('login')
 	@UseGuards(LocalAuthGuard)
 	async login(@Req() req: Request) {
