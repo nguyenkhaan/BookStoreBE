@@ -24,6 +24,7 @@ export class CreateRuleData {
 	@IsNotEmpty()
 	@IsString()
 	shortDescription: string;
+
 }
 export class UpdateRuleData {
 	@IsString()

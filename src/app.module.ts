@@ -18,6 +18,8 @@ import { BillModule } from './modules/bill/bill.module';
 import { VoucherModule } from './modules/voucher/voucher.module';
 import { OutcomeModule } from './modules/outcome/outcome.module';
 import { IncomeModule } from './modules/income/income.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { RedisOptions } from './configs/app-redis-options.constants';
 //Add  e module here
 @Module({
 	imports: [
@@ -25,7 +27,8 @@ import { IncomeModule } from './modules/income/income.module';
 		PrismaModule,
 		ConfigModule.forRoot({
 			isGlobal: true,
-		}),
+		}), 
+		CacheModule.registerAsync(RedisOptions), 
 		MinioModule,
 		AuthModule,
 		AdminModule,

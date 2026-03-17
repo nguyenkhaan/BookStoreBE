@@ -32,7 +32,16 @@ services:
       - "9001:9001"
     volumes:
       - minio_data:/data
-
+  #docker exec -it redis redis-cli 
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
   api:
     container_name: app-be-server
     build:
@@ -58,3 +67,4 @@ services:
 volumes:
   postgres_data:
   minio_data:
+  redis_data:
