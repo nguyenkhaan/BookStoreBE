@@ -24,6 +24,7 @@ import { RedisModule } from './modules/redis/redis.module';
 import { RateLimitGuard } from './bases/guards/rate-limit.guard';
 import { BlacklistGuard } from './bases/guards/blacklist.guard';
 import { SearchModule } from './modules/search/search.module';
+import { StatisticModule } from './statistic/statistic.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -45,6 +46,7 @@ import { SearchModule } from './modules/search/search.module';
 		OutcomeModule,
 		IncomeModule,
 		SearchModule,
+		StatisticModule
 	],
 	controllers: [AppController],
 	providers: [

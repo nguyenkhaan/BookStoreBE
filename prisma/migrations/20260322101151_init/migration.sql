@@ -133,6 +133,7 @@ CREATE TABLE "Book" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "coverImage" TEXT,
+    "category" "BookCategory" NOT NULL DEFAULT 'MANGA',
     "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("id")

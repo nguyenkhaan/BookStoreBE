@@ -6,6 +6,7 @@ import { CreateBookData, UpdateBookData } from './dto/book.dto';
 import type { Express } from 'express';
 import convertExcelToJson from '@/utlitis/excelToJson';
 import { UploadBookService } from './helpers/book.upload';
+import { BookCategory } from '@prisma/client';
 @Injectable()
 export class BookService {
 	constructor(
@@ -138,6 +139,7 @@ export class BookService {
 			const book = await this.prismaService.book.create({
 				data: {
 					title: createBookData.title,
+					category : createBookData.category || BookCategory.MANGA, 
 					cost: createBookData.cost,
 					code: createBookData.code,
 					year: createBookData.year,
@@ -227,8 +229,15 @@ export class BookService {
 			const updatedBook = await this.prismaService.book.update({
 				where: { id },
 				data: {
-					title: updateBook.title,
-					cost: updateBook.cost,
+					...(updateBook.title && {
+						title : updateBook.title
+					}), 
+					...(updateBook.cost && {
+						title : updateBook.title
+					}), 
+					...(updateBook.category && {
+						title : updateBook.category
+					}), 
 					coverImage: fileName,
 
 					...(updateBook.authorIds && {

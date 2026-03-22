@@ -1,5 +1,6 @@
 import {
 	IsArray,
+	IsEnum,
 	IsInt,
 	IsNumber,
 	IsOptional,
@@ -11,6 +12,7 @@ import {
 import { Transform, Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 import { BookCodeRegex } from '@/bases/commons/regex/app.regex';
+import { BookCategory } from '@prisma/client';
 
 export class CreateBookData {
 	@IsString()
@@ -36,7 +38,8 @@ export class CreateBookData {
 	@IsArray()
 	@IsInt({ each: true })
 	authorIds: number[];
-
+	@IsEnum(BookCategory)
+	category : BookCategory
 	@IsOptional()
 	@IsInt()
 	@Type(() => Number)
