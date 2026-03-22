@@ -1,0 +1,3 @@
+service:object-type:id 
+
+bookstore:user:login:email : Rate limit for login 

@@ -1,58 +1,58 @@
 model Publisher {
-    id           Int           @id @default(autoincrement())
-    name         String        @unique
+    id           Int             @id @default(autoincrement())
+    name         String          @unique
     billOutComes BillOutcome[]
-    books        PublisherBook[] 
+    books        PublisherBook[]
 }
 
 model Author {
-    id          Int    @id @default(autoincrement())
-    name        String
-    books       AuthorBook[]
+    id    Int          @id @default(autoincrement())
+    name  String
+    books AuthorBook[]
+
     @@index([name])
 }
 
 model AuthorBook {
-    id          Int @id @default(autoincrement()) 
-    bookId      Int 
-    authorId    Int 
-    author      Author @relation(fields: [authorId], references: [id])
-    book        Book   @relation(fields: [bookId], references: [id])
-
+    id       Int    @id @default(autoincrement())
+    bookId   Int
+    authorId Int
+    author   Author @relation(fields: [authorId], references: [id])
+    book     Book   @relation(fields: [bookId], references: [id])
 }
 
 model PublisherBook {
-    id Int @id @default(autoincrement()) 
-    bookId Int 
-    publisher Publisher @relation(fields: [publisherId], references: [id])
-    book   Book   @relation(fields: [bookId], references: [id])
-    publisherId Int 
-
+    id          Int       @id @default(autoincrement())
+    bookId      Int
+    publisher   Publisher @relation(fields: [publisherId], references: [id])
+    book        Book      @relation(fields: [bookId], references: [id])
+    publisherId Int
 }
 
 model Inventory {
-    bookId          Int      @id
-    book            Book     @relation(fields: [bookId], references: [id])
-    stock           Int      @default(0)
-    updatedAt       DateTime @updatedAt
+    bookId    Int      @id
+    book      Book     @relation(fields: [bookId], references: [id])
+    stock     Int      @default(0)
+    updatedAt DateTime @updatedAt
 }
 
 model Book {
-    id              Int        @id @default(autoincrement())
-    code            String @unique 
-    cost            Decimal    @default(0)
-    title           String
-    authors         AuthorBook[] 
-    publishers      PublisherBook[] 
-    bills           BillDetail[] 
-    year            Int 
-    createdAt       DateTime   @default(now())
-    updatedAt       DateTime   @default(now())
-    coverImage      String? 
-    inventory       Inventory?
-    deletedAt       DateTime? 
-    billOutcomes    BillOutcome[] 
+    id           Int             @id @default(autoincrement())
+    code         String          @unique
+    cost         Decimal         @default(0)
+    title        String
+    authors      AuthorBook[]
+    publishers   PublisherBook[]
+    bills        BillDetail[]
+    year         Int
+    createdAt    DateTime        @default(now())
+    updatedAt    DateTime        @default(now())
+    coverImage   String?
+    inventory    Inventory?
+    category     BookCategory    @default(MANGA)
+    deletedAt    DateTime?
+    billOutcomes BillOutcome[]
+
     @@index([cost])
     @@index([title])
-    
 }

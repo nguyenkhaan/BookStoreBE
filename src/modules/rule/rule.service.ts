@@ -25,9 +25,9 @@ export class RuleService {
 					content: data.content,
 					appliedAt: new Date(data.appliedAt),
 					creatorId: creatorId,
-					status : data.status, 
-					shortDescription : data.shortDescription, 
-					type : data.type
+					status: data.status,
+					shortDescription: data.shortDescription,
+					type: data.type,
 				},
 			});
 			return rule;
@@ -41,11 +41,16 @@ export class RuleService {
 		return this.prismaService.rule.update({
 			where: { id },
 			data: {
-				title: data.title,
-				content: data.content,
-				appliedAt: data.appliedAt
-					? new Date(data.appliedAt)
-					: undefined,
+				...(data.title && { title: data.title }),
+				...(data.content && { content: data.content }),
+				...(data.shortDescription && {shortDescription : data.shortDescription}), 
+				...(data.status && { rule : data.status }), 
+				...(data.type && { rule : data.type }), 
+				...(data.appliedAt && {
+					 appliedAt: data.appliedAt
+        ? new Date(data.appliedAt)
+        : undefined,
+				}),
 			},
 		});
 	}

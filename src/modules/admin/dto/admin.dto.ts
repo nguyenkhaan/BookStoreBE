@@ -1,7 +1,7 @@
 import { EmployeeCodeRegex } from '@/bases/commons/regex/app.regex';
 import { EmployeeStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { PartialType , OmitType} from '@nestjs/mapped-types';
+import { PartialType, OmitType } from '@nestjs/mapped-types';
 import {
 	IsEmail,
 	IsString,
@@ -15,27 +15,31 @@ export class RegisterData {
 	@IsNotEmpty()
 	@IsEmail()
 	email: string;
+
 	@IsNotEmpty()
 	@Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/, {
 		message:
 			'Password at least 5 characters, including at least a characters and a number',
 	})
 	password: string;
-	@IsString()
+
 	@Matches(/^\d{10,11}$/, {
 		message: 'Phone number must between 10 and 11 numbers',
 	})
 	@IsString()
 	phone: string;
+
 	@Matches(EmployeeCodeRegex, {
 		message: 'Employee Code must be in format NV001',
 	})
+	@IsString()
+	code: string;
+
+	@Type(() => Number)
 	@IsNumber()
 	@Min(0)
 	salary: number;
 
-	@IsString()
-	code: string;
 	@IsString()
 	name: string;
 	@IsEnum(EmployeeStatus, {

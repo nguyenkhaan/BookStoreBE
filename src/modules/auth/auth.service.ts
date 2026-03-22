@@ -45,8 +45,7 @@ export class AuthService {
 
 	async login(email: string, password: string, user: any) {
 		try {
-			console.log(email);
-			console.log(password);
+			console.log('Login: ', email);
 			const result = await Bun.password.verify(password, user.password);
 			if (!result) throw new BadRequestException('Wrong Password');
 			const roles = await this.prismaService.userRole.findMany({
@@ -131,7 +130,6 @@ export class AuthService {
 	}
 	async logout(userId: number, roles: Role[]) {
 		try {
-			//Xoa tat ca token co lien quan den userId
 			if (roles.includes(Role.EMPLOYEE) || roles.includes(Role.ADMIN)) {
 				await this.prismaService.token.deleteMany({
 					where: {
