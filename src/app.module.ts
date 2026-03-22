@@ -23,7 +23,7 @@ import { RedisOptions } from './configs/app-redis-options.constants';
 import { RedisModule } from './modules/redis/redis.module';
 import { RateLimitGuard } from './bases/guards/rate-limit.guard';
 import { BlacklistGuard } from './bases/guards/blacklist.guard';
-import { SearchModule } from './modules/auth/search/search.module';
+import { SearchModule } from './modules/search/search.module';
 //Add  e module here
 @Module({
 	imports: [
