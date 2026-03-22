@@ -46,7 +46,7 @@ export class BookController {
 		return responseData;
 	}
 	@Get('/code/:code')
-	async getBookByCode(@Param('code') code: string) {
+	async getBookByCode(@Param('code') code: string) {  //Them sua sach 
 		const responseData = await this.bookService.getBookByCode(code);
 		return responseData;
 	}

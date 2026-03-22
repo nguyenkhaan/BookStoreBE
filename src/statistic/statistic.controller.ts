@@ -46,4 +46,10 @@ export class StatisticController {
     {
         return await this.statisticService.getCustomerByGrade() 
     }
+    @Get("/:month") 
+    async statisticGeneral(@Param("month" , ParseIntPipe) month : number) 
+    {
+        console.log(month) 
+        //Thong ke tat ca thong tin theo 1 thang cu the 
+    }
 }
