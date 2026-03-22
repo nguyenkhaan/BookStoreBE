@@ -25,9 +25,9 @@ export class RuleService {
 					content: data.content,
 					appliedAt: new Date(data.appliedAt),
 					creatorId: creatorId,
-					status : data.status, 
-					shortDescription : data.shortDescription, 
-					type : data.type
+					status: data.status,
+					shortDescription: data.shortDescription,
+					type: data.type,
 				},
 			});
 			return rule;

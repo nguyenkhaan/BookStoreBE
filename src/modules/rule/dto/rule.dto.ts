@@ -24,7 +24,6 @@ export class CreateRuleData {
 	@IsNotEmpty()
 	@IsString()
 	shortDescription: string;
-
 }
 export class UpdateRuleData {
 	@IsString()
@@ -43,7 +42,7 @@ export class UpdateRuleData {
 	shortDescription: string;
 	@IsOptional()
 	type?: RuleType;
-	@IsEnum(RuleStatus) 
-	@IsOptional() 
-	status? : RuleStatus
+	@IsEnum(RuleStatus)
+	@IsOptional()
+	status?: RuleStatus;
 }

@@ -21,7 +21,6 @@ export class AuthService {
 		private readonly prismaService: PrismaService,
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService,
-
 	) {}
 	async validateUser(email: string, password: string) {
 		try {
@@ -46,7 +45,7 @@ export class AuthService {
 
 	async login(email: string, password: string, user: any) {
 		try {
-			console.log("Login: " , email) 
+			console.log('Login: ', email);
 			const result = await Bun.password.verify(password, user.password);
 			if (!result) throw new BadRequestException('Wrong Password');
 			const roles = await this.prismaService.userRole.findMany({
@@ -131,7 +130,6 @@ export class AuthService {
 	}
 	async logout(userId: number, roles: Role[]) {
 		try {
-			
 			if (roles.includes(Role.EMPLOYEE) || roles.includes(Role.ADMIN)) {
 				await this.prismaService.token.deleteMany({
 					where: {

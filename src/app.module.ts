@@ -23,6 +23,7 @@ import { RedisOptions } from './configs/app-redis-options.constants';
 import { RedisModule } from './modules/redis/redis.module';
 import { RateLimitGuard } from './bases/guards/rate-limit.guard';
 import { BlacklistGuard } from './bases/guards/blacklist.guard';
+import { SearchModule } from './modules/auth/search/search.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -30,9 +31,9 @@ import { BlacklistGuard } from './bases/guards/blacklist.guard';
 		PrismaModule,
 		ConfigModule.forRoot({
 			isGlobal: true,
-		}), 
-		CacheModule.registerAsync(RedisOptions), 
-		RedisModule, 
+		}),
+		CacheModule.registerAsync(RedisOptions),
+		RedisModule,
 		MinioModule,
 		AuthModule,
 		AdminModule,
@@ -42,7 +43,8 @@ import { BlacklistGuard } from './bases/guards/blacklist.guard';
 		BillModule,
 		VoucherModule,
 		OutcomeModule,
-		IncomeModule, 
+		IncomeModule,
+		SearchModule,
 	],
 	controllers: [AppController],
 	providers: [
@@ -58,16 +60,15 @@ import { BlacklistGuard } from './bases/guards/blacklist.guard';
 		{
 			provide: APP_INTERCEPTOR,
 			useClass: TransformInterceptor,
-		}, 
+		},
 		{
-			provide: APP_GUARD, 
-			useClass : RateLimitGuard
-		}, 
+			provide: APP_GUARD,
+			useClass: RateLimitGuard,
+		},
 		{
-			provide: APP_GUARD, 
-			useClass : BlacklistGuard
-		}
-
+			provide: APP_GUARD,
+			useClass: BlacklistGuard,
+		},
 	],
 })
 export class AppModule {}
