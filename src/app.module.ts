@@ -25,6 +25,7 @@ import { RateLimitGuard } from './bases/guards/rate-limit.guard';
 import { BlacklistGuard } from './bases/guards/blacklist.guard';
 import { SearchModule } from './modules/search/search.module';
 import { StatisticModule } from './statistic/statistic.module';
+import { CustomerModule } from './modules/customer/customer.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -46,7 +47,8 @@ import { StatisticModule } from './statistic/statistic.module';
 		OutcomeModule,
 		IncomeModule,
 		SearchModule,
-		StatisticModule
+		StatisticModule, 
+		CustomerModule
 	],
 	controllers: [AppController],
 	providers: [
