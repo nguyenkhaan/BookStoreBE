@@ -1,5 +1,6 @@
 import { Roles } from '@/bases/decorators/role.decorators';
 import {
+	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -8,8 +9,7 @@ import {
 	ParseIntPipe,
 	Post,
 	Put,
-	Req,
-	UnauthorizedException,
+	Req, 
 	UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
@@ -53,7 +53,7 @@ export class OutcomeController {
 				createOutcomeData,
 			);
 			return responseData;
-		} else throw new UnauthorizedException('Employee Unauthorized');
+		} else throw new BadRequestException('Employee Not Found');
 	}
 	@Put('/:outcomeId')
 	async updateOutcomeBill(

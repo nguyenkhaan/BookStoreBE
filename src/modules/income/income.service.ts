@@ -65,6 +65,7 @@ export class IncomeService {
 					billId: dto.billId,
 					employeeId,
 					shortDescription: dto.shortDescription,
+					paymentMethod : dto.payment
 				},
 			});
 

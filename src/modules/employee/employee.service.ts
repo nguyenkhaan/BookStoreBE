@@ -74,7 +74,7 @@ export class EmployeeService {
 				throw new BadRequestException('Token invalid or expired');
 			await this.prismaService.employee.update({
 				where: {
-					id: payload[TokenBody.SUB],
+					id: payload[TokenBody.SUB]
 				},
 				data: {
 					active: true,

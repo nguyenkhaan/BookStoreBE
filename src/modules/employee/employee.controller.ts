@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '@/bases/guards/role.guard';
 import type { Request } from 'express';
 @Controller('employee')
+//http://localhost:4000/api
 export class EmployeeController {
 	constructor(private readonly employeeService: EmployeeService) {}
 	@Get('verify')

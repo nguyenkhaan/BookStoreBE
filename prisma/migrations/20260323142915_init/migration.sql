@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "BookCategory" AS ENUM ('HORROR', 'MANGA', 'SCIENCE_FICTION');
+CREATE TYPE "BookCategory" AS ENUM ('VAN_HOC', 'TRINH_THAM', 'THIEU_NHI', 'GIAO_DUC', 'KINH_TE', 'KY_NANG_SONG');
 
 -- CreateEnum
 CREATE TYPE "Role" AS ENUM ('ADMIN', 'EMPLOYEE', 'CUSTOMER');
@@ -8,31 +8,34 @@ CREATE TYPE "Role" AS ENUM ('ADMIN', 'EMPLOYEE', 'CUSTOMER');
 CREATE TYPE "MemberGrade" AS ENUM ('BRONZE', 'GOLD', 'SILVER', 'DIAMOND');
 
 -- CreateEnum
-CREATE TYPE "RuleType" AS ENUM ('HUMAN', 'WORKING', 'ADMINISTRATIVE');
+CREATE TYPE "RuleType" AS ENUM ('HUMAN', 'SALE', 'LOGISTIC', 'SERVICE', 'FINANCE', 'SAFETY');
 
 -- CreateEnum
 CREATE TYPE "VoucherType" AS ENUM ('VND', 'PERCENT');
 
 -- CreateEnum
-CREATE TYPE "IncomeStatus" AS ENUM ('NOT_STARTED', 'COMPLETE', 'PENDING', 'FAILED');
+CREATE TYPE "IncomeStatus" AS ENUM ('COMPLETE', 'PENDING', 'CANCEL');
 
 -- CreateEnum
-CREATE TYPE "OutcomeStatus" AS ENUM ('NOT_STARTED', 'COMPLETE', 'PENDING', 'FAILED');
+CREATE TYPE "OutcomeStatus" AS ENUM ('COMPLETE', 'PENDING', 'CANCEL');
 
 -- CreateEnum
-CREATE TYPE "VoucherStatus" AS ENUM ('APPLYING', 'ENDED');
+CREATE TYPE "VoucherStatus" AS ENUM ('APPLYING', 'UPCOMING', 'ENDED');
 
 -- CreateEnum
 CREATE TYPE "TokenType" AS ENUM ('RESET_PASSWORD', 'ACCESS', 'REFRESH', 'VERIFY_EMAIL');
 
 -- CreateEnum
-CREATE TYPE "EmployeeStatus" AS ENUM ('WORKING', 'RETIRED');
+CREATE TYPE "EmployeeStatus" AS ENUM ('WORKING', 'LEAVE', 'RETIRED');
 
 -- CreateEnum
 CREATE TYPE "RuleStatus" AS ENUM ('APPLYING', 'REJECT');
 
 -- CreateEnum
-CREATE TYPE "BillStatus" AS ENUM ('COMPLETE', 'PENDING');
+CREATE TYPE "BillStatus" AS ENUM ('COMPLETE', 'NOT_STARTED', 'OVERDUE');
+
+-- CreateEnum
+CREATE TYPE "IncomePaymentType" AS ENUM ('CASH', 'TRANSFER', 'CARD');
 
 -- CreateTable
 CREATE TABLE "Token" (
@@ -133,7 +136,7 @@ CREATE TABLE "Book" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "coverImage" TEXT,
-    "category" "BookCategory" NOT NULL DEFAULT 'MANGA',
+    "category" "BookCategory" NOT NULL DEFAULT 'THIEU_NHI',
     "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("id")
@@ -202,6 +205,7 @@ CREATE TABLE "BillIncome" (
     "status" "IncomeStatus" NOT NULL DEFAULT 'COMPLETE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "paymentMethod" "IncomePaymentType" NOT NULL DEFAULT 'CASH',
     "employeeId" INTEGER NOT NULL,
     "billId" INTEGER NOT NULL,
     "shortDescription" TEXT NOT NULL,

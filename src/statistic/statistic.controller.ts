@@ -18,6 +18,11 @@ export class StatisticController {
     constructor(
         private readonly statisticService : StatisticService
     ) {} 
+    @Get("general")  //Lay thong tin thong ke tong quan 
+    async getGeneralStatistic() 
+    {
+        return await this.statisticService.getGeneralStatistic() 
+    } 
 	@Get('revenue')
 	async revenueGeneral() {
 		//Lay doanh thu tong quat
