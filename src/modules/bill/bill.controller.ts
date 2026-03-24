@@ -20,6 +20,11 @@ import { BillService } from './bill.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class BillController {
 	constructor(private readonly billService: BillService) {}
+	@Get("statistic") 
+	async getGeneralStatistic() 
+	{
+		return await this.billService.getGeneralStatistic() 
+	}
 	@Get()
 	async getAllBills() {
 		const responseData = await this.billService.getAllBills();
@@ -41,5 +46,10 @@ export class BillController {
 			updateBillData,
 		);
 		return responseData;
+	}
+	@Get("code") 
+	async getBillByCode() 
+	{
+		
 	}
 }

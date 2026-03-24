@@ -63,4 +63,9 @@ export class VoucherController {
 		const responseData = await this.voucherService.deleteVoucher(voucherId);
 		return responseData;
 	}
+	@Get("statistic") 
+	async getVoucherGeneralStatistic() 
+	{
+		return await this.voucherService.getVoucherGeneralStatistic() 
+	}
 }

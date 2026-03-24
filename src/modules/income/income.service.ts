@@ -2,10 +2,51 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { CreateIncomeDto } from './dto/income.dto';
 import { UpdateIncomeDto } from './dto/income.dto';
+import { BillStatus } from '@prisma/client';
 @Injectable()
 export class IncomeService {
 	constructor(private prisma: PrismaService) {}
-
+	async getGeneralStatistic() 
+	{
+		try 
+		{
+			const totalIncomeBills = await this.prisma.billIncome.aggregate({
+				_count : { id : true }, 
+			}) 
+			const completeIncome = await this.prisma.billIncome.aggregate({
+				_count : { id : true }, 
+				where: {
+					bill : {
+						status : BillStatus.COMPLETE
+					}
+				}
+			})
+			const notStartedIncome = await this.prisma.billIncome.aggregate({
+				_count : { id : true }, 
+				where: {
+					bill : {
+						status : BillStatus.NOT_STARTED
+					}
+				}
+			})
+			const totalCost = await this.prisma.billIncome.aggregate({
+				_sum : {
+					cost : true 
+				} 
+			}) 
+			return {
+				totalIncomeBills : totalIncomeBills._count.id, 
+				completeIncome : completeIncome._count.id, 
+				notStartedIncome : notStartedIncome._count.id, 
+				totalCost : Number(totalCost._sum.cost ?? 0)
+			}
+		} 
+		catch (err) 
+		{
+			console.log("Get income statistic error: " , err) 
+			throw err 
+		}
+	}
 	async getAllIncome() {
 		return this.prisma.billIncome.findMany({
 			where: {

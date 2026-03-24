@@ -1,5 +1,5 @@
 import { Roles } from "@/bases/decorators/role.decorators";
-import { Controller, UseGuards } from "@nestjs/common";
+import { Controller, Get, Query, UseGuards } from "@nestjs/common";
 import { Role } from "@prisma/client";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { RolesGuard } from "@/bases/guards/role.guard";
@@ -25,5 +25,17 @@ export class CustomerController
     {
 
     } 
+    @Get("statistic") 
+    async getGeneralStatistic() 
+    {
+        return await this.customerService.getGeneralStatistic() 
+    }
+    @Get("phone") 
+    async getCustomerByPhoneNumber(
+        @Query("phone") phone : string 
+    ) //Thuc hien viec tim kiem 
+    {
+        return await this.customerService.getCustomerByPhone(phone) 
+    }
 
 }

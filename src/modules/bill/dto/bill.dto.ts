@@ -36,9 +36,11 @@ export class CreateBillData {
 	})
 	code: string;
 
-	@IsInt()
-	customerId: number;  //Sua thanh phone -> Tao Bill bang phone 
-
+	// @IsInt()
+	// customerId: number;  //Sua thanh phone -> Tao Bill bang phone 
+	@IsString() 
+	customerPhone : string 
+	
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => CreateBillDetailData)

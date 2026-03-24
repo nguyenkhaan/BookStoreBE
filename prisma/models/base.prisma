@@ -62,6 +62,7 @@ enum EmployeeStatus {
 }
 enum RuleStatus {
     APPLYING 
+    UPCOMING 
     REJECT 
     
 }

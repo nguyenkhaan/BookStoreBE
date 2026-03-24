@@ -139,7 +139,7 @@ export class BookService {
 			const book = await this.prismaService.book.create({
 				data: {
 					title: createBookData.title,
-					category : createBookData.category || BookCategory.MANGA, 
+					category : createBookData.category || BookCategory.GIAO_DUC, 
 					cost: createBookData.cost,
 					code: createBookData.code,
 					year: createBookData.year,
@@ -311,7 +311,6 @@ export class BookService {
 	}
 	async statisticBook() {
 		try {
-			console.log('Hello');
 			const totalBookTitle = await this.prismaService.book.count({
 				where: {
 					deletedAt: null,

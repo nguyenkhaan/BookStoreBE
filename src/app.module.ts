@@ -26,6 +26,8 @@ import { BlacklistGuard } from './bases/guards/blacklist.guard';
 import { SearchModule } from './modules/search/search.module';
 import { StatisticModule } from './statistic/statistic.module';
 import { CustomerModule } from './modules/customer/customer.module';
+import { AuthorModule } from './modules/author/author.module';
+import { PublisherModule } from './modules/publisher/publisher.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -48,7 +50,9 @@ import { CustomerModule } from './modules/customer/customer.module';
 		IncomeModule,
 		SearchModule,
 		StatisticModule, 
-		CustomerModule
+		CustomerModule, 
+		AuthorModule, 
+		PublisherModule
 	],
 	controllers: [AppController],
 	providers: [

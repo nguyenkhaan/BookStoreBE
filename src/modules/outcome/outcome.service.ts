@@ -1,10 +1,43 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOutcomeData, UpdateOutcomeData } from './dto/outcome.dto';
+import { OutcomeStatus } from '@prisma/client';
 
 @Injectable()
 export class OutcomeService {
 	constructor(private readonly prismaService: PrismaService) {}
+	async getGeneralStatistic() {
+		try {
+			const totalOutcomeBills = await this.prismaService.billOutcome.aggregate({
+				_count: { id: true },
+			});
+			const completeOutcome = await this.prismaService.billOutcome.aggregate({
+				_count: { id: true },
+				where: {
+					status : OutcomeStatus.COMPLETE
+				}
+			});
+			const notStartedOutcome = await this.prismaService.billOutcome.aggregate({
+				_count: { id: true },
+				where: {status : OutcomeStatus.CANCEL } 
+			
+			});
+			const totalCost = await this.prismaService.billOutcome.aggregate({
+				_sum: {
+					cost: true,
+				},
+			});
+			return {
+				totalOutcomeBills : totalOutcomeBills._count.id,
+				completeOutcome : completeOutcome._count.id,
+				notStartedOutcome : notStartedOutcome._count.id,
+				totalCost: Number(totalCost._sum.cost ?? 0),
+			};
+		} catch (err) {
+			console.log("Get outcome statistic error: " , err) 
+			throw err 
+		}
+	}
 	async getAllOutcome() {
 		try {
 			const outcomeBills = await this.prismaService.billOutcome.findMany({

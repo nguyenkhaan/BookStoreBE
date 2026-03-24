@@ -36,4 +36,14 @@ export class EmployeeController {
 		);
 		return responseData;
 	}
+	@Get("code") 
+	async getEmployeeByCode(@Query("code") code : string) 
+	{
+		return await this.employeeService.getEmployeeByCode(code) 
+	}
+	@Get("statistic") 
+	async getEmployeeGeneralStatistic() 
+	{
+		
+	}
 }

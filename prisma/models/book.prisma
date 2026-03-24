@@ -7,6 +7,7 @@ model Publisher {
 
 model Author {
     id    Int          @id @default(autoincrement())
+    code  String       @unique
     name  String
     books AuthorBook[]
 

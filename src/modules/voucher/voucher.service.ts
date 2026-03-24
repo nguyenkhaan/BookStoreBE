@@ -7,6 +7,8 @@ import { TransactionClient } from 'generated/prisma/internal/prismaNamespace';
 @Injectable()
 export class VoucherService {
 	constructor(private readonly prismaService: PrismaService) {}
+	
+	
 	checkVoucherInUse(voucher: any) {
 		return (
 			voucher.status == VoucherStatus.APPLYING &&
@@ -14,6 +16,46 @@ export class VoucherService {
 			voucher.expiresAt > new Date()
 		);
 	}
+	
+	async getVoucherGeneralStatistic() 
+	{
+		try 
+		{
+			const totalEvents = await this.prismaService.voucher.aggregate({
+				_count : { eventName : true }
+			})
+			const applying = await this.prismaService.voucher.aggregate({
+				_sum : {quantity : true }, 
+				where: {
+					status : VoucherStatus.APPLYING
+				}
+			})
+			const upcoming = await this.prismaService.voucher.aggregate({
+				_sum : {quantity : true }, 
+				where: {
+					status : VoucherStatus.UPCOMING
+				}
+			}) 
+			const ended = await this.prismaService.voucher.aggregate({
+				_sum : {quantity : true }, 
+				where: {
+					status : VoucherStatus.ENDED
+				}
+			}) 
+			return {
+				totalEvents : totalEvents._count.eventName, 
+				applying : Number(applying._sum.quantity ?? 0), 
+				upcoming : Number(upcoming._sum.quantity ?? 0), 
+				ended : Number(ended._sum.quantity ?? 0) 
+			}
+		} 
+		catch (err) 
+		{
+			console.log('Get Vouchers Statistic Error:', err);
+			throw err;
+		}
+	}
+	
 	async checkVoucherInUseById(id: number) {
 		const voucher = await this.prismaService.voucher.findFirst({
 			where: { id },

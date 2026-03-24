@@ -1,6 +1,6 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { VoucherStatus, VoucherType } from '@prisma/client';
+import { BillStatus, VoucherStatus, VoucherType } from '@prisma/client';
 import { CreateBillData, UpdateBillData } from './dto/bill.dto';
 // import { VoucherService } from '../voucher/voucher.service';
 
@@ -10,6 +10,39 @@ export class BillService {
 		private readonly prismaService: PrismaService,
 		// private readonly voucherService: VoucherService,
 	) {}
+	async getGeneralStatistic() 
+	{
+		try 
+		{
+			const totalBills = await this.prismaService.bill.aggregate({
+				_count : { id : true }, 
+			}) 
+			const completeBills = await this.prismaService.bill.aggregate({
+				_count : { code : true }, 
+				where: {
+					status : BillStatus.COMPLETE
+				}
+			}) 
+			const overdueBills = await this.prismaService.bill.aggregate({
+				_count : { code : true }, 
+				where: {
+					status : BillStatus.OVERDUE
+				} 
+			}) 
+			const notStartedBills = totalBills._count.id - completeBills._count.code - overdueBills._count.code
+			return {
+				totalBills : totalBills._count.id, 
+				completeBills : completeBills._count.code, 
+				overdueBills : overdueBills._count.code, 
+				notStartedBills  
+			}
+		} 
+		catch (err) 
+		{
+			console.log("Get Bill statistic error" , err) 
+			throw err 
+		}
+	}
 	async getAllBills() {
 		try {
 			const bills = await this.prismaService.bill.findMany({
@@ -114,11 +147,16 @@ export class BillService {
 						});
 					}
 				}
-
+				const customer = await this.prismaService.customer.findFirst({
+					where: { phone : createBillData.customerPhone }, 
+					select : { id : true , code : true }
+				})
+				if (!customer) 
+					throw new BadRequestException("Customer Phone does not exists") 
 				const bill = await tx.bill.create({
 					data: {
 						code: createBillData.code,
-						customerId: createBillData.customerId,
+						customerId: customer.id,
 						status: createBillData.status,
 						cost: Math.max(
 							0,
@@ -164,11 +202,17 @@ export class BillService {
 		try {
 			return await this.prismaService.$transaction(async (tx) => {
 				// update bill basic info
+				const customer = await tx.customer.findFirst({
+					where: { phone : updateBillData.customerPhone }, 
+					select : { id : true , phone : true }
+				})
+				if (!customer) 
+					throw new BadRequestException("Customer not found") 
 				const bill = await tx.bill.update({
 					where: { id },
 					data: {
 						code: updateBillData.code,
-						customerId: updateBillData.customerId,
+						customerId: customer.id,
 						status: updateBillData.status,
 					},
 				});

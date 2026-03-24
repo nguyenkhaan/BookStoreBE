@@ -94,6 +94,7 @@ CREATE TABLE "Publisher" (
 -- CreateTable
 CREATE TABLE "Author" (
     "id" SERIAL NOT NULL,
+    "code" TEXT NOT NULL,
     "name" TEXT NOT NULL,
 
     CONSTRAINT "Author_pkey" PRIMARY KEY ("id")
@@ -277,6 +278,9 @@ CREATE UNIQUE INDEX "Bill_code_key" ON "Bill"("code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Publisher_name_key" ON "Publisher"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Author_code_key" ON "Author"("code");
 
 -- CreateIndex
 CREATE INDEX "Author_name_idx" ON "Author"("name");

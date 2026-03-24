@@ -49,5 +49,10 @@ export class IncomeController {
 	async deleteIncome(@Param('id') id: number) {
 		return this.incomeService.deleteIncome(Number(id));
 	}
+	@Get("statistic") 
+	async getIncomeGeneralStatistic() 
+	{
+		return await this.incomeService.getGeneralStatistic() 
+	}
 }
 //Lay thong tin tat ca income
