@@ -2,15 +2,14 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { BillStatus, VoucherStatus, VoucherType } from '@prisma/client';
 import { CreateBillData, UpdateBillData } from './dto/bill.dto';
-import { DEBIT_MAX, STOCK_MIN } from '@/bases/commons/constants/app.constant';
-import { CustomerService } from '../customer/customer.service';
+import { DEBIT_MAX } from '@/bases/commons/constants/app.constant';
+import { InventoryService } from '../inventory/inventory.service';
 // import { VoucherService } from '../voucher/voucher.service';
 @Injectable()
 export class BillService {
 	constructor(
 		private readonly prismaService: PrismaService,
-		private readonly customerService : CustomerService
-		// private readonly voucherService: VoucherService,
+		private readonly inventoryService: InventoryService,
 	) {}
 	async getGeneralStatistic() 
 	{
@@ -85,8 +84,10 @@ export class BillService {
 					const book = bookMap.get(item.bookId);
 
 					if (!book) throw new BadRequestException('Book not found');
-					if (Number(book.inventory?.stock) - item.quantity < STOCK_MIN)  
-						throw new BadRequestException("Remaining book lower than stock min") 
+	
+					const canSellBook = await this.inventoryService.canSellBookByCode(book.code , item.quantity)
+					if (canSellBook == false) 
+						throw new BadRequestException("Cannot Sell books because restrict book stock minium remain") 
 					totalCost += item.quantity * Number(book.cost);
 					const updated = await tx.inventory.update({
 						where: {

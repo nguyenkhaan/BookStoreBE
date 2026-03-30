@@ -7,6 +7,7 @@ import type { Express } from 'express';
 import convertExcelToJson from '@/utlitis/excelToJson';
 import { UploadBookService } from './helpers/book.upload';
 import { BookCategory } from '@prisma/client';
+// import { STOCK_IMPORT_NUMBER_MIN } from '@/bases/commons/constants/app.constant';
 @Injectable()
 export class BookService {
 	constructor(
@@ -139,7 +140,7 @@ export class BookService {
 			const book = await this.prismaService.book.create({
 				data: {
 					title: createBookData.title,
-					category : createBookData.category || BookCategory.GIAO_DUC, 
+					category: createBookData.category || BookCategory.GIAO_DUC,
 					cost: createBookData.cost,
 					code: createBookData.code,
 					year: createBookData.year,
@@ -230,14 +231,14 @@ export class BookService {
 				where: { id },
 				data: {
 					...(updateBook.title && {
-						title : updateBook.title
-					}), 
+						title: updateBook.title,
+					}),
 					...(updateBook.cost && {
-						title : updateBook.title
-					}), 
+						title: updateBook.title,
+					}),
 					...(updateBook.category && {
-						title : updateBook.category
-					}), 
+						title: updateBook.category,
+					}),
 					coverImage: fileName,
 
 					...(updateBook.authorIds && {
@@ -355,82 +356,133 @@ export class BookService {
 				totalStockValue,
 				outOfStocks,
 			};
-		} catch (err) { 
+		} catch (err) {
 			console.log('Book Statistic Error: ', err);
 			throw err;
 		}
 	}
 	async uploadBookData(file: Express.Multer.File) {
 		try {
-			//Oh No, Transaction Boundary Error :((( - Gekido, Activate. Jouchaku
 			const buffer = file.buffer;
-			//Map data
 			const jsonData = await convertExcelToJson(buffer);
 			const uploadBookMappingData =
 				UploadBookService.mapUploadData(jsonData);
+
 			await this.prismaService.$transaction(async (tx) => {
-				//Neu co ma trung voi sach da dang ki (co trong kho) thi tien hanh cong stock vao
-				//Create books
-				await tx.book.createMany({
-					data: uploadBookMappingData.map((x: any) => ({
-						code: x.code,
-						coverImage: x.coverImage,
-						title: x.title,
-						cost: x.cost,
-						year: x.year,
-					})),
-					skipDuplicates: true,
-				});
-				//Find Books
-				const createdBooks = await tx.book.findMany({
+				//filter row with the inventory > 150
+				const validRows = uploadBookMappingData.filter(
+					(row: any) => row.stock >= 150,
+				);
+
+				if (validRows.length === 0) return;
+
+				//Find the exsitsting books
+				const existingBooks = await tx.book.findMany({
 					where: {
 						code: {
-							in: uploadBookMappingData.map((x: any) => x.code),
+							in: validRows.map((x: any) => x.code),
 						},
 					},
 				});
-				//Mapping Book with code ^-^
-				const bookMap = new Map(
-					createdBooks.map((book) => [book.code, book]),
-				);
+
+				const bookMap = new Map(existingBooks.map((b) => [b.code, b]));
+
+				const newBooksData: any[] = [];
 				const authorBookData: any[] = [];
 				const publisherBookData: any[] = [];
-				const inventoryData: any[] = [];
-				for (const row of uploadBookMappingData) {
-					const book = bookMap.get(row.code);
-					if (!book) continue;
-					//AuthorBook
-					for (const authorId of row.authorIds)
-						authorBookData.push({
-							authorId,
-							bookId: book.id,
+
+				for (const row of validRows) {
+					const existingBook = bookMap.get(row.code);
+
+					if (existingBook) {
+						const inventory = await tx.inventory.findFirst({ where : { bookId : existingBook.id } , select : { stock : true } }) 
+						if (Number(inventory?.stock ?? 0) >= 300) //Chi nhap cho nhung cuon sach co so luong ton kho < 300
+							continue
+						await tx.inventory.upsert({
+							where: { bookId: existingBook.id },
+							update: {
+								stock: {
+									increment: row.stock,
+								},
+							},
+							create: {
+								bookId: existingBook.id,
+								stock: row.stock,
+							},
 						});
-					//Publisher Data
-					for (const publisherId of row.publisherIds)
-						publisherBookData.push({
-							publisherId,
-							bookId: book.id,
+					} else {
+						newBooksData.push({
+							code: row.code,
+							coverImage: row.coverImage,
+							title: row.title,
+							cost: row.cost,
+							year: row.year,
 						});
-					//Invetory
-					inventoryData.push({
-						bookId: book.id,
-						stock: row.stock,
+					}
+				}
+
+				if (newBooksData.length > 0) {
+					await tx.book.createMany({
+						data: newBooksData,
+					});
+
+					const newBooks = await tx.book.findMany({
+						where: {
+							code: {
+								in: newBooksData.map((x) => x.code),
+							},
+						},
+					});
+
+					const newBookMap = new Map(
+						newBooks.map((b) => [b.code, b]),
+					);
+
+					const inventoryData: any[] = [];
+
+					for (const row of validRows) {
+						const book = newBookMap.get(row.code);
+						if (!book) continue;
+						
+						for (const authorId of row.authorIds) {
+							authorBookData.push({
+								authorId,
+								bookId: book.id,
+							});
+						}
+
+						for (const publisherId of row.publisherIds) {
+							publisherBookData.push({
+								publisherId,
+								bookId: book.id,
+							});
+						}
+
+						inventoryData.push({
+							bookId: book.id,
+							stock: row.stock,
+						});
+					}
+
+					await tx.authorBook.createMany({
+						data: authorBookData,
+						skipDuplicates: true,
+					});
+
+					await tx.publisherBook.createMany({
+						data: publisherBookData,
+						skipDuplicates: true,
+					});
+
+					await tx.inventory.createMany({
+						data: inventoryData,
 					});
 				}
-				await tx.authorBook.createMany({
-					data: authorBookData,
-				});
-
-				await tx.publisherBook.createMany({
-					data: publisherBookData,
-				});
-				await tx.inventory.createMany({
-					data: inventoryData,
-				});
 			});
+
 			return {
 				[ResponseBody.ERROR]: 0,
-				[ResponseBody.MESSAGE]: 'Insert book successfully',
+				[ResponseBody.MESSAGE]: 'Insert/update book successfully',
 			};
 		} catch (err) {
 			console.log('Error', err);

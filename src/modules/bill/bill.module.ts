@@ -7,9 +7,10 @@ import { VoucherModule } from '../voucher/voucher.module';
 import { VoucherService } from '../voucher/voucher.service';
 import { CustomerModule } from '../customer/customer.module';
 import { CustomerService } from '../customer/customer.service';
+import { InventoryModule } from '../inventory/inventory.module';
 
 @Module({
-	imports: [AuthModule, VoucherModule , CustomerModule],
+	imports: [AuthModule, VoucherModule , CustomerModule , InventoryModule],
 	controllers: [BillController],
 	providers: [BillService, VoucherService , CustomerService],
 })

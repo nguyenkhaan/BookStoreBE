@@ -28,6 +28,7 @@ import { StatisticModule } from './statistic/statistic.module';
 import { CustomerModule } from './modules/customer/customer.module';
 import { AuthorModule } from './modules/author/author.module';
 import { PublisherModule } from './modules/publisher/publisher.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -52,7 +53,8 @@ import { PublisherModule } from './modules/publisher/publisher.module';
 		StatisticModule, 
 		CustomerModule, 
 		AuthorModule, 
-		PublisherModule
+		PublisherModule, 
+		InventoryModule
 	],
 	controllers: [AppController],
 	providers: [
