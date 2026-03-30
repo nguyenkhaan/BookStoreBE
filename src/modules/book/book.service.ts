@@ -355,7 +355,7 @@ export class BookService {
 				totalStockValue,
 				outOfStocks,
 			};
-		} catch (err) {
+		} catch (err) { 
 			console.log('Book Statistic Error: ', err);
 			throw err;
 		}

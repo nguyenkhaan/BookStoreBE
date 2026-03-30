@@ -3,4 +3,6 @@ export const DEFAULT_AVATAR =
 export const SALARY_MAX = 100000000;
 export const COST_MAX = 10000000;
 export const STOCK_MAX = 10000000;
-export const BILL_COST_MAX = 10000000;
+export const STOCK_MIN = 5 
+export const DEBIT_MAX = 100000   //So no toi da 
+export const BILL_COST_MAX = 10000000; //Gia tri hoa don toi da 

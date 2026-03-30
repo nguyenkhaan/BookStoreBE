@@ -2,12 +2,14 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { BillStatus, VoucherStatus, VoucherType } from '@prisma/client';
 import { CreateBillData, UpdateBillData } from './dto/bill.dto';
+import { DEBIT_MAX, STOCK_MIN } from '@/bases/commons/constants/app.constant';
+import { CustomerService } from '../customer/customer.service';
 // import { VoucherService } from '../voucher/voucher.service';
-
 @Injectable()
 export class BillService {
 	constructor(
 		private readonly prismaService: PrismaService,
+		private readonly customerService : CustomerService
 		// private readonly voucherService: VoucherService,
 	) {}
 	async getGeneralStatistic() 
@@ -65,6 +67,8 @@ export class BillService {
 		try {
 			return await this.prismaService.$transaction(async (tx) => {
 				const bookIds = createBillData.billDetails.map((b) => b.bookId);
+				
+				 
 
 				const books = await tx.book.findMany({
 					where: { id: { in: bookIds } },
@@ -81,7 +85,8 @@ export class BillService {
 					const book = bookMap.get(item.bookId);
 
 					if (!book) throw new BadRequestException('Book not found');
-
+					if (Number(book.inventory?.stock) - item.quantity < STOCK_MIN)  
+						throw new BadRequestException("Remaining book lower than stock min") 
 					totalCost += item.quantity * Number(book.cost);
 					const updated = await tx.inventory.update({
 						where: {
@@ -153,6 +158,24 @@ export class BillService {
 				})
 				if (!customer) 
 					throw new BadRequestException("Customer Phone does not exists") 
+				//Tinh no cua mot khach hang 
+
+				const _totalBillCost = await tx.bill.aggregate({
+					_sum: { cost : true }, 
+					where: {
+						customerId : customer.id
+					}
+				}) 
+				const _totalPaid = await tx.billIncome.aggregate({
+					_sum : { cost : true }, 
+					where: {
+						bill : { customerId : customer.id }
+					}
+				})
+				
+				if (Number(_totalBillCost._sum.cost ?? 0 )- Number(_totalPaid._sum.cost ?? 0) > DEBIT_MAX) 
+					throw new BadRequestException("Customer has the debit exceed charge. Can't sell")
+
 				const bill = await tx.bill.create({
 					data: {
 						code: createBillData.code,
