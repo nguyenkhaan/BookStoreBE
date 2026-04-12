@@ -1,10 +1,11 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Param, ParseIntPipe, Query, Req, UseGuards } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { Roles } from '@/bases/decorators/role.decorators';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '@/bases/guards/role.guard';
 import type { Request } from 'express';
+import { UpdateEmployeeInformation } from './dto/employee.dto';
 @Controller('employee')
 export class EmployeeController {
 	constructor(private readonly employeeService: EmployeeService) {}
@@ -32,6 +33,20 @@ export class EmployeeController {
 		const { id } = user;
 		const responseData = await this.employeeService.getEmployeeProfile(
 			Number(id),
+		);
+		return responseData;
+	}
+
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Patch('/:id')
+	async updateEmployee(
+		@Param('id', ParseIntPipe) id: number,
+		@Body() updateDto: UpdateEmployeeInformation,
+	) {
+		const responseData = await this.employeeService.updateEmployeeData(
+			id,
+			updateDto,
 		);
 		return responseData;
 	}

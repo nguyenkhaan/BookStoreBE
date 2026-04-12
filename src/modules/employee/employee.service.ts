@@ -5,6 +5,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { TokenType } from '@prisma/client';
+import { UpdateEmployeeInformation } from './dto/employee.dto';
 
 @Injectable()
 export class EmployeeService {
@@ -129,8 +130,42 @@ export class EmployeeService {
 			throw err;
 		}
 	}
-	async updateEmployeeData() {
-		//Update employee information
+	async updateEmployeeData(id: number, dto: UpdateEmployeeInformation) {
+		try {
+			const employee = await this.prismaService.employee.findFirst({
+				where: { id },
+			});
+			if (!employee) throw new BadRequestException('Employee not found');
+
+			const updatedEmployee = await this.prismaService.employee.update({
+				where: { id },
+				data: {
+					...dto,
+				},
+				select: {
+					email: true,
+					avatar: true,
+					phone: true,
+					id: true,
+					code: true,
+					name: true,
+					position: {
+						select: {
+							name: true,
+						},
+					},
+					department: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			});
+			return updatedEmployee;
+		} catch (err) {
+			console.log('Update Employee Error: ', err);
+			throw err;
+		}
 	}
 	async deActiveEmployeeAccount() {
 		//Set active in model to false -> In the billing account get all bill
