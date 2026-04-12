@@ -36,6 +36,10 @@ export class StatisticController {
     {
         return await this.statisticService.getTopHighBooks() 
     }
+    @Get('/general')
+    async getGeneralStatistic() {
+        return await this.statisticService.getGeneralStatistic();
+    }
     @Get("inventory") //Ton khi 
     async getInventoryBook() 
     {

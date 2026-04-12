@@ -83,6 +83,25 @@ export class StatisticService {
 			),
 		};
 	}
+
+	async getGeneralStatistic() {
+		const revenue = await this.getGeneralRevenue();
+		const topBooks = await this.getTopHighBooks();
+		const totalCustomers = await this.prismaService.customer.count({
+			where: { deletedAt: null },
+		});
+		const totalBooks = await this.prismaService.book.count({
+			where: { deletedAt: null },
+		});
+
+		return {
+			revenue,
+			topBooks,
+			totalCustomers,
+			totalBooks,
+		};
+	}
+
 	async getRevenueInRecentMonths(month: number) {
 		try {
 			const now = new Date();

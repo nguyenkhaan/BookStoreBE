@@ -18,13 +18,14 @@ import { BillModule } from './modules/bill/bill.module';
 import { VoucherModule } from './modules/voucher/voucher.module';
 import { OutcomeModule } from './modules/outcome/outcome.module';
 import { IncomeModule } from './modules/income/income.module';
+import { CustomerModule } from './modules/customer/customer.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisOptions } from './configs/app-redis-options.constants';
 import { RedisModule } from './modules/redis/redis.module';
 import { RateLimitGuard } from './bases/guards/rate-limit.guard';
 import { BlacklistGuard } from './bases/guards/blacklist.guard';
 import { SearchModule } from './modules/search/search.module';
-import { StatisticModule } from './statistic/statistic.module';
+import { StatisticModule } from './modules/statistic/statistic.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -45,6 +46,7 @@ import { StatisticModule } from './statistic/statistic.module';
 		VoucherModule,
 		OutcomeModule,
 		IncomeModule,
+		CustomerModule,
 		SearchModule,
 		StatisticModule
 	],
