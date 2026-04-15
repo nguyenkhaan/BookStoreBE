@@ -1,15 +1,18 @@
-enum BookCategory {
-    HORROR
-    MANGA
-    SCIENCE_FICTION
+enum BookCategory {  //check 
+    VAN_HOC 
+    TRINH_THAM 
+    THIEU_NHI 
+    GIAO_DUC 
+    KINH_TE 
+    KY_NANG_SONG 
 }
 
-enum Role {
+enum Role {   //check 
     ADMIN
     EMPLOYEE
     CUSTOMER
 }
-enum MemberGrade {
+enum MemberGrade {  //check 
     BRONZE 
     GOLD 
     SILVER 
@@ -17,29 +20,31 @@ enum MemberGrade {
 }
 enum RuleType {
     HUMAN 
-    WORKING 
-    ADMINISTRATIVE  
+    SALE 
+    LOGISTIC 
+    SERVICE 
+    FINANCE 
+    SAFETY  
 }
 enum VoucherType {
     VND 
     PERCENT 
 }
-enum IncomeStatus {
-    NOT_STARTED
+enum IncomeStatus {  //check 
     COMPLETE
     PENDING
-    FAILED
+    CANCEL 
 }
 
 enum OutcomeStatus {
-    NOT_STARTED
     COMPLETE
     PENDING
-    FAILED
+    CANCEL 
 }
 
 enum VoucherStatus {
     APPLYING
+    UPCOMING 
     ENDED
 }
 
@@ -52,15 +57,22 @@ enum TokenType {
 
 enum EmployeeStatus {
     WORKING
+    LEAVE //Nghi phep 
     RETIRED
 }
 enum RuleStatus {
     APPLYING 
+    UPCOMING 
     REJECT 
     
 }
-enum BillStatus {
+enum BillStatus {  //Check 
     COMPLETE 
-    PENDING 
-    
+    NOT_STARTED 
+    OVERDUE  
+} 
+enum IncomePaymentType {  //Check 
+    CASH 
+    TRANSFER 
+    CARD 
 }

@@ -1,5 +1,6 @@
 import { Roles } from '@/bases/decorators/role.decorators';
 import {
+	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -8,8 +9,7 @@ import {
 	ParseIntPipe,
 	Post,
 	Put,
-	Req,
-	UnauthorizedException,
+	Req, 
 	UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
@@ -23,6 +23,11 @@ import { CreateOutcomeData, UpdateOutcomeData } from './dto/outcome.dto';
 @UseGuards(JwtAuthGuard, RolesGuard) //Danh sach phieu nhap (Nhap hang)
 export class OutcomeController {
 	constructor(private readonly outcomeService: OutcomeService) {}
+	@Get("statistic") 
+	async getGeneralStatistic() 
+	{
+		return this.outcomeService.getGeneralStatistic() 
+	}
 	@Get()
 	async getAllOutcomeBills() {
 		const responseData = await this.outcomeService.getAllOutcome();
@@ -53,7 +58,7 @@ export class OutcomeController {
 				createOutcomeData,
 			);
 			return responseData;
-		} else throw new UnauthorizedException('Employee Unauthorized');
+		} else throw new BadRequestException('Employee Not Found');
 	}
 	@Put('/:outcomeId')
 	async updateOutcomeBill(
@@ -74,4 +79,5 @@ export class OutcomeController {
 			await this.outcomeService.deleteOutcomeBill(outcomeId);
 		return responseData;
 	}
+	
 }

@@ -13,6 +13,7 @@ import { Transform, Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 import { BookCodeRegex } from '@/bases/commons/regex/app.regex';
 import { BookCategory } from '@prisma/client';
+import { STOCK_IMPORT_NUMBER_MIN } from '@/bases/commons/constants/app.constant';
 
 export class CreateBookData {
 	@IsString()
@@ -43,7 +44,7 @@ export class CreateBookData {
 	@IsOptional()
 	@IsInt()
 	@Type(() => Number)
-	@Min(0)
+	@Min(STOCK_IMPORT_NUMBER_MIN)
 	stock?: number;
 }
 

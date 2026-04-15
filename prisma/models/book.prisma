@@ -7,6 +7,7 @@ model Publisher {
 
 model Author {
     id    Int          @id @default(autoincrement())
+    code  String       @unique
     name  String
     books AuthorBook[]
 
@@ -49,7 +50,7 @@ model Book {
     updatedAt    DateTime        @default(now())
     coverImage   String?
     inventory    Inventory?
-    category     BookCategory    @default(MANGA)
+    category     BookCategory    @default(THIEU_NHI)
     deletedAt    DateTime?
     billOutcomes BillOutcome[]
 

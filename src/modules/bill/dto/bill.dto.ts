@@ -16,7 +16,7 @@ import { BillCodeRegex } from '@/bases/commons/regex/app.regex';
 
 class CreateBillDetailData {
 	@IsInt()
-	bookId: number;
+	bookId: number;   //Sua thanh code cua sach 
 
 	@IsInt()
 	@Min(1)
@@ -36,9 +36,11 @@ export class CreateBillData {
 	})
 	code: string;
 
-	@IsInt()
-	customerId: number;
-
+	// @IsInt()
+	// customerId: number;  //Sua thanh phone -> Tao Bill bang phone 
+	@IsString() 
+	customerPhone : string 
+	
 	@IsArray()
 	@ValidateNested({ each: true })
 	@Type(() => CreateBillDetailData)

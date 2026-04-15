@@ -13,6 +13,26 @@ export class EmployeeService {
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService,
 	) {}
+	async getEmployeeByCode(code : string) 
+	{
+		try 
+		{
+			const responseData = await this.prismaService.employee.findFirst({
+				where: {code}, 
+				select: {
+					id : true, 
+					code : true 
+				}
+			}) 
+			if (!responseData) 
+				throw new BadRequestException("Employee Not Found") 
+			return responseData
+		} 
+		catch (err) {
+			console.log("Find employee by code error: " , err) 
+			throw err 
+		}
+	}
 	async getAllEmployee() {
 		try {
 			const employees = await this.prismaService.employee.findMany({
@@ -74,7 +94,7 @@ export class EmployeeService {
 				throw new BadRequestException('Token invalid or expired');
 			await this.prismaService.employee.update({
 				where: {
-					id: payload[TokenBody.SUB],
+					id: payload[TokenBody.SUB]
 				},
 				data: {
 					active: true,
@@ -108,6 +128,10 @@ export class EmployeeService {
 					avatar: true,
 					phone: true,
 					id: true,
+					salary: true, 
+					createdAt: true, 
+					status: true, 
+					name: true, 
 					code: true,
 					position: {
 						select: {

@@ -52,4 +52,11 @@ export class RuleController {
 		const responseData = await this.ruleService.deleteRule(Number(ruleId));
 		return responseData;
 	}
+	@Roles(Role.EMPLOYEE) 
+	@UseGuards(JwtAuthGuard , RolesGuard) 
+	@Get("/statistic")
+	async getGeneralStatistic() 
+	{
+		return await this.ruleService.getGeneralStatistic() 
+	}
 }

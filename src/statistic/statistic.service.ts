@@ -1,9 +1,11 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
+import { BillStatus } from '@prisma/client';
 
 @Injectable()
 export class StatisticService {
 	constructor(private readonly prismaService: PrismaService) {}
+
 	private async sumRevenueInDuration(startDate: Date, endDate: Date) {
 		const ans = await this.prismaService.bill.aggregate({
 			_sum: { cost: true },
@@ -26,16 +28,76 @@ export class StatisticService {
 					gte: startDate,
 					lt: endDate,
 				},
+				status: BillStatus.COMPLETE
 			},
 		});
 		return ans;
 	}
+
 	private calProportionRate(a: number, b: number) {
 		if (b == 0) return 0;
 		return Number((((b - a) * 100) / a).toFixed(1));
 	}
-
+	private async calTotalCustomers() {
+		const ans = await this.prismaService.customer.aggregate({
+			_count: { code: true },
+			where: { deletedAt: null },
+		});
+		return ans._count.code;
+	}
+	private async calTotalRevenue() {
+		const totalRevenue = await this.prismaService.bill.aggregate({
+			_sum: { cost: true },
+			where: {
+				status: BillStatus.COMPLETE
+			},
+		});
+		return totalRevenue._sum.cost || 0;
+	}
+	private async calTotalBills() 
+	{
+		const totalBills = await this.prismaService.bill.aggregate({
+			_count: { code: true } 
+		});
+		return totalBills._count.code
+	}
+	private async calTotalBooks() 
+	{
+		const totalBooks = await this.prismaService.billDetail.aggregate({
+			_sum : { quantity : true }, 
+			where : {
+				bill: {
+					status : BillStatus.COMPLETE
+				}
+			}
+		})
+		return totalBooks || 0 
+	}
 	//Public Method
+	//Lay thong tin thong ke tong quan
+	async getGeneralStatistic() {
+		try {
+			//Tong doanh thu tu truoc den nay
+			const totalRevenue = await this.calTotalRevenue();
+			//Tong so luong khach hang
+			const totalCustomers = await this.calTotalCustomers();
+
+			const totalBills = await this.calTotalBills() 
+			const totalBooks = await this.calTotalBooks() 
+			return {
+				totalRevenue, 
+				totalCustomers, 
+				totalBills, 
+				totalBooks
+			}
+		} 
+		catch (err) {
+			console.log('General revenue error: ', err);
+			throw err;
+		}
+	}
+
+	//Lay thong tin thong ke cho doanh thu
 	async getGeneralRevenue() {
 		const now = new Date();
 		const previousMonth = new Date(
@@ -233,32 +295,27 @@ export class StatisticService {
 				count: value.count,
 				totalValue: value.totalValue,
 			}));
-		} 
-        catch (err) {
+		} catch (err) {
 			console.log(err);
 			throw err;
 		}
 	}
-    async getCustomerByGrade() 
-    {
-        try 
-        {
-            const customers = await this.prismaService.customer.groupBy({
-                by: ['grade'], 
-                _count: { code : true }, 
-                where: {
-                    deletedAt : null 
-                }
-            })
-            return customers.map(customer => ({
-                grade : customer.grade, 
-                total : customer._count.code 
-            }))
-        } 
-        catch (err) 
-        {
-            console.log(err) 
-            throw err 
-        }
-    }
+	async getCustomerByGrade() {
+		try {
+			const customers = await this.prismaService.customer.groupBy({
+				by: ['grade'],
+				_count: { code: true },
+				where: {
+					deletedAt: null,
+				},
+			});
+			return customers.map((customer) => ({
+				grade: customer.grade,
+				total: customer._count.code,
+			}));
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
+	}
 }

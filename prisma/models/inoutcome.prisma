@@ -1,34 +1,34 @@
-
-model BillIncome {   //
-    id                  Int               @id @default(autoincrement())   //Them code (So Phieu Thu, sua id thanh Integer)
-    code                String           @unique
-    cost                Decimal           @default(0)
-    status              IncomeStatus      @default(COMPLETE)
-    createdAt           DateTime          @default(now())
-    updatedAt           DateTime          @updatedAt
-    employeeId          Int
-    employee            Employee          @relation(fields: [employeeId], references: [id])
-    billId              Int
-    bill                Bill          @relation(fields: [billId], references: [id])
-    shortDescription    String      @db.Text 
-    deletedAt           DateTime? 
-
+model BillIncome {
+    id               Int               @id @default(autoincrement()) //Them code (So Phieu Thu, sua id thanh Integer)
+    code             String            @unique
+    cost             Decimal           @default(0)
+    status           IncomeStatus      @default(COMPLETE)
+    createdAt        DateTime          @default(now())
+    updatedAt        DateTime          @updatedAt
+    paymentMethod    IncomePaymentType @default(CASH)
+    employeeId       Int
+    employee         Employee          @relation(fields: [employeeId], references: [id])
+    billId           Int
+    bill             Bill              @relation(fields: [billId], references: [id])
+    shortDescription String            @db.Text
+    deletedAt        DateTime?
 }
+
 //Them phuong thuc thanh toan. 
 
-model BillOutcome {   //Phieu nhap 
-    id                  Int         @id @default(autoincrement())
-    code                String      @unique
-    publisherId         Int
-    publisher           Publisher     @relation(fields: [publisherId], references: [id])
-    employeeId          Int
-    creator             Employee      @relation(fields: [employeeId], references: [id])
-    bookId              Int 
-    book                Book      @relation(fields: [bookId], references: [id])  
-    cost                Decimal
-    status              OutcomeStatus
-    quantity            Int             @default(0) 
-    createdAt           DateTime      @default(now())
-    updatedAt           DateTime      @updatedAt
-    deletedAt           DateTime? 
+model BillOutcome {
+    id          Int           @id @default(autoincrement())
+    code        String        @unique
+    publisherId Int
+    publisher   Publisher     @relation(fields: [publisherId], references: [id])
+    employeeId  Int
+    creator     Employee      @relation(fields: [employeeId], references: [id])
+    bookId      Int
+    book        Book          @relation(fields: [bookId], references: [id])
+    cost        Decimal
+    status      OutcomeStatus
+    quantity    Int           @default(0)
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+    deletedAt   DateTime?
 }

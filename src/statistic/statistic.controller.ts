@@ -18,6 +18,11 @@ export class StatisticController {
     constructor(
         private readonly statisticService : StatisticService
     ) {} 
+    @Get("general")  //Lay thong tin thong ke tong quan 
+    async getGeneralStatistic() 
+    {
+        return await this.statisticService.getGeneralStatistic() 
+    } 
 	@Get('revenue')
 	async revenueGeneral() {
 		//Lay doanh thu tong quat
@@ -45,5 +50,11 @@ export class StatisticController {
     async getGradeCustomers() 
     {
         return await this.statisticService.getCustomerByGrade() 
+    }
+    @Get("/:month") 
+    async statisticGeneral(@Param("month" , ParseIntPipe) month : number) 
+    {
+        console.log(month) 
+        //Thong ke tat ca thong tin theo 1 thang cu the 
     }
 }

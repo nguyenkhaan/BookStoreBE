@@ -1,10 +1,47 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOutcomeData, UpdateOutcomeData } from './dto/outcome.dto';
+import { OutcomeStatus } from '@prisma/client';
+import { InventoryService } from '../inventory/inventory.service';
 
 @Injectable()
 export class OutcomeService {
-	constructor(private readonly prismaService: PrismaService) {}
+	constructor(
+		private readonly prismaService: PrismaService, 
+		private readonly inventoryService : InventoryService 
+	) {}
+	async getGeneralStatistic() {
+		try {
+			const totalOutcomeBills = await this.prismaService.billOutcome.aggregate({
+				_count: { id: true },
+			});
+			const completeOutcome = await this.prismaService.billOutcome.aggregate({
+				_count: { id: true },
+				where: {
+					status : OutcomeStatus.COMPLETE
+				}
+			});
+			const notStartedOutcome = await this.prismaService.billOutcome.aggregate({
+				_count: { id: true },
+				where: {status : OutcomeStatus.CANCEL } 
+			
+			});
+			const totalCost = await this.prismaService.billOutcome.aggregate({
+				_sum: {
+					cost: true,
+				},
+			});
+			return {
+				totalOutcomeBills : totalOutcomeBills._count.id,
+				completeOutcome : completeOutcome._count.id,
+				notStartedOutcome : notStartedOutcome._count.id,
+				totalCost: Number(totalCost._sum.cost ?? 0),
+			};
+		} catch (err) {
+			console.log("Get outcome statistic error: " , err) 
+			throw err 
+		}
+	}
 	async getAllOutcome() {
 		try {
 			const outcomeBills = await this.prismaService.billOutcome.findMany({
@@ -104,8 +141,18 @@ export class OutcomeService {
 		createOutcomeData: CreateOutcomeData,
 	) {
 		try {
+
 			const results = await this.prismaService.$transaction(
 				async (tx) => {
+					const book = await tx.book.findFirst({
+						where: { code : createOutcomeData.bookCode }
+					})
+					if (!book) 
+						throw new BadRequestException("Book Not Found") 
+					const canNhapSach = await this.inventoryService.canImportBookByCode(book.code , createOutcomeData.quantity) 
+					if (!canNhapSach) 
+						throw new BadRequestException("Checking the number")
+					//Kiem tra xem co the tien hanh nhap sach duoc hay khong ??? 
 					const res = await tx.billOutcome.create({
 						data: {
 							code: createOutcomeData.code,
@@ -114,13 +161,13 @@ export class OutcomeService {
 							quantity: createOutcomeData.quantity,
 							publisherId: createOutcomeData.publisherId,
 							employeeId: creatorId,
-							bookId: createOutcomeData.bookId,
+							bookId: book.id,
 						},
 					});
 					//Tang so luong stock len
 					await tx.inventory.update({
 						where: {
-							bookId: createOutcomeData.bookId,
+							bookId: book.id,
 						},
 						data: {
 							stock: {
@@ -144,6 +191,7 @@ export class OutcomeService {
 		try {
 			const results = await this.prismaService.$transaction(
 				async (tx) => {
+					
 					const bill = await tx.billOutcome.update({
 						where: {
 							id: billOutcomeId,
@@ -153,10 +201,20 @@ export class OutcomeService {
 							...updateOutcomeData,
 						},
 					});
-					if (updateOutcomeData.bookId) {
+					if (updateOutcomeData.bookCode) {
+						const book = await tx.book.findFirst({
+							where: { code : updateOutcomeData.bookCode }, 
+							select: {
+								code : true, 
+								id : true 
+							}
+						})
+						if (!book) 
+							throw new BadRequestException("Book Code Not Found") 
+						
 						await tx.inventory.update({
 							where: {
-								bookId: updateOutcomeData.bookId,
+								bookId: book.id,
 							},
 							data: {
 								stock: updateOutcomeData.quantity,

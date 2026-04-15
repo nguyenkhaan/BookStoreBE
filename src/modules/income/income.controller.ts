@@ -1,5 +1,6 @@
 import { Roles } from '@/bases/decorators/role.decorators';
 import {
+	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -8,7 +9,6 @@ import {
 	Post,
 	Put,
 	Req,
-	UnauthorizedException,
 	UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
@@ -37,7 +37,7 @@ export class IncomeController {
 		const employeeId = req.user as any;
 		if (employeeId) {
 			return this.incomeService.createIncome(Number(employeeId), dto);
-		} else throw new UnauthorizedException('Employee Unauthorized');
+		} else throw new BadRequestException('Employee Not Found');
 	}
 
 	@Put('/:id')
@@ -48,6 +48,11 @@ export class IncomeController {
 	@Delete('/:id')
 	async deleteIncome(@Param('id') id: number) {
 		return this.incomeService.deleteIncome(Number(id));
+	}
+	@Get("statistic") 
+	async getIncomeGeneralStatistic() 
+	{
+		return await this.incomeService.getGeneralStatistic() 
 	}
 }
 //Lay thong tin tat ca income

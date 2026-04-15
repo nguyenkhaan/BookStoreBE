@@ -18,6 +18,7 @@ import { BookService } from './book.service';
 import { CreateBookData, UpdateBookData } from './dto/book.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express } from 'express';
+import { RolesGuard } from '@/bases/guards/role.guard';
 
 @Controller('book')
 export class BookController {
@@ -46,7 +47,7 @@ export class BookController {
 		return responseData;
 	}
 	@Get('/code/:code')
-	async getBookByCode(@Param('code') code: string) {
+	async getBookByCode(@Param('code') code: string) {  //Them sua sach 
 		const responseData = await this.bookService.getBookByCode(code);
 		return responseData;
 	}
@@ -85,5 +86,11 @@ export class BookController {
 	async deleteBook(@Param('bookId', ParseIntPipe) bookId: number) {
 		const responseData = await this.bookService.deleteBookById(bookId);
 		return responseData;
+	}
+	@Roles(Role.EMPLOYEE) 
+	@UseGuards(JwtAuthGuard , RolesGuard)
+	async getGeneralStatistic() 
+	{
+		return await this.bookService.statisticBook() 
 	}
 }
