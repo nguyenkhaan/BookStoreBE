@@ -59,12 +59,9 @@ export class AuthController {
 		const user = req.user as any;
 		console.log(user);
 		if (user) {
-			const { email, id, roles } = user;
-			return {
-				email,
-				id,
-				roles,
-			};
+			const { id } = user;
+			const me = await this.authService.getMe(Number(id)) 
+			return me 
 		}
 		return {
 			errCode: 1,
