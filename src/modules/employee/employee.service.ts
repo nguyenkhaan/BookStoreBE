@@ -128,6 +128,10 @@ export class EmployeeService {
 					avatar: true,
 					phone: true,
 					id: true,
+					salary: true, 
+					createdAt: true, 
+					status: true, 
+					name: true, 
 					code: true,
 					position: {
 						select: {
