@@ -9,7 +9,7 @@ import {
 	Put,
 	UseGuards,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { BillStatus, Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '@/bases/guards/role.guard';
 import { CreateBillData, UpdateBillData } from './dto/bill.dto';
@@ -20,15 +20,22 @@ import { BillService } from './bill.service';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class BillController {
 	constructor(private readonly billService: BillService) {}
-	@Get("statistic") 
-	async getGeneralStatistic() 
-	{
-		return await this.billService.getGeneralStatistic() 
-	}
 	@Get()
 	async getAllBills() {
 		const responseData = await this.billService.getAllBills();
 		return responseData;
+	}
+	@Get('statistic')
+	async getGeneralStatistic() {
+		return await this.billService.getGeneralStatistic();
+	}
+	@Get("option") 
+	async getBillOptions() 
+	{
+		const status = Object.values(BillStatus) 
+		return {
+			status 
+		}
 	}
 	//Bo sung them mot so ham -> Lay thong tin bill bang code va id
 	@Post()
@@ -47,9 +54,6 @@ export class BillController {
 		);
 		return responseData;
 	}
-	@Get("code") 
-	async getBillByCode() 
-	{
-		
-	}
+	@Get('code')
+	async getBillByCode() {}
 }
