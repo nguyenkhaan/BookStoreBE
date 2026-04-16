@@ -69,6 +69,7 @@ export class BookController {
 	@Put('/:bookId')
 	@Roles(Role.EMPLOYEE)
 	@UseGuards(JwtAuthGuard)
+	@UseInterceptors(FileInterceptor("coverImage"))
 	async updateBook(
 		@Body() updateBookData: UpdateBookData,
 		@UploadedFile() file: any,

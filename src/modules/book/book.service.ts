@@ -265,7 +265,7 @@ export class BookService {
 
 				fileName = await this.minioService.uploadFile(file);
 			}
-
+			console.log("Du lieu update: " , updateBook)
 			const updatedBook = await this.prismaService.book.update({
 				where: { id },
 				data: {
@@ -273,10 +273,10 @@ export class BookService {
 						title: updateBook.title,
 					}),
 					...(updateBook.cost && {
-						title: updateBook.title,
+						cost: updateBook.cost,
 					}),
 					...(updateBook.category && {
-						title: updateBook.category,
+						category: updateBook.category,
 					}),
 					coverImage: fileName,
 
