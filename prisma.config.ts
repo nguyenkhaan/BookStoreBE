@@ -7,7 +7,7 @@ export default defineConfig({
   schema: "prisma/models",
   migrations: {
     path: "prisma/migrations", 
-    seed: "bun prisma/seed/data.ts"
+    seed: "bun prisma/seed/employee.ts"
   },
   
   datasource: {
