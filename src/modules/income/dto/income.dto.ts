@@ -14,9 +14,8 @@ export class CreateIncomeDto {
 	@IsString()
 	shortDescription: string;
 
-	@IsEnum(IncomePaymentType) 
-	payment : IncomePaymentType 
-
+	@IsEnum(IncomePaymentType)
+	payment: IncomePaymentType;
 }
 
 export class UpdateIncomeDto extends PartialType(CreateIncomeDto) {}

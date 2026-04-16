@@ -1,5 +1,5 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import {  Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class PublisherService {
@@ -9,16 +9,16 @@ export class PublisherService {
 			const publishers = await this.prismaService.publisher.findMany({
 				where: {
 					name: {
-						contains: name, 
-						mode: 'insensitive'
-					}, 
-				}, 
+						contains: name,
+						mode: 'insensitive',
+					},
+				},
 				orderBy: {
-					name: 'asc'
-				}, 
-				take : 10 
-			}) 
-			return publishers
+					name: 'asc',
+				},
+				take: 10,
+			});
+			return publishers;
 		} catch (err) {
 			console.log('Get author by name', err);
 			throw err;

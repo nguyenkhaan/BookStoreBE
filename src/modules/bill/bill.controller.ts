@@ -29,13 +29,12 @@ export class BillController {
 	async getGeneralStatistic() {
 		return await this.billService.getGeneralStatistic();
 	}
-	@Get("option") 
-	async getBillOptions() 
-	{
-		const status = Object.values(BillStatus) 
+	@Get('option')
+	async getBillOptions() {
+		const status = Object.values(BillStatus);
 		return {
-			status 
-		}
+			status,
+		};
 	}
 	//Bo sung them mot so ham -> Lay thong tin bill bang code va id
 	@Post()

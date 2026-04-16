@@ -32,12 +32,12 @@ export class OutcomeController {
 	async getGeneralStatistic() {
 		return this.outcomeService.getGeneralStatistic();
 	}
-	@Get("options") 
+	@Get('options')
 	async getOutcomeOptions() {
-		const status = Object.values(OutcomeStatus) 
-		return { 
-			status 
-		}
+		const status = Object.values(OutcomeStatus);
+		return {
+			status,
+		};
 	}
 	@Get('/:outcomeId')
 	async getOutcomeById(@Param('outcomeId', ParseIntPipe) outcomeId: number) {

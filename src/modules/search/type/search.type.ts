@@ -5,7 +5,7 @@ import {
 	IsBoolean,
 	IsEnum,
 	IsNumber,
-	} from 'class-validator';
+} from 'class-validator';
 import {
 	BillStatus,
 	EmployeeStatus,

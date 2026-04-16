@@ -74,37 +74,39 @@ export class EmployeeService {
 			status: Object.values(EmployeeStatus),
 		};
 	}
-	async getDepartmentAndPositions() 
-	{
+	async getDepartmentAndPositions() {
 		const departments = await this.prismaService.department.findMany({
 			select: {
-				id : true, 
-				name: true 
-			}
-		}) 
+				id: true,
+				name: true,
+			},
+		});
 		const positions = await this.prismaService.position.findMany({
 			select: {
-				id : true, 
-				name: true 
-			}
-		}) 
+				id: true,
+				name: true,
+			},
+		});
 		return {
-			departments, positions
-		}
+			departments,
+			positions,
+		};
 	}
-	async updateEmployeeAccount(id : number , data : UpdateEmployeeDto) {
+	async updateEmployeeAccount(id: number, data: UpdateEmployeeDto) {
 		try {
 			const result = await this.prismaService.$transaction(async (tx) => {
-				if (data.password) 
-				{
-					const hashPassword = await Bun.password.hash(data.password, {
-						algorithm: 'bcrypt',
-						cost: 10,
-					});
-					data.password = hashPassword
+				if (data.password) {
+					const hashPassword = await Bun.password.hash(
+						data.password,
+						{
+							algorithm: 'bcrypt',
+							cost: 10,
+						},
+					);
+					data.password = hashPassword;
 				}
 				const employee = await tx.employee.update({
-					where: { id }, 
+					where: { id },
 					data: {
 						...data,
 					},
@@ -117,17 +119,16 @@ export class EmployeeService {
 			throw err;
 		}
 	}
-	async deleteAccount(id : number) 
-	{
+	async deleteAccount(id: number) {
 		const res = await this.prismaService.employee.update({
 			where: {
-				id
-			}, 
+				id,
+			},
 			data: {
-				deletedAt: new Date(Date.now())
-			}
-		}) 
-		return res 
+				deletedAt: new Date(Date.now()),
+			},
+		});
+		return res;
 	}
 	async getAllEmployee() {
 		try {

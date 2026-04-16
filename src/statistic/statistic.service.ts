@@ -28,7 +28,7 @@ export class StatisticService {
 					gte: startDate,
 					lt: endDate,
 				},
-				status: BillStatus.COMPLETE
+				status: BillStatus.COMPLETE,
 			},
 		});
 		return ans;
@@ -49,29 +49,27 @@ export class StatisticService {
 		const totalRevenue = await this.prismaService.bill.aggregate({
 			_sum: { cost: true },
 			where: {
-				status: BillStatus.COMPLETE
+				status: BillStatus.COMPLETE,
 			},
 		});
 		return totalRevenue._sum.cost || 0;
 	}
-	private async calTotalBills() 
-	{
+	private async calTotalBills() {
 		const totalBills = await this.prismaService.bill.aggregate({
-			_count: { code: true } 
+			_count: { code: true },
 		});
-		return totalBills._count.code
+		return totalBills._count.code;
 	}
-	private async calTotalBooks() 
-	{
+	private async calTotalBooks() {
 		const totalBooks = await this.prismaService.billDetail.aggregate({
-			_sum : { quantity : true }, 
-			where : {
+			_sum: { quantity: true },
+			where: {
 				bill: {
-					status : BillStatus.COMPLETE
-				}
-			}
-		})
-		return totalBooks || 0 
+					status: BillStatus.COMPLETE,
+				},
+			},
+		});
+		return totalBooks || 0;
 	}
 	//Public Method
 	//Lay thong tin thong ke tong quan
@@ -82,16 +80,15 @@ export class StatisticService {
 			//Tong so luong khach hang
 			const totalCustomers = await this.calTotalCustomers();
 
-			const totalBills = await this.calTotalBills() 
-			const totalBooks = await this.calTotalBooks() 
+			const totalBills = await this.calTotalBills();
+			const totalBooks = await this.calTotalBooks();
 			return {
-				totalRevenue, 
-				totalCustomers, 
-				totalBills, 
-				totalBooks
-			}
-		} 
-		catch (err) {
+				totalRevenue,
+				totalCustomers,
+				totalBills,
+				totalBooks,
+			};
+		} catch (err) {
 			console.log('General revenue error: ', err);
 			throw err;
 		}

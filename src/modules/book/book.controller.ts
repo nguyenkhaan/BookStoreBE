@@ -30,7 +30,7 @@ export class BookController {
 	@Post()
 	@UseInterceptors(FileInterceptor('coverImage'))
 	@Roles(Role.EMPLOYEE)
-	@UseGuards(JwtAuthGuard , RolesGuard)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	async createBook(
 		@Body() createBookData: CreateBookData,
 		@UploadedFile() file: any,
@@ -69,7 +69,7 @@ export class BookController {
 	@Put('/:bookId')
 	@Roles(Role.EMPLOYEE)
 	@UseGuards(JwtAuthGuard)
-	@UseInterceptors(FileInterceptor("coverImage"))
+	@UseInterceptors(FileInterceptor('coverImage'))
 	async updateBook(
 		@Body() updateBookData: UpdateBookData,
 		@UploadedFile() file: any,

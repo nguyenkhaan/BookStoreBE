@@ -95,20 +95,16 @@ export class RuleService {
 			},
 		});
 	}
-	async getRuleById(id : number) 
-	{
-		try 
-		{
+	async getRuleById(id: number) {
+		try {
 			const rule = await this.prismaService.rule.findFirst({
-				where: { id }
-			}) 
-			if (!rule) 
-				throw new BadRequestException("rule not found") 
-			return rule 
-		}  
-		catch (err) {
-			console.log("get rule by id error" , err) 
-			throw err
+				where: { id },
+			});
+			if (!rule) throw new BadRequestException('rule not found');
+			return rule;
+		} catch (err) {
+			console.log('get rule by id error', err);
+			throw err;
 		}
 	}
 	async deleteRule(id: number) {

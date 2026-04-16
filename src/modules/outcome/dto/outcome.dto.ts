@@ -25,7 +25,7 @@ export class CreateOutcomeData {
 	@IsEnum(OutcomeStatus)
 	status: OutcomeStatus;
 	@IsInt()
-	@Min(STOCK_IMPORT_NUMBER_MIN)   //toi thieu phai nhap 150 sach - So sach ton kho it nhat la 300 sach, khong duoc nhap thap hon 
+	@Min(STOCK_IMPORT_NUMBER_MIN) //toi thieu phai nhap 150 sach - So sach ton kho it nhat la 300 sach, khong duoc nhap thap hon
 	quantity: number;
 	@Matches(BookCodeRegex)
 	@IsNotEmpty()

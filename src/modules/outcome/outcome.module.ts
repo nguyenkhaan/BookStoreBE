@@ -5,7 +5,7 @@ import { OutcomeService } from './outcome.service';
 import { InventoryModule } from '../inventory/inventory.module';
 
 @Module({
-	imports: [AuthModule , InventoryModule],
+	imports: [AuthModule, InventoryModule],
 	providers: [OutcomeService],
 	controllers: [OutcomeController],
 })

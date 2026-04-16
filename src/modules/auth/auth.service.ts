@@ -42,40 +42,34 @@ export class AuthService {
 			throw err;
 		}
 	}
-	async getMe(id : number) 
-	{
-		try  
-		{
+	async getMe(id: number) {
+		try {
 			const employee = await this.prismaService.employee.findFirst({
-				where: { id }, 
+				where: { id },
 				select: {
-					email : true, 
-					name : true, 
-					code: true,  
-					id : true 
-				}
-			})
-			if (!employee) 
-				throw new BadRequestException("employee not found") 
+					email: true,
+					name: true,
+					code: true,
+					id: true,
+				},
+			});
+			if (!employee) throw new BadRequestException('employee not found');
 			const userRoles = await this.prismaService.userRole.findMany({
 				where: {
-					userId : employee.id
-				}, 
+					userId: employee.id,
+				},
 				select: {
-					role : true 
-				}
-			})
+					role: true,
+				},
+			});
 			return {
-				...employee, 
-				roles: userRoles.map((role) => role.role)
-			}
-		} 
-		catch (err) 
-		{
-			console.log("get me error" , err) 
-			throw err 
+				...employee,
+				roles: userRoles.map((role) => role.role),
+			};
+		} catch (err) {
+			console.log('get me error', err);
+			throw err;
 		}
-
 	}
 
 	async login(email: string, password: string, user: any) {
