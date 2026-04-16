@@ -26,4 +26,28 @@ export class AuthorService
             throw err 
         }
     }
+    async getAuthorByName(name : string) 
+    {
+        try 
+        {
+            const authors = await this.prismaService.author.findMany({
+                where: {
+                    name: {
+                        contains: name, 
+                        mode: 'insensitive' 
+                    }
+                }, 
+                orderBy: {
+                    name: 'asc'
+                }, 
+                take: 10 
+            })
+            return authors 
+        } 
+        catch (err) 
+        {
+            console.log(err) 
+            throw err 
+        }
+    }
 }

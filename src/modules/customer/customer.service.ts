@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { MemberGrade } from '@prisma/client';
+import { UpdateCustomerDto } from './dto/customer.dto';
 
 @Injectable()
 export class CustomerService {
@@ -27,12 +28,12 @@ export class CustomerService {
                     c.phone,
                     c.grade,
                     COALESCE(SUM(bi.cost), 0) as totalPaid
-                FROM Customer c
-                LEFT JOIN Bill b ON b.customerId = c.id
-                LEFT JOIN BillIncome bi 
-                    ON bi.billId = b.id 
-                    AND bi.deletedAt IS NULL
-                WHERE c.deletedAt IS NULL
+                FROM "Customer" c
+                LEFT JOIN "Bill" b ON b."customerId" = c.id
+                LEFT JOIN "BillIncome" bi 
+                    ON bi."billId" = b.id 
+                    AND bi."deletedAt" IS NULL
+                WHERE c."deletedAt" IS NULL
                 GROUP BY c.id
                 ORDER BY totalPaid DESC
             `;
@@ -104,5 +105,50 @@ export class CustomerService {
             console.log("Get customer statistic error: " , err) 
             throw err 
         }
+	}
+	async findCustomerById(id : number) 
+	{
+		const customer = await this.prismaService.customer.findFirst({
+			where: { id }
+		}) 
+		return customer 
+	}
+	async deleteCustomerById(id : number) 
+	{
+		try 
+		{
+			const result = await this.prismaService.customer.update({
+				where: { id }, 
+				data: {
+					deletedAt : new Date(Date.now())
+				}
+			})
+			return result
+		} 
+		catch (err) {
+			console.log(err) 
+
+		}
+	}
+	async updateCustomerById(id : number , data : UpdateCustomerDto) 
+	{
+		try 
+		{
+			const customer = await this.findCustomerById(id) 
+			if (!customer) 
+				throw new BadRequestException("customer not found") 
+			const result = await this.prismaService.customer.update({
+				where: { id }, 
+				data: {
+					...data 
+				}
+			})
+			return result
+		} 
+		catch (err) 
+		{
+			console.log(err) 
+			throw err 
+		}
 	}
 }

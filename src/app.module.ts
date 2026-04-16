@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TestModule } from './modules/test/test.module';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';  //APP_GUARD
 import { HttpExceptionFilter } from './bases/filters/http-exception.filter';
 import { LoggingInterceptor } from './bases/interceptors/logging.interceptos';
 import { TransformInterceptor } from './bases/interceptors/transform.interceptor';
@@ -21,14 +21,15 @@ import { IncomeModule } from './modules/income/income.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { RedisOptions } from './configs/app-redis-options.constants';
 import { RedisModule } from './modules/redis/redis.module';
-import { RateLimitGuard } from './bases/guards/rate-limit.guard';
-import { BlacklistGuard } from './bases/guards/blacklist.guard';
+// import { RateLimitGuard } from './bases/guards/rate-limit.guard';
+// import { BlacklistGuard } from './bases/guards/blacklist.guard';
 import { SearchModule } from './modules/search/search.module';
 import { StatisticModule } from './statistic/statistic.module';
 import { CustomerModule } from './modules/customer/customer.module';
 import { AuthorModule } from './modules/author/author.module';
 import { PublisherModule } from './modules/publisher/publisher.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { CategoryModule } from './modules/category/category.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -54,7 +55,8 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 		CustomerModule, 
 		AuthorModule, 
 		PublisherModule, 
-		InventoryModule
+		InventoryModule, 
+		CategoryModule
 	],
 	controllers: [AppController],
 	providers: [
@@ -71,14 +73,14 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 			provide: APP_INTERCEPTOR,
 			useClass: TransformInterceptor,
 		},
-		{
-			provide: APP_GUARD,
-			useClass: RateLimitGuard,
-		},
-		{
-			provide: APP_GUARD,
-			useClass: BlacklistGuard,
-		},
+		// {
+		// 	provide: APP_GUARD,
+		// 	useClass: RateLimitGuard,
+		// },
+		// {
+		// 	provide: APP_GUARD,
+		// 	useClass: BlacklistGuard,
+		// },
 	],
 })
 export class AppModule {}

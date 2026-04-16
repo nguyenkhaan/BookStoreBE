@@ -21,4 +21,12 @@ export class AuthorController
         const responseData = await this.authorService.getAuthorByCode(code) 
         return responseData
     } 
+    //Use for search auto complete 
+    @Get("search") 
+    async getAuthorByName(
+        @Query("search") name : string 
+    ) 
+    {
+        return this.authorService.getAuthorByName(name) 
+    }
 }
