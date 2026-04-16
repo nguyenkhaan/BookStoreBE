@@ -17,7 +17,6 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BookService } from './book.service';
 import { CreateBookData, UpdateBookData } from './dto/book.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import type { Express } from 'express';
 import { RolesGuard } from '@/bases/guards/role.guard';
 
 @Controller('book')
@@ -28,9 +27,23 @@ export class BookController {
 		const books = await this.bookService.getAllBooks();
 		return books;
 	}
+	@Post()
+	@UseInterceptors(FileInterceptor('coverImage'))
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard , RolesGuard)
+	async createBook(
+		@Body() createBookData: CreateBookData,
+		@UploadedFile() file: any,
+	) {
+		const responseData = await this.bookService.createBook(
+			createBookData,
+			file,
+		);
+		return responseData;
+	}
 	@UseInterceptors(FileInterceptor('data'))
 	@Post('/upload')
-	async uploadBookExcels(@UploadedFile() file: Express.Multer.File) {
+	async uploadBookExcels(@UploadedFile() file: any) {
 		const responseData = await this.bookService.uploadBookData(file);
 		return responseData;
 	}
@@ -47,30 +60,18 @@ export class BookController {
 		return responseData;
 	}
 	@Get('/code/:code')
-	async getBookByCode(@Param('code') code: string) {  //Them sua sach 
+	async getBookByCode(@Param('code') code: string) {
+		//Them sua sach
 		const responseData = await this.bookService.getBookByCode(code);
 		return responseData;
 	}
-	@Post()
-	@UseInterceptors(FileInterceptor('coverImage'))
-	@Roles(Role.EMPLOYEE)
-	@UseGuards(JwtAuthGuard)
-	async createBook(
-		@Body() createBookData: CreateBookData,
-		@UploadedFile() file: Express.Multer.File,
-	) {
-		const responseData = await this.bookService.createBook(
-			createBookData,
-			file,
-		);
-		return responseData;
-	}
+
 	@Put('/:bookId')
 	@Roles(Role.EMPLOYEE)
 	@UseGuards(JwtAuthGuard)
 	async updateBook(
 		@Body() updateBookData: UpdateBookData,
-		@UploadedFile() file: Express.Multer.File,
+		@UploadedFile() file: any,
 		@Param('bookId', ParseIntPipe) bookId: number,
 	) {
 		const responseData = await this.bookService.updateBookById(
@@ -87,10 +88,9 @@ export class BookController {
 		const responseData = await this.bookService.deleteBookById(bookId);
 		return responseData;
 	}
-	@Roles(Role.EMPLOYEE) 
-	@UseGuards(JwtAuthGuard , RolesGuard)
-	async getGeneralStatistic() 
-	{
-		return await this.bookService.statisticBook() 
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	async getGeneralStatistic() {
+		return await this.bookService.statisticBook();
 	}
 }

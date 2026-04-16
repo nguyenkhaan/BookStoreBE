@@ -49,25 +49,46 @@ export class BookService {
 	}
 	async getAllBooks() {
 		try {
-			let books = await this.prismaService.book.findMany({
+			const books = await this.prismaService.book.findMany({
 				where: {
 					deletedAt: null,
 				},
+				include: {
+					inventory: true, 
+					authors: {
+						include: {
+							author: true,
+						},
+					},
+					publishers: {
+						include: {
+							publisher: true,
+						},
+					},
+				},
 			});
+
 			const booksWithUrl = await Promise.all(
 				books.map(async (book) => {
-					if (book.coverImage) {
-						const url = await this.minioService.getFileUrl(
-							book.coverImage,
-						);
-						return {
-							...book,
-							coverImage: url,
-						};
+					let coverImage = book.coverImage;
+
+					if (coverImage) {
+						coverImage =
+							await this.minioService.getFileUrl(coverImage);
 					}
-					return book;
+
+					return {
+						...book,
+						coverImage,
+						authors: book.authors.map((a) => a.author.name),
+						publishers: book.publishers.map(
+							(p) => p.publisher.name,
+						),
+						stock: book.inventory?.stock || 0 
+					};
 				}),
 			);
+
 			return booksWithUrl;
 		} catch (err) {
 			console.log(err);
@@ -77,14 +98,31 @@ export class BookService {
 	async getBookById(bookId: number) {
 		try {
 			const book = await this.prismaService.book.findFirst({
-				where: { id: bookId },
+				where: { id: bookId }, 
+				include: {
+					authors: {
+						include: { 
+							author: true 
+						}
+					}, 
+					publishers: {
+						include: {
+							publisher: true 
+						}
+					}
+				}
 			});
 			if (!book)
 				return {
 					[ResponseBody.ERROR]: 0,
 					[ResponseBody.MESSAGE]: 'Book Not Found',
 				};
-			return book;
+			
+			return {
+				...book, 
+				publishers: book.publishers.map((publisher) => publisher.publisher.name), 
+				authors: book.authors.map((author) => author.author.name)
+			}
 		} catch (err) {
 			console.log(err);
 			throw err;
@@ -135,6 +173,7 @@ export class BookService {
 			let fileName: string | null = null;
 
 			if (file) {
+				console.log("Upload file") 
 				fileName = await this.minioService.uploadFile(file);
 			}
 
@@ -168,7 +207,6 @@ export class BookService {
 							: undefined,
 				},
 			});
-
 			return book;
 		} catch (err) {
 			console.log(err);
@@ -396,9 +434,13 @@ export class BookService {
 					const existingBook = bookMap.get(row.code);
 
 					if (existingBook) {
-						const inventory = await tx.inventory.findFirst({ where : { bookId : existingBook.id } , select : { stock : true } }) 
-						if (Number(inventory?.stock ?? 0) >= 300) //Chi nhap cho nhung cuon sach co so luong ton kho < 300
-							continue
+						const inventory = await tx.inventory.findFirst({
+							where: { bookId: existingBook.id },
+							select: { stock: true },
+						});
+						if (Number(inventory?.stock ?? 0) >= 300)
+							//Chi nhap cho nhung cuon sach co so luong ton kho < 300
+							continue;
 						await tx.inventory.upsert({
 							where: { bookId: existingBook.id },
 							update: {
@@ -444,7 +486,7 @@ export class BookService {
 					for (const row of validRows) {
 						const book = newBookMap.get(row.code);
 						if (!book) continue;
-						
+
 						for (const authorId of row.authorIds) {
 							authorBookData.push({
 								authorId,

@@ -22,9 +22,11 @@ export class CreateBookData {
 	@Matches(BookCodeRegex, {
 		message: 'Book Code must be in format BK001',
 	})
-	@IsInt()
-	year: number;
 	code: string;
+	
+	@IsNumber()
+	@Type(() => Number)
+	year: number;
 	@IsNumber()
 	@Min(0)
 	@Type(() => Number)

@@ -5,7 +5,7 @@ import { Role } from "@prisma/client";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { RolesGuard } from "@/bases/guards/role.guard";
 
-@Controller("author") 
+@Controller("publisher") 
 @Roles(Role.EMPLOYEE) 
 @UseGuards(JwtAuthGuard , RolesGuard)
 export class PublisherController 
@@ -13,7 +13,7 @@ export class PublisherController
     constructor(
         private readonly publisherService : PublisherService
     ) {} 
-    @Get("name")
+    @Get("search")
     async getAuthorByCode(
         @Query("name") name : string 
     ) //Search author by name 
