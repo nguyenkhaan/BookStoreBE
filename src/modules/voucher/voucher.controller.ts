@@ -31,6 +31,10 @@ export class VoucherController {
 		const responseData = await this.voucherService.getVoucherCanUse();
 		return responseData;
 	}
+	@Get('options')
+	async getVoucherOptions() {
+		return this.voucherService.getVoucherOptions();
+	}
 	@Post()
 	async createVoucher(@Body() createVoucherData: CreateVoucherData) {
 		const responseData =
@@ -63,9 +67,8 @@ export class VoucherController {
 		const responseData = await this.voucherService.deleteVoucher(voucherId);
 		return responseData;
 	}
-	@Get("statistic") 
-	async getVoucherGeneralStatistic() 
-	{
-		return await this.voucherService.getVoucherGeneralStatistic() 
+	@Get('statistic')
+	async getVoucherGeneralStatistic() {
+		return await this.voucherService.getVoucherGeneralStatistic();
 	}
 }

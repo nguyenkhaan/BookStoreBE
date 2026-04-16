@@ -1,7 +1,7 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateVoucherData, UpdateVoucherData } from './dto/voucher.dto';
-import { VoucherStatus } from '@prisma/client';
+import { VoucherStatus, VoucherType } from '@prisma/client';
 import { TransactionClient } from 'generated/prisma/internal/prismaNamespace';
 
 @Injectable()
@@ -85,7 +85,6 @@ export class VoucherService {
 			const vouchers = await this.prismaService.voucher.findMany({
 				where: { deletedAt: null },
 			});
-
 			return vouchers;
 		} catch (err) {
 			console.log('Get All Vouchers Error:', err);
@@ -124,9 +123,17 @@ export class VoucherService {
 			throw err;
 		}
 	}
-
+	async findVoucherByCode(code : string) {
+		const v = await this.prismaService.voucher.findFirst({
+			where : { code }
+		})
+		return v 
+	}
 	async createVoucher(createVoucherData: CreateVoucherData) {
 		try {
+			const v = await this.findVoucherByCode(createVoucherData.code) 
+			if (v) 
+				throw new BadRequestException("Mã voucher đã tồn tại") 
 			const voucher = await this.prismaService.voucher.create({
 				data: {
 					name: createVoucherData.name,
@@ -134,9 +141,12 @@ export class VoucherService {
 					sale: createVoucherData.sale,
 					status: createVoucherData.status,
 					quantity: createVoucherData.quantity,
-					usedNumber: 0,
+					description: createVoucherData.description || "", 
+					usedNumber: createVoucherData.usedNumber || 0,
 					expiresAt: new Date(createVoucherData.expiresAt),
 					type: createVoucherData.type,
+					startDate: createVoucherData.startDate, 
+					code : createVoucherData.code
 				},
 			});
 
@@ -144,6 +154,13 @@ export class VoucherService {
 		} catch (err) {
 			console.log('Create Voucher Error:', err);
 			throw err;
+		}
+	}
+	getVoucherOptions() 
+	{
+		return {
+			type: Object.values(VoucherType), 
+			status : Object.values(VoucherStatus) 
 		}
 	}
 
