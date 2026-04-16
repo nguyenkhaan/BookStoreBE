@@ -67,8 +67,6 @@ export class BillService {
 			return await this.prismaService.$transaction(async (tx) => {
 				const bookIds = createBillData.billDetails.map((b) => b.bookId);
 				
-				 
-
 				const books = await tx.book.findMany({
 					where: { id: { in: bookIds } },
 					include: {

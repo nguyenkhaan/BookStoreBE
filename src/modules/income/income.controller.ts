@@ -11,7 +11,7 @@ import {
 	Req,
 	UseGuards,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { IncomePaymentType, IncomeStatus, Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '@/bases/guards/role.guard';
 import { IncomeService } from './income.service';
@@ -22,6 +22,24 @@ import type { Request } from 'express';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class IncomeController {
 	constructor(private readonly incomeService: IncomeService) {}
+	@Get()
+	async getAllIncomes() {
+		const response = await this.incomeService.getAllIncome();
+		return response;
+	}
+	@Get('options')
+	async getIncomeOption() {
+		const status = Object.values(IncomeStatus);
+		const paymentMethods = Object.values(IncomePaymentType);
+		return {
+			status,
+			paymentMethods,
+		};
+	}
+	@Get('statistic')
+	async getIncomeGeneralStatistic() {
+		return await this.incomeService.getGeneralStatistic();
+	}
 	@Get('/:id')
 	async getIncomeById(@Param('id') id: number) {
 		return this.incomeService.getIncomeById(Number(id));
@@ -31,7 +49,7 @@ export class IncomeController {
 	async getIncomeByCode(@Param('code') code: string) {
 		return this.incomeService.getIncomeByCode(code);
 	}
-
+	
 	@Post()
 	async createIncome(@Body() dto: CreateIncomeDto, @Req() req: Request) {
 		const employeeId = req.user as any;
@@ -48,11 +66,6 @@ export class IncomeController {
 	@Delete('/:id')
 	async deleteIncome(@Param('id') id: number) {
 		return this.incomeService.deleteIncome(Number(id));
-	}
-	@Get("statistic") 
-	async getIncomeGeneralStatistic() 
-	{
-		return await this.incomeService.getGeneralStatistic() 
 	}
 }
 //Lay thong tin tat ca income

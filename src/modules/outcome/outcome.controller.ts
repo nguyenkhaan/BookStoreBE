@@ -9,10 +9,10 @@ import {
 	ParseIntPipe,
 	Post,
 	Put,
-	Req, 
+	Req,
 	UseGuards,
 } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import { OutcomeStatus, Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '@/bases/guards/role.guard';
 import { OutcomeService } from './outcome.service';
@@ -23,15 +23,21 @@ import { CreateOutcomeData, UpdateOutcomeData } from './dto/outcome.dto';
 @UseGuards(JwtAuthGuard, RolesGuard) //Danh sach phieu nhap (Nhap hang)
 export class OutcomeController {
 	constructor(private readonly outcomeService: OutcomeService) {}
-	@Get("statistic") 
-	async getGeneralStatistic() 
-	{
-		return this.outcomeService.getGeneralStatistic() 
-	}
 	@Get()
 	async getAllOutcomeBills() {
 		const responseData = await this.outcomeService.getAllOutcome();
 		return responseData;
+	}
+	@Get('statistic')
+	async getGeneralStatistic() {
+		return this.outcomeService.getGeneralStatistic();
+	}
+	@Get("options") 
+	async getOutcomeOptions() {
+		const status = Object.values(OutcomeStatus) 
+		return { 
+			status 
+		}
 	}
 	@Get('/:outcomeId')
 	async getOutcomeById(@Param('outcomeId', ParseIntPipe) outcomeId: number) {
@@ -79,5 +85,4 @@ export class OutcomeController {
 			await this.outcomeService.deleteOutcomeBill(outcomeId);
 		return responseData;
 	}
-	
 }
