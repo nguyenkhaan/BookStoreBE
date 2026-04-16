@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { Roles } from '@/bases/decorators/role.decorators';
 import { Role } from '@prisma/client';
@@ -18,12 +18,21 @@ export class EmployeeController {
 
 	// @Patch("/reset-employee-password")
 	//Lay tat ca nhan vien, Dat lai mat khau, chuc nang loc, tim kiem ???? Duma nhieu the
-	@Roles(Role.EMPLOYEE)
+	@Roles(Role.ADMIN)
 	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get()
 	async getAllEmployeeProfiles() {
 		const responseData = await this.employeeService.getAllEmployee();
 		return responseData;
+	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard , RolesGuard)
+	@Post() 
+	async createEmployeeAccount(
+		
+	) 
+	{	
+
 	}
 	@Roles(Role.EMPLOYEE)
 	@UseGuards(JwtAuthGuard, RolesGuard)

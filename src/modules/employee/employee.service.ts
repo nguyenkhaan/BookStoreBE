@@ -40,8 +40,11 @@ export class EmployeeService {
 					email: true,
 					avatar: true,
 					phone: true,
+					status: true, 
 					id: true,
 					code: true,
+					salary: true, 
+					createdAt: true, 
 					position: {
 						select: {
 							name: true,
