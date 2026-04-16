@@ -5,6 +5,7 @@ import {
 	Delete,
 	Get,
 	Param,
+	ParseIntPipe,
 	Post,
 	Put,
 	Req,
@@ -24,6 +25,12 @@ export class RuleController {
 		const responseData = await this.ruleService.getAllRules();
 		return responseData;
 	}
+	//Use for get RuleStatus from Backend
+	@Get('options')
+	async getRulesOptions() {
+		return await this.ruleService.getOptions();
+	}
+
 	@Roles(Role.ADMIN)
 	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Post()
@@ -52,11 +59,15 @@ export class RuleController {
 		const responseData = await this.ruleService.deleteRule(Number(ruleId));
 		return responseData;
 	}
-	@Roles(Role.EMPLOYEE) 
-	@UseGuards(JwtAuthGuard , RolesGuard) 
-	@Get("/statistic")
-	async getGeneralStatistic() 
-	{
-		return await this.ruleService.getGeneralStatistic() 
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Get('/statistic')
+	async getGeneralStatistic() {
+		return await this.ruleService.getGeneralStatistic();
+	}
+	@Get('/:ruleId')
+	async getRuleById(@Param('ruleId', ParseIntPipe) ruleId: number) {
+		const response = await this.ruleService.getRuleById(Number(ruleId));
+		return response;
 	}
 }

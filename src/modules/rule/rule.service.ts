@@ -1,7 +1,7 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateRuleData, UpdateRuleData } from './dto/rule.dto';
-import { RuleStatus } from '@prisma/client';
+import { RuleStatus, RuleType } from '@prisma/client';
 
 @Injectable()
 export class RuleService {
@@ -30,15 +30,21 @@ export class RuleService {
 				},
 			});
 			return {
-				totalRules : totalRules._count.id, 
-				applying : applying._count.id, 
-				upcoming : upcoming._count.id, 
-				reject : reject._count.id 
-			}
+				totalRules: totalRules._count.id,
+				applying: applying._count.id,
+				upcoming: upcoming._count.id,
+				reject: reject._count.id,
+			};
 		} catch (err) {
 			console.log('Error get rule statistic', err);
 			throw err;
 		}
+	}
+	async getOptions() {
+		return {
+			type: Object.values(RuleType),
+			status: Object.values(RuleStatus),
+		};
 	}
 	async getAllRules() {
 		try {
@@ -76,22 +82,35 @@ export class RuleService {
 		return this.prismaService.rule.update({
 			where: { id },
 			data: {
-				...(data.title && { title: data.title }),
-				...(data.content && { content: data.content }),
-				...(data.shortDescription && {
+				...(data.title !== undefined && { title: data.title }),
+				...(data.content !== undefined && { content: data.content }),
+				...(data.shortDescription !== undefined && {
 					shortDescription: data.shortDescription,
 				}),
-				...(data.status && { rule: data.status }),
-				...(data.type && { rule: data.type }),
-				...(data.appliedAt && {
-					appliedAt: data.appliedAt
-						? new Date(data.appliedAt)
-						: undefined,
+				...(data.status !== undefined && { status: data.status }),
+				...(data.type !== undefined && { type: data.type }),
+				...(data.appliedAt !== undefined && {
+					appliedAt: new Date(data.appliedAt),
 				}),
 			},
 		});
 	}
-
+	async getRuleById(id : number) 
+	{
+		try 
+		{
+			const rule = await this.prismaService.rule.findFirst({
+				where: { id }
+			}) 
+			if (!rule) 
+				throw new BadRequestException("rule not found") 
+			return rule 
+		}  
+		catch (err) {
+			console.log("get rule by id error" , err) 
+			throw err
+		}
+	}
 	async deleteRule(id: number) {
 		try {
 			const rule = await this.prismaService.rule.delete({
