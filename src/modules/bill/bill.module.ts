@@ -10,8 +10,8 @@ import { CustomerService } from '../customer/customer.service';
 import { InventoryModule } from '../inventory/inventory.module';
 
 @Module({
-	imports: [AuthModule, VoucherModule , CustomerModule , InventoryModule],
+	imports: [AuthModule, VoucherModule, CustomerModule, InventoryModule],
 	controllers: [BillController],
-	providers: [BillService, VoucherService , CustomerService],
+	providers: [BillService, VoucherService, CustomerService],
 })
 export class BillModule {}

@@ -13,8 +13,8 @@ import {
 
 export class CreateEmployeeDto {
 	@IsString()
-	@Matches(EmployeeCodeRegex , {
-		message: "Employee code must be in format same as NV001"
+	@Matches(EmployeeCodeRegex, {
+		message: 'Employee code must be in format same as NV001',
 	})
 	code: string;
 

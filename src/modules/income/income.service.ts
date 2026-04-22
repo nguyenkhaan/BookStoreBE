@@ -6,45 +6,41 @@ import { BillStatus } from '@prisma/client';
 @Injectable()
 export class IncomeService {
 	constructor(private prisma: PrismaService) {}
-	async getGeneralStatistic() 
-	{
-		try 
-		{
+	async getGeneralStatistic() {
+		try {
 			const totalIncomeBills = await this.prisma.billIncome.aggregate({
-				_count : { id : true }, 
-			}) 
+				_count: { id: true },
+			});
 			const completeIncome = await this.prisma.billIncome.aggregate({
-				_count : { id : true }, 
+				_count: { id: true },
 				where: {
-					bill : {
-						status : BillStatus.COMPLETE
-					}
-				}
-			})
+					bill: {
+						status: BillStatus.COMPLETE,
+					},
+				},
+			});
 			const notStartedIncome = await this.prisma.billIncome.aggregate({
-				_count : { id : true }, 
+				_count: { id: true },
 				where: {
-					bill : {
-						status : BillStatus.NOT_STARTED
-					}
-				}
-			})
+					bill: {
+						status: BillStatus.NOT_STARTED,
+					},
+				},
+			});
 			const totalCost = await this.prisma.billIncome.aggregate({
-				_sum : {
-					cost : true 
-				} 
-			}) 
+				_sum: {
+					cost: true,
+				},
+			});
 			return {
-				totalIncomeBills : totalIncomeBills._count.id, 
-				completeIncome : completeIncome._count.id, 
-				notStartedIncome : notStartedIncome._count.id, 
-				totalCost : Number(totalCost._sum.cost ?? 0)
-			}
-		} 
-		catch (err) 
-		{
-			console.log("Get income statistic error: " , err) 
-			throw err 
+				totalIncomeBills: totalIncomeBills._count.id,
+				completeIncome: completeIncome._count.id,
+				notStartedIncome: notStartedIncome._count.id,
+				totalCost: Number(totalCost._sum.cost ?? 0),
+			};
+		} catch (err) {
+			console.log('Get income statistic error: ', err);
+			throw err;
 		}
 	}
 	async getAllIncome() {
@@ -106,7 +102,7 @@ export class IncomeService {
 					billId: dto.billId,
 					employeeId,
 					shortDescription: dto.shortDescription,
-					paymentMethod : dto.payment
+					paymentMethod: dto.payment,
 				},
 			});
 

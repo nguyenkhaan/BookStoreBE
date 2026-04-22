@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Param,
+	ParseIntPipe,
+	Post,
+	Put,
+	Query,
+	Req,
+	UseGuards,
+} from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { Roles } from '@/bases/decorators/role.decorators';
 import { Role } from '@prisma/client';
@@ -27,39 +39,36 @@ export class EmployeeController {
 		return responseData;
 	}
 
-	@Get("department-position") 
-	async getEmployeeDepartPosition() 
-	{
-		const response = await this.employeeService.getDepartmentAndPositions() 
-		return response
+	@Get('department-position')
+	async getEmployeeDepartPosition() {
+		const response = await this.employeeService.getDepartmentAndPositions();
+		return response;
 	}
 
-	@Get("options") 
-	async getEmployeeOptions() 
-	{
-		return await this.employeeService.getOptions() 
+	@Get('options')
+	async getEmployeeOptions() {
+		return await this.employeeService.getOptions();
 	}
 
 	@Roles(Role.ADMIN)
-	@UseGuards(JwtAuthGuard , RolesGuard)
-
-	@Post() 
-	async createEmployeeAccount(
-		@Body() employeeAccount: CreateEmployeeDto
-	) 
-	{	
-		const response = await this.employeeService.createAccount(employeeAccount) 
-		return response
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Post()
+	async createEmployeeAccount(@Body() employeeAccount: CreateEmployeeDto) {
+		const response =
+			await this.employeeService.createAccount(employeeAccount);
+		return response;
 	}
 
-	@Put("/:employeeId") 
-	async updateEmployeeAccount (
-		@Param("employeeId" , ParseIntPipe) employeeId : number, 
-		@Body() employeeAccount: UpdateEmployeeDto
-	) 
-	{	
-		const response = await this.employeeService.updateEmployeeAccount(employeeId , employeeAccount) 
-		return response
+	@Put('/:employeeId')
+	async updateEmployeeAccount(
+		@Param('employeeId', ParseIntPipe) employeeId: number,
+		@Body() employeeAccount: UpdateEmployeeDto,
+	) {
+		const response = await this.employeeService.updateEmployeeAccount(
+			employeeId,
+			employeeAccount,
+		);
+		return response;
 	}
 
 	@Roles(Role.EMPLOYEE)
@@ -74,24 +83,21 @@ export class EmployeeController {
 		return responseData;
 	}
 
-	@Get("code") 
-	async getEmployeeByCode(@Query("code") code : string) 
-	{
-		return await this.employeeService.getEmployeeByCode(code) 
+	@Get('code')
+	async getEmployeeByCode(@Query('code') code: string) {
+		return await this.employeeService.getEmployeeByCode(code);
 	}
 
-	@Get("statistic") 
-	async getEmployeeGeneralStatistic() 
-	{
-		
-	}
+	@Get('statistic')
+	async getEmployeeGeneralStatistic() {}
 
-	@Delete("/:employeeId") 
+	@Delete('/:employeeId')
 	async deleteEmployeeAccount(
-		@Param("employeeId" , ParseIntPipe) employeeId : number 
-	) 
-	{
-		const response = await this.employeeService.deleteAccount(Number(employeeId)) 
-		return response
+		@Param('employeeId', ParseIntPipe) employeeId: number,
+	) {
+		const response = await this.employeeService.deleteAccount(
+			Number(employeeId),
+		);
+		return response;
 	}
 }

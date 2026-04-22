@@ -23,7 +23,7 @@ export class CreateBookData {
 		message: 'Book Code must be in format BK001',
 	})
 	code: string;
-	
+
 	@IsNumber()
 	@Type(() => Number)
 	year: number;
@@ -42,7 +42,7 @@ export class CreateBookData {
 	@IsInt({ each: true })
 	authorIds: number[];
 	@IsEnum(BookCategory)
-	category : BookCategory
+	category: BookCategory;
 	@IsOptional()
 	@IsInt()
 	@Type(() => Number)

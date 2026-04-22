@@ -7,8 +7,7 @@ import { TransactionClient } from 'generated/prisma/internal/prismaNamespace';
 @Injectable()
 export class VoucherService {
 	constructor(private readonly prismaService: PrismaService) {}
-	
-	
+
 	checkVoucherInUse(voucher: any) {
 		return (
 			voucher.status == VoucherStatus.APPLYING &&
@@ -16,46 +15,42 @@ export class VoucherService {
 			voucher.expiresAt > new Date()
 		);
 	}
-	
-	async getVoucherGeneralStatistic() 
-	{
-		try 
-		{
+
+	async getVoucherGeneralStatistic() {
+		try {
 			const totalEvents = await this.prismaService.voucher.aggregate({
-				_count : { eventName : true }
-			})
+				_count: { eventName: true },
+			});
 			const applying = await this.prismaService.voucher.aggregate({
-				_sum : {quantity : true }, 
+				_sum: { quantity: true },
 				where: {
-					status : VoucherStatus.APPLYING
-				}
-			})
+					status: VoucherStatus.APPLYING,
+				},
+			});
 			const upcoming = await this.prismaService.voucher.aggregate({
-				_sum : {quantity : true }, 
+				_sum: { quantity: true },
 				where: {
-					status : VoucherStatus.UPCOMING
-				}
-			}) 
+					status: VoucherStatus.UPCOMING,
+				},
+			});
 			const ended = await this.prismaService.voucher.aggregate({
-				_sum : {quantity : true }, 
+				_sum: { quantity: true },
 				where: {
-					status : VoucherStatus.ENDED
-				}
-			}) 
+					status: VoucherStatus.ENDED,
+				},
+			});
 			return {
-				totalEvents : totalEvents._count.eventName, 
-				applying : Number(applying._sum.quantity ?? 0), 
-				upcoming : Number(upcoming._sum.quantity ?? 0), 
-				ended : Number(ended._sum.quantity ?? 0) 
-			}
-		} 
-		catch (err) 
-		{
+				totalEvents: totalEvents._count.eventName,
+				applying: Number(applying._sum.quantity ?? 0),
+				upcoming: Number(upcoming._sum.quantity ?? 0),
+				ended: Number(ended._sum.quantity ?? 0),
+			};
+		} catch (err) {
 			console.log('Get Vouchers Statistic Error:', err);
 			throw err;
 		}
 	}
-	
+
 	async checkVoucherInUseById(id: number) {
 		const voucher = await this.prismaService.voucher.findFirst({
 			where: { id },
@@ -123,17 +118,16 @@ export class VoucherService {
 			throw err;
 		}
 	}
-	async findVoucherByCode(code : string) {
+	async findVoucherByCode(code: string) {
 		const v = await this.prismaService.voucher.findFirst({
-			where : { code }
-		})
-		return v 
+			where: { code },
+		});
+		return v;
 	}
 	async createVoucher(createVoucherData: CreateVoucherData) {
 		try {
-			const v = await this.findVoucherByCode(createVoucherData.code) 
-			if (v) 
-				throw new BadRequestException("Mã voucher đã tồn tại") 
+			const v = await this.findVoucherByCode(createVoucherData.code);
+			if (v) throw new BadRequestException('Mã voucher đã tồn tại');
 			const voucher = await this.prismaService.voucher.create({
 				data: {
 					name: createVoucherData.name,
@@ -141,12 +135,12 @@ export class VoucherService {
 					sale: createVoucherData.sale,
 					status: createVoucherData.status,
 					quantity: createVoucherData.quantity,
-					description: createVoucherData.description || "", 
+					description: createVoucherData.description || '',
 					usedNumber: createVoucherData.usedNumber || 0,
 					expiresAt: new Date(createVoucherData.expiresAt),
 					type: createVoucherData.type,
-					startDate: createVoucherData.startDate, 
-					code : createVoucherData.code
+					startDate: createVoucherData.startDate,
+					code: createVoucherData.code,
 				},
 			});
 
@@ -156,12 +150,11 @@ export class VoucherService {
 			throw err;
 		}
 	}
-	getVoucherOptions() 
-	{
+	getVoucherOptions() {
 		return {
-			type: Object.values(VoucherType), 
-			status : Object.values(VoucherStatus) 
-		}
+			type: Object.values(VoucherType),
+			status: Object.values(VoucherStatus),
+		};
 	}
 
 	async updateVoucher(id: number, updateVoucherData: UpdateVoucherData) {

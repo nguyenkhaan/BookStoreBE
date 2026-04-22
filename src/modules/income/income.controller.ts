@@ -49,7 +49,7 @@ export class IncomeController {
 	async getIncomeByCode(@Param('code') code: string) {
 		return this.incomeService.getIncomeByCode(code);
 	}
-	
+
 	@Post()
 	async createIncome(@Body() dto: CreateIncomeDto, @Req() req: Request) {
 		const employeeId = req.user as any;

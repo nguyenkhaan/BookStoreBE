@@ -88,67 +88,57 @@ export class CustomerService {
 					grade: MemberGrade.BRONZE,
 				},
 			});
-            const gold = await this.prismaService.customer.aggregate({
+			const gold = await this.prismaService.customer.aggregate({
 				_count: { code: true },
 				where: {
 					deletedAt: null,
 					grade: MemberGrade.GOLD,
 				},
 			});
-            return {
-                dinamond: dinamond._count.code, 
-                gold : gold._count.code, 
-                silver : silver._count.code, 
-                bronze : bronze._count.code 
-            }
+			return {
+				dinamond: dinamond._count.code,
+				gold: gold._count.code,
+				silver: silver._count.code,
+				bronze: bronze._count.code,
+			};
 		} catch (err) {
-            console.log("Get customer statistic error: " , err) 
-            throw err 
-        }
-	}
-	async findCustomerById(id : number) 
-	{
-		const customer = await this.prismaService.customer.findFirst({
-			where: { id }
-		}) 
-		return customer 
-	}
-	async deleteCustomerById(id : number) 
-	{
-		try 
-		{
-			const result = await this.prismaService.customer.update({
-				where: { id }, 
-				data: {
-					deletedAt : new Date(Date.now())
-				}
-			})
-			return result
-		} 
-		catch (err) {
-			console.log(err) 
-
+			console.log('Get customer statistic error: ', err);
+			throw err;
 		}
 	}
-	async updateCustomerById(id : number , data : UpdateCustomerDto) 
-	{
-		try 
-		{
-			const customer = await this.findCustomerById(id) 
-			if (!customer) 
-				throw new BadRequestException("customer not found") 
+	async findCustomerById(id: number) {
+		const customer = await this.prismaService.customer.findFirst({
+			where: { id },
+		});
+		return customer;
+	}
+	async deleteCustomerById(id: number) {
+		try {
 			const result = await this.prismaService.customer.update({
-				where: { id }, 
+				where: { id },
 				data: {
-					...data 
-				}
-			})
-			return result
-		} 
-		catch (err) 
-		{
-			console.log(err) 
-			throw err 
+					deletedAt: new Date(Date.now()),
+				},
+			});
+			return result;
+		} catch (err) {
+			console.log(err);
+		}
+	}
+	async updateCustomerById(id: number, data: UpdateCustomerDto) {
+		try {
+			const customer = await this.findCustomerById(id);
+			if (!customer) throw new BadRequestException('customer not found');
+			const result = await this.prismaService.customer.update({
+				where: { id },
+				data: {
+					...data,
+				},
+			});
+			return result;
+		} catch (err) {
+			console.log(err);
+			throw err;
 		}
 	}
 }

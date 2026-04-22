@@ -54,7 +54,7 @@ export class BookService {
 					deletedAt: null,
 				},
 				include: {
-					inventory: true, 
+					inventory: true,
 					authors: {
 						include: {
 							author: true,
@@ -84,7 +84,7 @@ export class BookService {
 						publishers: book.publishers.map(
 							(p) => p.publisher.name,
 						),
-						stock: book.inventory?.stock || 0 
+						stock: book.inventory?.stock || 0,
 					};
 				}),
 			);
@@ -98,31 +98,33 @@ export class BookService {
 	async getBookById(bookId: number) {
 		try {
 			const book = await this.prismaService.book.findFirst({
-				where: { id: bookId }, 
+				where: { id: bookId },
 				include: {
 					authors: {
-						include: { 
-							author: true 
-						}
-					}, 
+						include: {
+							author: true,
+						},
+					},
 					publishers: {
 						include: {
-							publisher: true 
-						}
-					}
-				}
+							publisher: true,
+						},
+					},
+				},
 			});
 			if (!book)
 				return {
 					[ResponseBody.ERROR]: 0,
 					[ResponseBody.MESSAGE]: 'Book Not Found',
 				};
-			
+
 			return {
-				...book, 
-				publishers: book.publishers.map((publisher) => publisher.publisher.name), 
-				authors: book.authors.map((author) => author.author.name)
-			}
+				...book,
+				publishers: book.publishers.map(
+					(publisher) => publisher.publisher.name,
+				),
+				authors: book.authors.map((author) => author.author.name),
+			};
 		} catch (err) {
 			console.log(err);
 			throw err;
@@ -173,7 +175,7 @@ export class BookService {
 			let fileName: string | null = null;
 
 			if (file) {
-				console.log("Upload file") 
+				console.log('Upload file');
 				fileName = await this.minioService.uploadFile(file);
 			}
 
@@ -265,7 +267,7 @@ export class BookService {
 
 				fileName = await this.minioService.uploadFile(file);
 			}
-			console.log("Du lieu update: " , updateBook)
+			console.log('Du lieu update: ', updateBook);
 			const updatedBook = await this.prismaService.book.update({
 				where: { id },
 				data: {

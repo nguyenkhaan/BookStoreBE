@@ -3,6 +3,10 @@ import {
 	PrismaClient,
 	Role,
 	BookCategory,
+	BillStatus,
+	RuleStatus,
+	RuleType,
+	MemberGrade,
 } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
@@ -272,7 +276,7 @@ async function seedingCustomerData() {
 				phone: '0901234567',
 				password: 'hashed_password_1',
 				active: true,
-				grade: 'SILVER',
+				grade: MemberGrade.BRONZE,
 			},
 			{
 				code: 'KH002',
@@ -281,7 +285,7 @@ async function seedingCustomerData() {
 				phone: '0912345678',
 				password: 'hashed_password_2',
 				active: true,
-				grade: 'GOLD',
+				grade: MemberGrade.GOLD,
 			},
 			{
 				code: 'KH003',
@@ -290,7 +294,7 @@ async function seedingCustomerData() {
 				phone: '0923456789',
 				password: 'hashed_password_3',
 				active: false,
-				grade: 'BRONZE',
+				grade: MemberGrade.SILVER,
 			},
 			{
 				code: 'KH004',
@@ -299,7 +303,7 @@ async function seedingCustomerData() {
 				phone: '0934567890',
 				password: 'hashed_password_4',
 				active: true,
-				grade: 'DIAMOND',
+				grade: MemberGrade.DIAMOND,
 			},
 			{
 				code: 'KH005',
@@ -308,7 +312,7 @@ async function seedingCustomerData() {
 				phone: '0945678901',
 				password: 'hashed_password_5',
 				active: false,
-				grade: 'SILVER',
+				grade: MemberGrade.SILVER,
 			},
 		],
 	});
@@ -324,8 +328,8 @@ async function seedingRules() {
 					'Employees must check in before 9:00 AM. Late arrivals beyond 3 times per month will be reviewed.',
 				shortDescription:
 					'Rules for employee attendance and punctuality.',
-				type: 'HUMAN',
-				status: 'APPLYING',
+				type: RuleType.HUMAN,
+				status: RuleStatus.APPLYING,
 				creatorId: 1,
 				appliedAt: new Date('2025-01-01'),
 			},
@@ -334,8 +338,8 @@ async function seedingRules() {
 				content:
 					'Gold and Diamond members receive 10% and 15% discounts respectively on all purchases.',
 				shortDescription: 'Discount rules based on membership grade.',
-				type: 'SALE',
-				status: 'APPLYING',
+				type: RuleType.SALE,
+				status: RuleStatus.APPLYING,
 				creatorId: 1,
 				appliedAt: new Date('2025-02-01'),
 			},
@@ -344,8 +348,8 @@ async function seedingRules() {
 				content:
 					'All goods must be checked and recorded before being stored in the warehouse.',
 				shortDescription: 'Guidelines for warehouse operations.',
-				type: 'LOGISTIC',
-				status: 'UPCOMING',
+				type: RuleType.LOGISTIC,
+				status: RuleStatus.UPCOMING,
 				creatorId: 1,
 				appliedAt: new Date('2025-05-01'),
 			},
@@ -354,8 +358,8 @@ async function seedingRules() {
 				content:
 					'All customers must be greeted within 30 seconds of entering the store.',
 				shortDescription: 'Service quality expectations for employees.',
-				type: 'SERVICE',
-				status: 'APPLYING',
+				type: RuleType.SERVICE,
+				status: RuleStatus.APPLYING,
 				creatorId: 1,
 				appliedAt: new Date('2025-03-01'),
 			},
@@ -364,8 +368,8 @@ async function seedingRules() {
 				content:
 					'All expenses above 10,000,000 VND require manager approval.',
 				shortDescription: 'Rules for approving financial transactions.',
-				type: 'FINANCE',
-				status: 'UPCOMING',
+				type: RuleType.FINANCE,
+				status: RuleStatus.UPCOMING,
 				creatorId: 1,
 				appliedAt: new Date('2025-01-15'),
 			},
@@ -374,14 +378,176 @@ async function seedingRules() {
 				content:
 					'Employees must wear safety equipment in designated areas at all times.',
 				shortDescription: 'Safety requirements in the workplace.',
-				type: 'SAFETY',
-				status: 'REJECT',
+				type: RuleType.SAFETY,
+				status: RuleStatus.REJECT,
 				creatorId: 1,
 				appliedAt: new Date('2024-12-01'),
 			},
 		],
 	});
 	console.log('Seeded rule data:');
+}
+
+async function voucherSeeder() {
+	await prismaClient.voucher.createMany({
+		data: [
+			{
+				name: "DISCOUNT_10_PERCENT",
+				code: "VC10",
+				eventName: "Summer Sale 10%",
+				sale: 10,
+				status: "APPLYING",
+				usedNumber: 0,
+				quantity: 100,
+				expiresAt: new Date("2026-12-31"),
+				startDate: new Date("2026-01-01"),
+				type: "PERCENT",
+				description: "Giảm 10% toàn bộ đơn hàng",
+			},
+			{
+				name: "DISCOUNT_20_PERCENT",
+				code: "VC20",
+				eventName: "Big Sale 20%",
+				sale: 20,
+				status: "APPLYING",
+				usedNumber: 0,
+				quantity: 50,
+				expiresAt: new Date("2026-12-31"),
+				startDate: new Date("2026-01-01"),
+				type: "PERCENT",
+				description: "Giảm 20% đơn hàng lớn",
+			},
+			{
+				name: "WELCOME_50K",
+				code: "VC50K",
+				eventName: "Welcome New Customer",
+				sale: 50000,
+				status: "UPCOMING",
+				usedNumber: 0,
+				quantity: 200,
+				expiresAt: new Date("2026-06-30"),
+				startDate: new Date("2026-05-01"),
+				type: "VND",
+				description: "Giảm 50k cho khách hàng mới",
+			},
+			{
+				name: "EXPIRED_TEST",
+				code: "VCOLD",
+				eventName: "Old Campaign",
+				sale: 15,
+				status: "ENDED",
+				usedNumber: 10,
+				quantity: 10,
+				expiresAt: new Date("2025-01-01"),
+				startDate: new Date("2024-01-01"),
+				type: "PERCENT",
+				description: "Voucher đã hết hạn",
+			},
+		],
+		skipDuplicates: true,
+	});
+
+	console.log("Seeded Voucher Successfully");
+}
+
+async function billIncomeOutcomeSeeder() {
+	const customers = await prismaClient.customer.findMany();
+	const books = await prismaClient.book.findMany();
+	const employees = await prismaClient.employee.findMany();
+	const vouchers = await prismaClient.voucher.findMany();
+	const publishers = await prismaClient.publisher.findMany();
+
+	if (!customers.length || !books.length || !employees.length) {
+		throw new Error("Missing required seed data");
+	}
+
+	// =========================
+	// 1. CREATE 6 BILLS
+	// =========================
+	const bills = [];
+
+	for (let i = 0; i < 6; i++) {
+		const bill = await prismaClient.bill.create({
+			data: {
+				code: `BILL00${i + 1}`,
+				customerId: customers[i % customers.length].id,
+				status: BillStatus.COMPLETE,
+				cost: 0,
+
+				billDetail: {
+					create: [
+						{
+							bookId: books[i % books.length].id,
+							quantity: 1 + i,
+						},
+						{
+							bookId: books[(i + 1) % books.length].id,
+							quantity: 2,
+						},
+					],
+				},
+			},
+		});
+
+		bills.push(bill);
+	}
+
+	console.log("Created 6 Bills");
+
+	// =========================
+	// 2. 3 BILLS USE VOUCHER
+	// =========================
+	for (let i = 0; i < 3; i++) {
+		const voucher = vouchers[i % vouchers.length];
+
+		await prismaClient.voucherUsage.create({
+			data: {
+				billId: bills[i].id,
+				voucherId: voucher.id,
+				usedAt: new Date(),
+			},
+		});
+	}
+
+	console.log("Applied 3 Vouchers");
+
+	// =========================
+	// 3. 3 BILL INCOMES
+	// =========================
+	for (let i = 0; i < 3; i++) {
+		await prismaClient.billIncome.create({
+			data: {
+				code: `INC00${i + 1}`,
+				cost: 500 + i * 100,
+				status: "COMPLETE",
+				paymentMethod: "CASH",
+				employeeId: employees[i % employees.length].id,
+				billId: bills[i].id,
+				shortDescription: `Income for bill ${bills[i].code}`,
+			},
+		});
+	}
+
+	console.log("Created 3 Bill Incomes");
+
+	// =========================
+	// 4. 3 BILL OUTCOMES
+	// =========================
+	for (let i = 0; i < 3; i++) {
+		await prismaClient.billOutcome.create({
+			data: {
+				code: `OUT00${i + 1}`,
+				publisherId: publishers[i % publishers.length].id,
+				employeeId: employees[i % employees.length].id,
+				bookId: books[i % books.length].id,
+				cost: 800 + i * 120,
+				status: "COMPLETE",
+				quantity: 2 + i,
+			},
+		});
+	}
+
+	console.log("Created 3 Bill Outcomes");
 }
 
 async function seeder() {
@@ -396,6 +562,8 @@ async function seeder() {
 		await employeeRoleSeeder(); 
 		await seedingCustomerData(); 
 		await seedingRules();
+		await voucherSeeder() 
+		await billIncomeOutcomeSeeder() 
 		console.log('Seeding completed');
 	} catch (error) {
 		console.error(error);

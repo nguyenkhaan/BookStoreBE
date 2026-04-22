@@ -60,8 +60,8 @@ export class AuthController {
 		console.log(user);
 		if (user) {
 			const { id } = user;
-			const me = await this.authService.getMe(Number(id)) 
-			return me 
+			const me = await this.authService.getMe(Number(id));
+			return me;
 		}
 		return {
 			errCode: 1,

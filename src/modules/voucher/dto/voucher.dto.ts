@@ -15,13 +15,13 @@ import {
 } from 'class-validator';
 
 export class CreateVoucherData {
-	@IsString() 
-	@Matches(VoucherCodeRegex , {
-		message: "voucher code must be in format KM001"
+	@IsString()
+	@Matches(VoucherCodeRegex, {
+		message: 'voucher code must be in format KM001',
 	})
-	code : string 
-	@IsNumber() 
-	usedNumber : number 
+	code: string;
+	@IsNumber()
+	usedNumber: number;
 	@IsString()
 	@IsNotEmpty()
 	name: string;
@@ -29,7 +29,7 @@ export class CreateVoucherData {
 	@IsString()
 	@IsNotEmpty()
 	eventName: string;
-	@IsNumber() 
+	@IsNumber()
 	@Type(() => Number)
 	@Min(0)
 	sale: number;
@@ -40,16 +40,16 @@ export class CreateVoucherData {
 	@IsInt()
 	@Min(0)
 	quantity: number;
-	@IsString() 
-	@IsOptional() 
-	description : string 
-	
+	@IsString()
+	@IsOptional()
+	description: string;
+
 	@Type(() => Date)
-	@IsDate() 
+	@IsDate()
 	expiresAt: Date;
 	@Type(() => Date)
-	@IsDate() 
-	startDate : Date 
+	@IsDate()
+	startDate: Date;
 	@IsEnum(VoucherType)
 	type: VoucherType;
 }

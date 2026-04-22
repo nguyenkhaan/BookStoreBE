@@ -5,7 +5,7 @@ import { BookService } from './book.service';
 import { InventoryModule } from '../inventory/inventory.module';
 
 @Module({
-	imports: [AuthModule , InventoryModule],
+	imports: [AuthModule, InventoryModule],
 	exports: [],
 	controllers: [BookController],
 	providers: [BookService],

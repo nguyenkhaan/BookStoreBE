@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TestModule } from './modules/test/test.module';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';  //APP_GUARD
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'; //APP_GUARD
 import { HttpExceptionFilter } from './bases/filters/http-exception.filter';
 import { LoggingInterceptor } from './bases/interceptors/logging.interceptos';
 import { TransformInterceptor } from './bases/interceptors/transform.interceptor';
@@ -51,12 +51,12 @@ import { CategoryModule } from './modules/category/category.module';
 		OutcomeModule,
 		IncomeModule,
 		SearchModule,
-		StatisticModule, 
-		CustomerModule, 
-		AuthorModule, 
-		PublisherModule, 
-		InventoryModule, 
-		CategoryModule
+		StatisticModule,
+		CustomerModule,
+		AuthorModule,
+		PublisherModule,
+		InventoryModule,
+		CategoryModule,
 	],
 	controllers: [AppController],
 	providers: [
