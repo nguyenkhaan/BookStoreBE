@@ -29,7 +29,7 @@ CREATE TYPE "TokenType" AS ENUM ('RESET_PASSWORD', 'ACCESS', 'REFRESH', 'VERIFY_
 CREATE TYPE "EmployeeStatus" AS ENUM ('WORKING', 'LEAVE', 'RETIRED');
 
 -- CreateEnum
-CREATE TYPE "RuleStatus" AS ENUM ('APPLYING', 'REJECT');
+CREATE TYPE "RuleStatus" AS ENUM ('APPLYING', 'UPCOMING', 'REJECT');
 
 -- CreateEnum
 CREATE TYPE "BillStatus" AS ENUM ('COMPLETE', 'NOT_STARTED', 'OVERDUE');
@@ -251,6 +251,7 @@ CREATE TABLE "Rule" (
 CREATE TABLE "Voucher" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
     "eventName" TEXT NOT NULL,
     "sale" DECIMAL(65,30) NOT NULL,
     "status" "VoucherStatus" NOT NULL,
@@ -258,7 +259,9 @@ CREATE TABLE "Voucher" (
     "quantity" INTEGER NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
+    "description" TEXT NOT NULL DEFAULT '',
     "type" "VoucherType" NOT NULL,
+    "startDate" TIMESTAMP(3),
 
     CONSTRAINT "Voucher_pkey" PRIMARY KEY ("id")
 );
@@ -323,6 +326,9 @@ CREATE UNIQUE INDEX "BillOutcome_code_key" ON "BillOutcome"("code");
 
 -- CreateIndex
 CREATE INDEX "Rule_title_idx" ON "Rule"("title");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Voucher_code_key" ON "Voucher"("code");
 
 -- AddForeignKey
 ALTER TABLE "Bill" ADD CONSTRAINT "Bill_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
