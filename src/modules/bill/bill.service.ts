@@ -61,6 +61,67 @@ export class BillService {
 			throw err;
 		}
 	}
+    async deleteBill(id: number) {
+        try {
+            return await this.prismaService.$transaction(async (tx) => {
+                // Get bill details to restore inventory
+                const billDetails = await tx.billDetail.findMany({
+                    where: { billId: id },
+                });
+
+                // Restore inventory for each item
+                for (const detail of billDetails) {
+                    await tx.inventory.update({
+                        where: { bookId: detail.bookId },
+                        data: {
+                            stock: {
+                                increment: detail.quantity,
+                            },
+                        },
+                    });
+                }
+
+                // Restore voucher quantities
+                const voucherUsages = await tx.voucherUsage.findMany({
+                    where: { billId: id },
+                });
+
+                for (const usage of voucherUsages) {
+                    await tx.voucher.update({
+                        where: { id: usage.voucherId },
+                        data: {
+                            quantity: {
+                                increment: 1,
+                            },
+                        },
+                    });
+                }
+
+                // Delete related records
+                await tx.billDetail.deleteMany({
+                    where: { billId: id },
+                });
+
+                await tx.voucherUsage.deleteMany({
+                    where: { billId: id },
+                });
+
+                await tx.billIncome.deleteMany({
+                    where: { billId: id },
+                });
+
+                // Delete the bill
+                const deletedBill = await tx.bill.delete({
+                    where: { id },
+                });
+
+                return deletedBill;
+            });
+        } catch (err) {
+            console.log('Delete Bill Error:', err);
+            throw err;
+        }
+    }
 	async createBill(createBillData: CreateBillData) {
 		try {
 			return await this.prismaService.$transaction(async (tx) => {

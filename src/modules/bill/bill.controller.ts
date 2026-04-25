@@ -3,6 +3,7 @@ import {
 	Body,
 	Controller,
 	Get,
+	Delete, 
 	Param,
 	ParseIntPipe,
 	Post,
@@ -42,6 +43,7 @@ export class BillController {
 		const responseData = await this.billService.createBill(createBillData);
 		return responseData;
 	}
+	
 	@Put('/:billId')
 	async updateBill(
 		@Param('billId', ParseIntPipe) billId: number,
@@ -55,4 +57,9 @@ export class BillController {
 	}
 	@Get('code')
 	async getBillByCode() {}
+	@Delete('/:billId')
+    async deleteBill(@Param('billId', ParseIntPipe) billId: number) {
+        const responseData = await this.billService.deleteBill(billId);
+        return responseData;
+    }
 }
