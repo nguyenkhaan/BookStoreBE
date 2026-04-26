@@ -15,8 +15,9 @@ import { PartialType } from '@nestjs/mapped-types';
 import { BillCodeRegex } from '@/bases/commons/regex/app.regex';
 
 class CreateBillDetailData {
-	@IsInt()
-	bookId: number; //Sua thanh code cua sach
+	@IsString()
+	@IsNotEmpty()
+	bookCode: string;
 
 	@IsInt()
 	@Min(1)

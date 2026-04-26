@@ -53,9 +53,25 @@ export class BillService {
 					voucherUsage: {
 						include: { voucher: true },
 					},
+					
 				},
 			});
-			return bills;
+			const resultBills = bills.map((bill) => {
+				return {
+					...bill, 
+					
+					voucherUsage : bill.voucherUsage.map((usage) => {
+						return {usedAt : usage.usedAt , ...usage.voucher , sale : Number(usage.voucher.sale) }
+					}),
+					billDetail : bill.billDetail.map((detail) => {
+						return {
+							...detail.book, 
+							quantity : detail.quantity
+						}
+					})
+				}
+			})
+			return resultBills;
 		} catch (err) {
 			console.log('Get All Bills Error: ', err);
 			throw err;
@@ -125,21 +141,21 @@ export class BillService {
 	async createBill(createBillData: CreateBillData) {
 		try {
 			return await this.prismaService.$transaction(async (tx) => {
-				const bookIds = createBillData.billDetails.map((b) => b.bookId);
+				const bookCodes = createBillData.billDetails.map((b) => b.bookCode);
 
 				const books = await tx.book.findMany({
-					where: { id: { in: bookIds } },
+					where: { code: { in: bookCodes } },
 					include: {
 						inventory: true,
 					},
 				});
 
-				const bookMap = new Map(books.map((b) => [b.id, b]));
+				const bookMap = new Map(books.map((b) => [b.code, b]));
 
 				let totalCost = 0;
 
 				for (const item of createBillData.billDetails) {
-					const book = bookMap.get(item.bookId);
+					const book = bookMap.get(item.bookCode);
 
 					if (!book) throw new BadRequestException('Book not found');
 
@@ -155,7 +171,7 @@ export class BillService {
 					totalCost += item.quantity * Number(book.cost);
 					const updated = await tx.inventory.update({
 						where: {
-							bookId: item.bookId,
+							bookId: book.id,
 							stock: {
 								gte: item.quantity,
 							},
@@ -202,7 +218,6 @@ export class BillService {
 							);
 
 						//Decrrease voucher
-
 						await tx.voucher.update({
 							where: { id: voucher.id },
 							data: {
@@ -248,7 +263,8 @@ export class BillService {
 					throw new BadRequestException(
 						"Customer has the debit exceed charge. Can't sell",
 					);
-
+				console.log("Tong gia tien: " , totalCost) 
+				console.log(createBillData.temporaryCost)
 				const bill = await tx.bill.create({
 					data: {
 						code: createBillData.code,
@@ -256,18 +272,23 @@ export class BillService {
 						status: createBillData.status,
 						cost: Math.max(
 							0,
-							totalCost - (createBillData.temporaryCost || 0),
+							// totalCost - (createBillData.temporaryCost || 0),
+							createBillData.temporaryCost || 0 
 						),
 					},
 				});
-
+				
 				if (createBillData.billDetails) {
 					const billDetailData = createBillData.billDetails.map(
-						(b) => ({
-							bookId: b.bookId,
-							quantity: b.quantity,
-							billId: bill.id,
-						}),
+						(b) => {
+							const book = bookMap.get(b.bookCode);
+							if (!book) throw new BadRequestException(`Book with code ${b.bookCode} not found`);
+							return {
+								bookId: book.id,
+								quantity: b.quantity,
+								billId: bill.id,
+							};
+						},
 					);
 
 					await tx.billDetail.createMany({
@@ -302,14 +323,17 @@ export class BillService {
 					where: { phone: updateBillData.customerPhone },
 					select: { id: true, phone: true },
 				});
+
 				if (!customer)
 					throw new BadRequestException('Customer not found');
+
 				const bill = await tx.bill.update({
 					where: { id },
 					data: {
 						code: updateBillData.code,
 						customerId: customer.id,
 						status: updateBillData.status,
+						cost : updateBillData.cost 
 					},
 				});
 
@@ -323,12 +347,22 @@ export class BillService {
 				});
 
 				if (updateBillData.billDetails) {
+					const bookCodes = updateBillData.billDetails.map((b) => b.bookCode);
+					const books = await tx.book.findMany({
+						where: { code: { in: bookCodes } },
+					});
+					const bookMap = new Map(books.map((b) => [b.code, b]));
+
 					const billDetailData = updateBillData.billDetails.map(
-						(b) => ({
-							bookId: b.bookId,
-							quantity: b.quantity,
-							billId: id,
-						}),
+						(b) => {
+							const book = bookMap.get(b.bookCode);
+							if (!book) throw new BadRequestException(`Book with code ${b.bookCode} not found`);
+							return {
+								bookId: book.id,
+								quantity: b.quantity,
+								billId: id,
+							};
+						},
 					);
 
 					await tx.billDetail.createMany({
