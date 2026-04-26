@@ -55,8 +55,14 @@ export class BillController {
 		);
 		return responseData;
 	}
-	@Get('code')
-	async getBillByCode() {}
+	@Get('code/:codex')
+	async getBillByCode(
+		@Param('codex') codex : string 
+	) 
+	{
+		const response = await this.billService.getBillByCode(codex) 
+		return response
+	}
 	@Delete('/:billId')
     async deleteBill(@Param('billId', ParseIntPipe) billId: number) {
         const responseData = await this.billService.deleteBill(billId);

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { CreateIncomeDto } from './dto/income.dto';
 import { UpdateIncomeDto } from './dto/income.dto';
@@ -44,15 +44,54 @@ export class IncomeService {
 		}
 	}
 	async getAllIncome() {
-		return this.prisma.billIncome.findMany({
+		const incomes = await this.prisma.billIncome.findMany({
 			where: {
 				deletedAt: null,
 			},
-			include: {
-				bill: true,
+			select: {
+				code: true,
+				billId: true,
+				id: true,
+				cost: true,
+				updatedAt: true,
+				createdAt: true,
+				paymentMethod: true,
+				shortDescription: true,
+				status: true,
+				bill: {
+					select: {
+						customer: true,
+						code : true 
+					},
+				},
 				employee: true,
 			},
 		});
+		const resultIncomes = incomes.map((income) => {
+			return {
+				code: income.code,
+				id: income.id,
+				cost: income.cost,
+				status: income.status, 
+				updatedAt: income.updatedAt,
+				createdAt: income.createdAt,
+				paymentMethod: income.paymentMethod,
+				shortDescription: income.shortDescription,
+				bill: {
+					billId: income.billId,
+					billCode : income.bill.code 
+				},
+				customer: {
+					customerId: income.bill.customer.id,
+					customerName: income.bill.customer.name,
+				},
+				employee: {
+					employeeId: income.employee.id,
+					employeeName: income.employee.name,
+				},
+			};
+		});
+		return resultIncomes;
 	}
 
 	async getIncomeById(id: number) {
@@ -88,51 +127,111 @@ export class IncomeService {
 	async createIncome(employeeId: number, dto: CreateIncomeDto) {
 		return this.prisma.$transaction(async (tx) => {
 			const bill = await tx.bill.findUnique({
-				where: { id: dto.billId },
+				where: { code: dto.billCode },
 			});
 
 			if (!bill) {
 				throw new NotFoundException('Bill not found');
 			}
 
-			const income = await tx.billIncome.create({
+			const createdIncome = await tx.billIncome.create({
 				data: {
 					code: dto.code,
 					cost: dto.cost,
-					billId: dto.billId,
+					billId: bill.id,
 					employeeId,
 					shortDescription: dto.shortDescription,
-					paymentMethod: dto.payment,
+					paymentMethod: dto.paymentMethod,
 				},
 			});
 
 			await tx.bill.update({
-				where: {
-					id: dto.billId,
-				},
+				where: { id: bill.id },
 				data: {
 					cost: {
 						increment: dto.cost,
 					},
 				},
 			});
-
-			return income;
+			const income = await tx.billIncome.findUnique({
+				where: { id: createdIncome.id },
+				select: {
+					code: true,
+					billId: true,
+					id: true,
+					cost: true,
+					updatedAt: true,
+					createdAt: true,
+					paymentMethod: true,
+					shortDescription: true,
+					status: true,
+					bill: {
+						select: {
+							customer: true,
+							code: true 
+						},
+					},
+					employee: true,
+				},
+			});
+			if (!income) 
+				throw new BadRequestException("income cannot be created") 
+			return {
+				code: income.code,
+				id: income.id,
+				status : income.status, 
+				cost: income.cost,
+				updatedAt: income.updatedAt,
+				createdAt: income.createdAt,
+				paymentMethod: income.paymentMethod,
+				shortDescription: income.shortDescription,
+				bill: {
+					billId: income.billId,
+					billCode : income.bill.code
+				},
+				customer: {
+					customerId: income.bill.customer.id,
+					customerName: income.bill.customer.name,
+				},
+				employee: {
+					employeeId: income.employee.id,
+					employeeName: income.employee.name,
+				},
+			};
 		});
 	}
-
 	async updateIncome(id: number, dto: UpdateIncomeDto) {
 		const income = await this.prisma.billIncome.findUnique({
 			where: { id },
 		});
+		const dataForUpdate : any = { } 
+		if (dto.code) 
+			dataForUpdate.code = dto.code 
+		if (dto.cost) 
+			dataForUpdate.cost = dto.cost
+		if (dto.paymentMethod)
+			dataForUpdate.paymentMethod = dto.paymentMethod 
+		if (dto.shortDescription) 
+			dataForUpdate.shortDescription = dto.shortDescription
+		if (dto.status) 
+			dataForUpdate.status = dto.status
 
+		if (dto.billCode)
+		{
+			const bill = await this.prisma.bill.findUnique({
+				where : { code : dto.billCode }
+			})
+			if (!bill) 
+				throw new BadRequestException("bill not found") 
+			dataForUpdate.billId = bill.id 
+		}
 		if (!income) {
 			throw new NotFoundException('Income not found');
 		}
-
+		console.log(dataForUpdate) 
 		return this.prisma.billIncome.update({
 			where: { id },
-			data: dto,
+			data: dataForUpdate,
 		});
 	}
 
