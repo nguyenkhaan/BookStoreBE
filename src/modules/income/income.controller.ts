@@ -52,7 +52,7 @@ export class IncomeController {
 
 	@Post()
 	async createIncome(@Body() dto: CreateIncomeDto, @Req() req: Request) {
-		const employeeId = req.user as any;
+		const employeeId = (req.user as any).id 
 		if (employeeId) {
 			return this.incomeService.createIncome(Number(employeeId), dto);
 		} else throw new BadRequestException('Employee Not Found');

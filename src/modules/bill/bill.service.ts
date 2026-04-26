@@ -128,7 +128,7 @@ export class BillService {
 
                 // Delete the bill
                 const deletedBill = await tx.bill.delete({
-                    where: { id },
+                    where: { id } 
                 });
 
                 return deletedBill;
@@ -312,6 +312,32 @@ export class BillService {
 		} catch (err) {
 			console.log('Create Bill Error:', err);
 			throw err;
+		}
+	}
+	async getBillByCode(code : string) 
+	{
+		try 
+		{
+			const bill = await this.prismaService.bill.findFirst({
+				where: { code }, 
+				select: {
+					id : true, 
+					code : true, 
+					cost : true, 
+					status : true, 
+					
+					customer: {
+						select: { id : true , name : true }
+					}, 
+					
+				}, 
+
+			})
+			return bill 
+		} 
+		catch (err) {
+			console.log("get bill by code error" , err) 
+			throw err 
 		}
 	}
 	//Update Bill

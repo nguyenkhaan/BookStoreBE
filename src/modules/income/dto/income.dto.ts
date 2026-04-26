@@ -1,6 +1,6 @@
-import { IsEnum, IsInt, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsString } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
-import { IncomePaymentType } from '@prisma/client';
+import { IncomePaymentType, IncomeStatus } from '@prisma/client';
 export class CreateIncomeDto {
 	@IsString()
 	code: string;
@@ -8,14 +8,17 @@ export class CreateIncomeDto {
 	@IsNumber()
 	cost: number;
 
-	@IsInt()
-	billId: number;
+	@IsString()
+	billCode: string;
 
 	@IsString()
 	shortDescription: string;
 
 	@IsEnum(IncomePaymentType)
-	payment: IncomePaymentType;
+	paymentMethod: IncomePaymentType;
+
+	@IsEnum(IncomeStatus) 
+	status : IncomeStatus
 }
 
 export class UpdateIncomeDto extends PartialType(CreateIncomeDto) {}
