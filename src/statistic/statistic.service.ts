@@ -1,11 +1,17 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { BillStatus } from '@prisma/client';
+import {
+	RevenueChartQueryDto,
+} from './dto/statistic.dto';
+import { StatisticRepository } from './statistic.repository';
 
 @Injectable()
 export class StatisticService {
-	constructor(private readonly prismaService: PrismaService) {}
-
+	constructor(
+		private readonly prismaService: PrismaService,
+		private readonly statisticRepository: StatisticRepository,
+	) {}
 	private async sumRevenueInDuration(startDate: Date, endDate: Date) {
 		const ans = await this.prismaService.bill.aggregate({
 			_sum: { cost: true },
@@ -15,6 +21,7 @@ export class StatisticService {
 					gte: startDate,
 					lt: endDate,
 				},
+				status: BillStatus.COMPLETE,
 			},
 		});
 		return Number(ans._sum.cost) || 0;
@@ -35,7 +42,7 @@ export class StatisticService {
 	}
 
 	private calProportionRate(a: number, b: number) {
-		if (b == 0) return 0;
+		if (a == 0) return 0;
 		return Number((((b - a) * 100) / a).toFixed(1));
 	}
 	private async calTotalCustomers() {
@@ -69,7 +76,7 @@ export class StatisticService {
 				},
 			},
 		});
-		return totalBooks || 0;
+		return totalBooks._sum.quantity || 0;
 	}
 	//Public Method
 	//Lay thong tin thong ke tong quan
@@ -152,17 +159,18 @@ export class StatisticService {
 				1,
 			);
 			//
-			const result = await this.prismaService.$queryRaw`
-                     SELECT 
-                    TO_CHAR("createdAt", 'YYYY-MM') as month,
-                    SUM(cost) as revenue
-                    FROM "Bill"
-                    WHERE "createdAt" >= ${startMonth}
-                      AND "createdAt" < ${endMonth}
-                    GROUP BY month
-                    ORDER BY month ASC
-                    `;
-			return result;
+				const result = await this.prismaService.$queryRaw`
+	                     SELECT 
+	                    TO_CHAR("createdAt", 'YYYY-MM') as month,
+	                    SUM(cost) as revenue
+	                    FROM "Bill"
+	                    WHERE "createdAt" >= ${startMonth}
+	                      AND "createdAt" < ${endMonth}
+	                      AND status = ${BillStatus.COMPLETE}
+	                    GROUP BY TO_CHAR("createdAt", 'YYYY-MM')
+	                    ORDER BY month ASC
+	                    `;
+				return result;
 		} catch (err) {
 			console.log(err);
 			throw err;
@@ -177,15 +185,16 @@ export class StatisticService {
 				now.getMonth() - month,
 				1,
 			);
-			const result = await this.prismaService.$queryRaw`
-                SELECT TO_CHAR("createdAt", 'YYYY-MM') as month, 
-                COUNT(code) as revenue, 
-                FROM "Bill" 
-                WHERE "createdAt" >= ${startMonth}
-                      AND "createdAt" < ${endMonth}
-                GROUP BY month 
-                ORDER BY month ASC 
-            `;
+				const result = await this.prismaService.$queryRaw`
+	                SELECT TO_CHAR("createdAt", 'YYYY-MM') as month, 
+	                COUNT(code) as bill_count
+	                FROM "Bill" 
+	                WHERE "createdAt" >= ${startMonth}
+	                      AND "createdAt" < ${endMonth}
+	                      AND status = ${BillStatus.COMPLETE}
+	                GROUP BY TO_CHAR("createdAt", 'YYYY-MM') 
+	                ORDER BY month ASC 
+	            `;
 			return result;
 		} catch (err) {
 			console.log(err);
@@ -250,7 +259,7 @@ export class StatisticService {
 				where: {
 					deletedAt: null,
 					inventory: {
-						stock: { gt: 0 },
+						stock: { gt: 0 },    //Khi nao goi la ton kho? Tren bao nhieu thi goi la ton kho ? 
 					},
 				},
 				select: {
@@ -314,5 +323,17 @@ export class StatisticService {
 			console.log(err);
 			throw err;
 		}
+	}
+	async getRevenueChart(query: RevenueChartQueryDto) {
+		const month = query.month ?? 6;
+		return await this.statisticRepository.getRevenueChart(month);
+	}
+
+	async getCustomerDebit() {
+		return await this.statisticRepository.getCustomerDebtProgression();
+	}
+
+	async getTopCustomers(limit: number) {
+		return await this.statisticRepository.getTopCustomers(limit);
 	}
 }

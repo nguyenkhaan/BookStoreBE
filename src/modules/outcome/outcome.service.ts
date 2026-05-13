@@ -57,6 +57,7 @@ export class OutcomeService {
 					code: true,
 					cost: true,
 					status: true,
+					quantity: true, 
 					createdAt: true,
 					publisher: {
 						select: {
@@ -122,6 +123,7 @@ export class OutcomeService {
 					cost: true,
 					status: true,
 					createdAt: true,
+					quantity: true, 
 					publisher: {
 						select: {
 							name: true,

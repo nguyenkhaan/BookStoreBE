@@ -39,15 +39,15 @@ export class OutcomeController {
 			status,
 		};
 	}
+	@Get('/code/:code')
+	async getOutcomeByCode(@Param('code') code: string) {
+		const responseData = await this.outcomeService.getOutcomeByCode(code);
+		return responseData;
+	}
 	@Get('/:outcomeId')
 	async getOutcomeById(@Param('outcomeId', ParseIntPipe) outcomeId: number) {
 		const responseData =
 			await this.outcomeService.getOutcomeById(outcomeId);
-		return responseData;
-	}
-	@Get('/code/:code')
-	async getOutcomeByCode(@Param('code') code: string) {
-		const responseData = await this.outcomeService.getOutcomeByCode(code);
 		return responseData;
 	}
 	@Post()

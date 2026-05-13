@@ -85,14 +85,14 @@ async function authorSeeder() {
 async function bookSeeder() {
 	const books = [
 		{
-			code: 'BOOK001',
+			code: 'BK001',
 			title: 'Journey to the West',
 			cost: 100,
 			year: 2020,
 			category: BookCategory.THIEU_NHI,
 		},
 		{
-			code: 'BOOK002',
+			code: 'BK002',
 			title: 'Heavenly War',
 			cost: 150,
 			year: 2021,
@@ -469,7 +469,7 @@ async function billIncomeOutcomeSeeder() {
 	for (let i = 0; i < 6; i++) {
 		const bill = await prismaClient.bill.create({
 			data: {
-				code: `BILL00${i + 1}`,
+				code: `HD00${i + 1}`,
 				customerId: customers[i % customers.length].id,
 				status: BillStatus.COMPLETE,
 				cost: 0,

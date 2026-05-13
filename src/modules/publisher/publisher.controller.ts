@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, DefaultValuePipe, Get, Query, UseGuards } from '@nestjs/common';
 import { PublisherService } from './publisher.service';
 import { Roles } from '@/bases/decorators/role.decorators';
 import { Role } from '@prisma/client';
@@ -11,7 +11,7 @@ import { RolesGuard } from '@/bases/guards/role.guard';
 export class PublisherController {
 	constructor(private readonly publisherService: PublisherService) {}
 	@Get('search')
-	async getAuthorByCode(@Query('name') name: string) {
+	async getAuthorByCode(@Query('name' , new DefaultValuePipe('')) name: string) {
 		//Search author by name
 		const responseData =
 			await this.publisherService.getPublisherByName(name);
