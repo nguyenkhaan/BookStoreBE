@@ -1,22 +1,23 @@
 model Bill {
-    id      Int @id @default(autoincrement()) 
-    code    String @unique 
-    customerId      Int 
-    customer        Customer        @relation(fields: [customerId], references: [id])
-    billDetail      BillDetail[] 
-    voucherUsage    VoucherUsage[] 
-    billIncome      BillIncome[] 
-    status          BillStatus 
-    cost            Decimal         @default(0)    //So tien con lai cua hoa don 
-    createdAt       DateTime        @default(now())
-    updatedAt       DateTime        @updatedAt
-    
-} 
+    id           Int            @id @default(autoincrement())
+    code         String         @unique     
+    customerId   Int
+    customer     Customer       @relation(fields: [customerId], references: [id])
+    billDetail   BillDetail[]
+    voucherUsage VoucherUsage[]
+    billIncome   BillIncome[]
+    status       BillStatus
+    cost         Decimal        @default(0) //Tong tien hoa don
+    debit        Decimal        @default(0) //Cong no con lai cua hoa don
+    createdAt    DateTime       @default(now())
+    updatedAt    DateTime       @updatedAt
+}
+
 model BillDetail {
-    id              Int             @id @default(autoincrement()) 
-    bookId          Int 
-    book            Book            @relation(fields: [bookId], references: [id])
-    billId          Int 
-    bill            Bill            @relation(fields: [billId], references: [id])
-    quantity        Int 
+    id       Int  @id @default(autoincrement())
+    bookId   Int
+    book     Book @relation(fields: [bookId], references: [id])
+    billId   Int
+    bill     Bill @relation(fields: [billId], references: [id])
+    quantity Int
 }

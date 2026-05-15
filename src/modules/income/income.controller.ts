@@ -17,45 +17,63 @@ import { RolesGuard } from '@/bases/guards/role.guard';
 import { IncomeService } from './income.service';
 import { CreateIncomeDto, UpdateIncomeDto } from './dto/income.dto';
 import type { Request } from 'express';
+import {
+	ENUM_VI_MAP,
+	mapEnumOptionsToVietnamese,
+} from '@/utlitis/enumLocalization';
 @Controller('income')
-@Roles(Role.EMPLOYEE)
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class IncomeController {
 	constructor(private readonly incomeService: IncomeService) {}
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get()
 	async getAllIncomes() {
 		const response = await this.incomeService.getAllIncome();
 		return response;
 	}
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('options')
 	async getIncomeOption() {
-		const status = Object.values(IncomeStatus);
-		const paymentMethods = Object.values(IncomePaymentType);
+		const status = mapEnumOptionsToVietnamese(
+			Object.values(IncomeStatus),
+			ENUM_VI_MAP.incomeStatus,
+		);
+		const paymentMethods = mapEnumOptionsToVietnamese(
+			Object.values(IncomePaymentType),
+			ENUM_VI_MAP.incomePaymentType,
+		);
 		return {
 			status,
 			paymentMethods,
 		};
 	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('statistic')
 	async getIncomeGeneralStatistic() {
 		return await this.incomeService.getGeneralStatistic();
 	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('/:id')
 	async getIncomeById(@Param('id') id: number) {
 		return this.incomeService.getIncomeById(Number(id));
 	}
-
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('/code/:code')
 	async getIncomeByCode(@Param('code') code: string) {
 		return this.incomeService.getIncomeByCode(code);
 	}
-
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Post()
 	async createIncome(@Body() dto: CreateIncomeDto, @Req() req: Request) {
-		const employeeId = (req.user as any).id 
+		const employeeId = (req.user as any).id;
 		if (employeeId) {
 			return this.incomeService.createIncome(Number(employeeId), dto);
-		} else throw new BadRequestException('Employee Not Found');
+		} else throw new BadRequestException('Không tìm thấy nhân viên');
 	}
 
 	@Put('/:id')

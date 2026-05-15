@@ -48,6 +48,12 @@ export class CreateBookData {
 	@Type(() => Number)
 	@Min(STOCK_IMPORT_NUMBER_MIN)
 	stock?: number;
+
+	@IsOptional()
+	@IsNumber()
+	@Min(0)
+	@Type(() => Number)
+	baseCost?: number;
 }
 
 export class UpdateBookData extends PartialType(CreateBookData) {}

@@ -15,7 +15,7 @@ import { StatisticService } from './statistic.service';
 import { RevenueChartQueryDto } from './dto/statistic.dto';
 
 @Controller(['statistic', 'statistics'])
-@Roles(Role.EMPLOYEE)
+@Roles(Role.ADMIN)
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class StatisticController {
 	constructor(private readonly statisticService: StatisticService) {}

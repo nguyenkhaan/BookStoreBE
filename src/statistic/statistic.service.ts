@@ -1,9 +1,7 @@
 import { PrismaService } from '@/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { BillStatus } from '@prisma/client';
-import {
-	RevenueChartQueryDto,
-} from './dto/statistic.dto';
+import { RevenueChartQueryDto } from './dto/statistic.dto';
 import { StatisticRepository } from './statistic.repository';
 
 @Injectable()
@@ -159,7 +157,7 @@ export class StatisticService {
 				1,
 			);
 			//
-				const result = await this.prismaService.$queryRaw`
+			const result = await this.prismaService.$queryRaw`
 	                     SELECT 
 	                    TO_CHAR("createdAt", 'YYYY-MM') as month,
 	                    SUM(cost) as revenue
@@ -170,7 +168,7 @@ export class StatisticService {
 	                    GROUP BY TO_CHAR("createdAt", 'YYYY-MM')
 	                    ORDER BY month ASC
 	                    `;
-				return result;
+			return result;
 		} catch (err) {
 			console.log(err);
 			throw err;
@@ -185,7 +183,7 @@ export class StatisticService {
 				now.getMonth() - month,
 				1,
 			);
-				const result = await this.prismaService.$queryRaw`
+			const result = await this.prismaService.$queryRaw`
 	                SELECT TO_CHAR("createdAt", 'YYYY-MM') as month, 
 	                COUNT(code) as bill_count
 	                FROM "Bill" 
@@ -259,7 +257,7 @@ export class StatisticService {
 				where: {
 					deletedAt: null,
 					inventory: {
-						stock: { gt: 0 },    //Khi nao goi la ton kho? Tren bao nhieu thi goi la ton kho ? 
+						stock: { gt: 0 }, //Khi nao goi la ton kho? Tren bao nhieu thi goi la ton kho ?
 					},
 				},
 				select: {

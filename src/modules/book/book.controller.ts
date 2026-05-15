@@ -22,6 +22,8 @@ import { RolesGuard } from '@/bases/guards/role.guard';
 @Controller('book')
 export class BookController {
 	constructor(private readonly bookService: BookService) {}
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get()
 	async getAllBooks() {
 		const books = await this.bookService.getAllBooks();
@@ -29,7 +31,7 @@ export class BookController {
 	}
 	@Post()
 	@UseInterceptors(FileInterceptor('coverImage'))
-	@Roles(Role.EMPLOYEE)
+	@Roles(Role.ADMIN)
 	@UseGuards(JwtAuthGuard, RolesGuard)
 	async createBook(
 		@Body() createBookData: CreateBookData,
@@ -41,12 +43,16 @@ export class BookController {
 		);
 		return responseData;
 	}
+
 	@UseInterceptors(FileInterceptor('data'))
 	@Post('/upload')
 	async uploadBookExcels(@UploadedFile() file: any) {
 		const responseData = await this.bookService.uploadBookData(file);
 		return responseData;
 	}
+
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('/statistic')
 	async statisticBookInformation() {
 		console.log('Running');
@@ -54,21 +60,24 @@ export class BookController {
 		const responseData = await this.bookService.statisticBook();
 		return responseData;
 	}
-	@Get('/:bookId')
-	async getBookById(@Param('bookId', ParseIntPipe) bookId: number) {
-		const responseData = await this.bookService.getBookById(Number(bookId));
-		return responseData;
-	}
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('/code/:code')
 	async getBookByCode(@Param('code') code: string) {
 		//Them sua sach
 		const responseData = await this.bookService.getBookByCode(code);
 		return responseData;
 	}
-
-	@Put('/:bookId')
 	@Roles(Role.EMPLOYEE)
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Get('/:bookId')
+	async getBookById(@Param('bookId', ParseIntPipe) bookId: number) {
+		const responseData = await this.bookService.getBookById(Number(bookId));
+		return responseData;
+	}
+	@Roles(Role.ADMIN) 
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Put('/:bookId')
 	@UseInterceptors(FileInterceptor('coverImage'))
 	async updateBook(
 		@Body() updateBookData: UpdateBookData,

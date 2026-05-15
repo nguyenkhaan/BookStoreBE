@@ -1,8 +1,13 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { CreateIncomeDto } from './dto/income.dto';
 import { UpdateIncomeDto } from './dto/income.dto';
 import { BillStatus } from '@prisma/client';
+import { ENUM_VI_MAP, mapEnumToVietnamese } from '@/utlitis/enumLocalization';
 @Injectable()
 export class IncomeService {
 	constructor(private prisma: PrismaService) {}
@@ -61,7 +66,7 @@ export class IncomeService {
 				bill: {
 					select: {
 						customer: true,
-						code : true 
+						code: true,
 					},
 				},
 				employee: true,
@@ -72,18 +77,26 @@ export class IncomeService {
 				code: income.code,
 				id: income.id,
 				cost: income.cost,
-				status: income.status, 
+				status: income.status,
+				statusLabel: mapEnumToVietnamese(
+					income.status,
+					ENUM_VI_MAP.incomeStatus,
+				),
 				updatedAt: income.updatedAt,
 				createdAt: income.createdAt,
 				paymentMethod: income.paymentMethod,
+				paymentMethodLabel: mapEnumToVietnamese(
+					income.paymentMethod,
+					ENUM_VI_MAP.incomePaymentType,
+				),
 				shortDescription: income.shortDescription,
 				bill: {
 					billId: income.billId,
-					billCode : income.bill.code 
+					billCode: income.bill.code,
 				},
 				customer: {
 					customerId: income.bill.customer.id,
-					customerName: income.bill.customer.name,
+					customerName: income.bill.customer.name ?? 'Khách vãng lai',
 				},
 				employee: {
 					employeeId: income.employee.id,
@@ -103,7 +116,7 @@ export class IncomeService {
 		});
 
 		if (!income) {
-			throw new NotFoundException('Income not found');
+			throw new NotFoundException('Không tìm thấy phiếu thu');
 		}
 
 		return income;
@@ -118,25 +131,41 @@ export class IncomeService {
 		});
 
 		if (!income) {
-			throw new NotFoundException('Income not found');
+			throw new NotFoundException('Không tìm thấy phiếu thu');
 		}
 
 		return income;
 	}
-
+	async createIncomeCode() {
+		const latest = await this.prisma.billOutcome.findFirst({
+			orderBy: {
+				id: 'desc',
+			},
+			select: {
+				code: true,
+			},
+		});
+		if (!latest) return `INC001`;
+		return (
+			'INC' +
+			(Number(latest.code.replace('INC', '')) + 1)
+				.toString()
+				.padStart(3, '0')
+		);
+	}
 	async createIncome(employeeId: number, dto: CreateIncomeDto) {
+		let code = await this.createIncomeCode();
 		return this.prisma.$transaction(async (tx) => {
 			const bill = await tx.bill.findUnique({
 				where: { code: dto.billCode },
 			});
 
 			if (!bill) {
-				throw new NotFoundException('Bill not found');
+				throw new NotFoundException('Không tìm thấy hóa đơn');
 			}
-
 			const createdIncome = await tx.billIncome.create({
 				data: {
-					code: dto.code,
+					code,
 					cost: dto.cost,
 					billId: bill.id,
 					employeeId,
@@ -148,11 +177,16 @@ export class IncomeService {
 			await tx.bill.update({
 				where: { id: bill.id },
 				data: {
-					cost: {
-						increment: dto.cost,
+					debit: {
+						decrement: dto.cost,
 					},
-				},
+				} as any,
 			});
+			await tx.$executeRaw`
+				UPDATE "Bill"
+				SET "debit" = GREATEST(0, "debit")
+				WHERE "id" = ${bill.id}
+			`;
 			const income = await tx.billIncome.findUnique({
 				where: { id: createdIncome.id },
 				select: {
@@ -168,30 +202,38 @@ export class IncomeService {
 					bill: {
 						select: {
 							customer: true,
-							code: true 
+							code: true,
 						},
 					},
 					employee: true,
 				},
 			});
-			if (!income) 
-				throw new BadRequestException("income cannot be created") 
+			if (!income)
+				throw new BadRequestException('Không thể tạo phiếu thu');
 			return {
-				code: income.code,
+				code,
 				id: income.id,
-				status : income.status, 
+				status: income.status,
+				statusLabel: mapEnumToVietnamese(
+					income.status,
+					ENUM_VI_MAP.incomeStatus,
+				),
 				cost: income.cost,
 				updatedAt: income.updatedAt,
 				createdAt: income.createdAt,
 				paymentMethod: income.paymentMethod,
+				paymentMethodLabel: mapEnumToVietnamese(
+					income.paymentMethod,
+					ENUM_VI_MAP.incomePaymentType,
+				),
 				shortDescription: income.shortDescription,
 				bill: {
 					billId: income.billId,
-					billCode : income.bill.code
+					billCode: income.bill.code,
 				},
 				customer: {
 					customerId: income.bill.customer.id,
-					customerName: income.bill.customer.name,
+					customerName: income.bill.customer.name ?? 'Khách vãng lai',
 				},
 				employee: {
 					employeeId: income.employee.id,
@@ -204,31 +246,24 @@ export class IncomeService {
 		const income = await this.prisma.billIncome.findUnique({
 			where: { id },
 		});
-		const dataForUpdate : any = { } 
-		if (dto.code) 
-			dataForUpdate.code = dto.code 
-		if (dto.cost) 
-			dataForUpdate.cost = dto.cost
-		if (dto.paymentMethod)
-			dataForUpdate.paymentMethod = dto.paymentMethod 
-		if (dto.shortDescription) 
-			dataForUpdate.shortDescription = dto.shortDescription
-		if (dto.status) 
-			dataForUpdate.status = dto.status
+		const dataForUpdate: any = {};
+		if (dto.cost) dataForUpdate.cost = dto.cost;
+		if (dto.paymentMethod) dataForUpdate.paymentMethod = dto.paymentMethod;
+		if (dto.shortDescription)
+			dataForUpdate.shortDescription = dto.shortDescription;
+		if (dto.status) dataForUpdate.status = dto.status;
 
-		if (dto.billCode)
-		{
+		if (dto.billCode) {
 			const bill = await this.prisma.bill.findUnique({
-				where : { code : dto.billCode }
-			})
-			if (!bill) 
-				throw new BadRequestException("bill not found") 
-			dataForUpdate.billId = bill.id 
+				where: { code: dto.billCode },
+			});
+			if (!bill) throw new BadRequestException('Không tìm thấy hóa đơn');
+			dataForUpdate.billId = bill.id;
 		}
 		if (!income) {
-			throw new NotFoundException('Income not found');
+			throw new NotFoundException('Không tìm thấy phiếu thu');
 		}
-		console.log(dataForUpdate) 
+	
 		return this.prisma.billIncome.update({
 			where: { id },
 			data: dataForUpdate,
@@ -241,7 +276,7 @@ export class IncomeService {
 		});
 
 		if (!income) {
-			throw new NotFoundException('Income not found');
+			throw new NotFoundException('Không tìm thấy phiếu thu');
 		}
 
 		return this.prisma.billIncome.update({

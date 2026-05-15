@@ -3,7 +3,7 @@ import {
 	Body,
 	Controller,
 	Get,
-	Delete, 
+	Delete,
 	Param,
 	ParseIntPipe,
 	Post,
@@ -15,6 +15,10 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '@/bases/guards/role.guard';
 import { CreateBillData, UpdateBillData } from './dto/bill.dto';
 import { BillService } from './bill.service';
+import {
+	ENUM_VI_MAP,
+	mapEnumOptionsToVietnamese,
+} from '@/utlitis/enumLocalization';
 
 @Controller('bill')
 @Roles(Role.EMPLOYEE)
@@ -30,9 +34,26 @@ export class BillController {
 	async getGeneralStatistic() {
 		return await this.billService.getGeneralStatistic();
 	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Get('code/:codex')
+	async getBillByCode(@Param('codex') codex: string) {
+		const response = await this.billService.getBillByCode(codex);
+		return response;
+	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Get('/:billId')
+	async getBillByID(@Param('billId') billId: number) {
+		const response = await this.billService.getBillById(Number(billId));
+		return response;
+	}
 	@Get('option')
 	async getBillOptions() {
-		const status = Object.values(BillStatus);
+		const status = mapEnumOptionsToVietnamese(
+			Object.values(BillStatus),
+			ENUM_VI_MAP.billStatus,
+		);
 		return {
 			status,
 		};
@@ -43,7 +64,7 @@ export class BillController {
 		const responseData = await this.billService.createBill(createBillData);
 		return responseData;
 	}
-	
+
 	@Put('/:billId')
 	async updateBill(
 		@Param('billId', ParseIntPipe) billId: number,
@@ -55,17 +76,11 @@ export class BillController {
 		);
 		return responseData;
 	}
-	@Get('code/:codex')
-	async getBillByCode(
-		@Param('codex') codex : string 
-	) 
-	{
-		const response = await this.billService.getBillByCode(codex) 
-		return response
-	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Delete('/:billId')
-    async deleteBill(@Param('billId', ParseIntPipe) billId: number) {
-        const responseData = await this.billService.deleteBill(billId);
-        return responseData;
-    }
+	async deleteBill(@Param('billId', ParseIntPipe) billId: number) {
+		const responseData = await this.billService.deleteBill(billId);
+		return responseData;
+	}
 }

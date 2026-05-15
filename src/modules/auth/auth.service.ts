@@ -45,12 +45,29 @@ export class AuthService {
 	async getMe(id: number) {
 		try {
 			const employee = await this.prismaService.employee.findFirst({
-				where: { id },
+				where: {
+					id,
+				},
 				select: {
 					email: true,
+					avatar: true,
+					phone: true,
+					id: true,
+					salary: true,
+					createdAt: true,
+					status: true,
 					name: true,
 					code: true,
-					id: true,
+					position: {
+						select: {
+							name: true,
+						},
+					},
+					department: {
+						select: {
+							name: true,
+						},
+					},
 				},
 			});
 			if (!employee) throw new BadRequestException('employee not found');

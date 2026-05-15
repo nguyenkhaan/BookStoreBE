@@ -18,38 +18,56 @@ import { RolesGuard } from '@/bases/guards/role.guard';
 import { OutcomeService } from './outcome.service';
 import type { Request } from 'express';
 import { CreateOutcomeData, UpdateOutcomeData } from './dto/outcome.dto';
+import {
+	ENUM_VI_MAP,
+	mapEnumOptionsToVietnamese,
+} from '@/utlitis/enumLocalization';
 @Controller('outcome')
-@Roles(Role.EMPLOYEE)
-@UseGuards(JwtAuthGuard, RolesGuard) //Danh sach phieu nhap (Nhap hang)
+//Danh sach phieu nhap (Nhap hang)
 export class OutcomeController {
 	constructor(private readonly outcomeService: OutcomeService) {}
 	@Get()
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	async getAllOutcomeBills() {
 		const responseData = await this.outcomeService.getAllOutcome();
 		return responseData;
 	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('statistic')
 	async getGeneralStatistic() {
 		return this.outcomeService.getGeneralStatistic();
 	}
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('options')
 	async getOutcomeOptions() {
-		const status = Object.values(OutcomeStatus);
+		const status = mapEnumOptionsToVietnamese(
+			Object.values(OutcomeStatus),
+			ENUM_VI_MAP.outcomeStatus,
+		);
 		return {
 			status,
 		};
 	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('/code/:code')
 	async getOutcomeByCode(@Param('code') code: string) {
 		const responseData = await this.outcomeService.getOutcomeByCode(code);
 		return responseData;
 	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('/:outcomeId')
 	async getOutcomeById(@Param('outcomeId', ParseIntPipe) outcomeId: number) {
 		const responseData =
 			await this.outcomeService.getOutcomeById(outcomeId);
 		return responseData;
 	}
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Post()
 	async createOutcomeBill(
 		@Req() req: Request,
@@ -64,8 +82,10 @@ export class OutcomeController {
 				createOutcomeData,
 			);
 			return responseData;
-		} else throw new BadRequestException('Employee Not Found');
+		} else throw new BadRequestException('Không tìm thấy nhân viên');
 	}
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Put('/:outcomeId')
 	async updateOutcomeBill(
 		@Param('outcomeId', ParseIntPipe) outcomeId: number,
@@ -77,6 +97,8 @@ export class OutcomeController {
 		);
 		return responseData;
 	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Delete('/:outcomeId')
 	async deleteOutcomeBill(
 		@Param('outcomeId', ParseIntPipe) outcomeId: number,

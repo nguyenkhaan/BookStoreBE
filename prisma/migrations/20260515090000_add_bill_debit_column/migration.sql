@@ -1,0 +1,9 @@
+ALTER TABLE "Bill"
+ADD COLUMN IF NOT EXISTS "debit" DECIMAL NOT NULL DEFAULT 0;
+
+UPDATE "Bill"
+SET "debit" = CASE
+  WHEN "cost" < 0 THEN 0
+  ELSE "cost"
+END
+WHERE "debit" = 0;

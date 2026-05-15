@@ -8,11 +8,11 @@ import {
 	ValidateNested,
 	Min,
 	IsEnum,
-	Matches,
+
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
-import { BillCodeRegex } from '@/bases/commons/regex/app.regex';
+// import { BillCodeRegex } from '@/bases/commons/regex/app.regex';
 
 class CreateBillDetailData {
 	@IsString()
@@ -30,13 +30,6 @@ class CreateVoucherUsageData {
 }
 
 export class CreateBillData {
-	@IsString()
-	@IsNotEmpty()
-	@Matches(BillCodeRegex, {
-		message: 'Bill code must be in format HD001',
-	})
-	code: string;
-
 	// @IsInt()
 	// customerId: number;  //Sua thanh phone -> Tao Bill bang phone
 	@IsString()

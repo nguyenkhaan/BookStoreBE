@@ -1,7 +1,10 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UseGuards } from '@nestjs/common';
 import { CreateRuleData, UpdateRuleData } from './dto/rule.dto';
-import { RuleStatus, RuleType } from '@prisma/client';
+import { Role, RuleStatus, RuleType } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '@/bases/guards/role.guard';
+import { Roles } from '@/bases/decorators/role.decorators';
 
 @Injectable()
 export class RuleService {
@@ -78,6 +81,8 @@ export class RuleService {
 			throw err;
 		}
 	}
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Roles(Role.ADMIN)
 	async updateRule(id: number, data: UpdateRuleData) {
 		return this.prismaService.rule.update({
 			where: { id },
@@ -107,6 +112,8 @@ export class RuleService {
 			throw err;
 		}
 	}
+	@UseGuards(JwtAuthGuard, RolesGuard)
+	@Roles(Role.ADMIN)
 	async deleteRule(id: number) {
 		try {
 			const rule = await this.prismaService.rule.delete({

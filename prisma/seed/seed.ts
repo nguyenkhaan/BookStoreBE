@@ -85,14 +85,14 @@ async function authorSeeder() {
 async function bookSeeder() {
 	const books = [
 		{
-			code: 'BK001',
+			code: 'BOOK001',
 			title: 'Journey to the West',
 			cost: 100,
 			year: 2020,
 			category: BookCategory.THIEU_NHI,
 		},
 		{
-			code: 'BK002',
+			code: 'BOOK002',
 			title: 'Heavenly War',
 			cost: 150,
 			year: 2021,
@@ -273,7 +273,7 @@ async function seedingCustomerData() {
 				code: 'KH001',
 				name: 'Nguyen Van An',
 				email: 'an.nguyen@example.com',
-				phone: '0901234567',
+				phone: '0914234564',
 				password: 'hashed_password_1',
 				active: true,
 				grade: MemberGrade.BRONZE,
@@ -282,7 +282,7 @@ async function seedingCustomerData() {
 				code: 'KH002',
 				name: 'Tran Thi Bich',
 				email: 'bich.tran@example.com',
-				phone: '0912345678',
+				phone: '0901234567',
 				password: 'hashed_password_2',
 				active: true,
 				grade: MemberGrade.GOLD,
@@ -473,7 +473,7 @@ async function billIncomeOutcomeSeeder() {
 				customerId: customers[i % customers.length].id,
 				status: BillStatus.COMPLETE,
 				cost: 0,
-
+				debit: 2 * i * 1000,
 				billDetail: {
 					create: [
 						{

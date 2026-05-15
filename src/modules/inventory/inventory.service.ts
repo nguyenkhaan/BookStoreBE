@@ -12,6 +12,7 @@ export class InventoryService {
 		});
 		if (!inventory) return false;
 		if (inventory.stock < 300 && inventory.stock + addNum <= 500)
+			//So luong sach trong kho khong duoc vuot qua 300 - 500
 			return true;
 		return false;
 	}

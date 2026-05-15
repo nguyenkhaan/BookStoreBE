@@ -1,15 +1,21 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+} from '@nestjs/common';
 import { BillStatus, VoucherStatus, VoucherType } from '@prisma/client';
 import { CreateBillData, UpdateBillData } from './dto/bill.dto';
 import { DEBIT_MAX } from '@/bases/commons/constants/app.constant';
 import { InventoryService } from '../inventory/inventory.service';
+import { CustomerService } from '../customer/customer.service';
+import { ENUM_VI_MAP, mapEnumToVietnamese } from '@/utlitis/enumLocalization';
 // import { VoucherService } from '../voucher/voucher.service';
 @Injectable()
 export class BillService {
 	constructor(
 		private readonly prismaService: PrismaService,
 		private readonly inventoryService: InventoryService,
+		private readonly customerService: CustomerService,
 	) {}
 	async getGeneralStatistic() {
 		try {
@@ -47,101 +53,146 @@ export class BillService {
 		try {
 			const bills = await this.prismaService.bill.findMany({
 				include: {
+					customer: true,
 					billDetail: {
 						include: { book: true },
 					},
 					voucherUsage: {
 						include: { voucher: true },
 					},
-					
 				},
 			});
 			const resultBills = bills.map((bill) => {
 				return {
-					...bill, 
-					
-					voucherUsage : bill.voucherUsage.map((usage) => {
-						return {usedAt : usage.usedAt , ...usage.voucher , sale : Number(usage.voucher.sale) }
-					}),
-					billDetail : bill.billDetail.map((detail) => {
+					...bill,
+					statusLabel: mapEnumToVietnamese(
+						bill.status,
+						ENUM_VI_MAP.billStatus,
+					),
+					customer: {
+						id: bill.customer.id,
+						name: bill.customer.name ?? 'Khách vãng lai',
+						email: bill.customer.email ?? 'Chưa có thông tin',
+						code: bill.customer.code ?? 'Chưa có thông tin',
+						phone: bill.customer.phone,
+						active: bill.customer.active,
+					},
+
+					voucherUsage: bill.voucherUsage.map((usage) => {
 						return {
-							...detail.book, 
-							quantity : detail.quantity
-						}
-					})
-				}
-			})
+							usedAt: usage.usedAt,
+							...usage.voucher,
+							sale: Number(usage.voucher.sale),
+						};
+					}),
+					billDetail: bill.billDetail.map((detail) => {
+						return {
+							...detail.book,
+							quantity: detail.quantity,
+						};
+					}),
+				};
+			});
 			return resultBills;
 		} catch (err) {
 			console.log('Get All Bills Error: ', err);
 			throw err;
 		}
 	}
-    async deleteBill(id: number) {
-        try {
-            return await this.prismaService.$transaction(async (tx) => {
-                // Get bill details to restore inventory
-                const billDetails = await tx.billDetail.findMany({
-                    where: { billId: id },
-                });
-
-                // Restore inventory for each item
-                for (const detail of billDetails) {
-                    await tx.inventory.update({
-                        where: { bookId: detail.bookId },
-                        data: {
-                            stock: {
-                                increment: detail.quantity,
-                            },
-                        },
-                    });
-                }
-
-                // Restore voucher quantities
-                const voucherUsages = await tx.voucherUsage.findMany({
-                    where: { billId: id },
-                });
-
-                for (const usage of voucherUsages) {
-                    await tx.voucher.update({
-                        where: { id: usage.voucherId },
-                        data: {
-                            quantity: {
-                                increment: 1,
-                            },
-                        },
-                    });
-                }
-
-                // Delete related records
-                await tx.billDetail.deleteMany({
-                    where: { billId: id },
-                });
-
-                await tx.voucherUsage.deleteMany({
-                    where: { billId: id },
-                });
-
-                await tx.billIncome.deleteMany({
-                    where: { billId: id },
-                });
-
-                // Delete the bill
-                const deletedBill = await tx.bill.delete({
-                    where: { id } 
-                });
-
-                return deletedBill;
-            });
-        } catch (err) {
-            console.log('Delete Bill Error:', err);
-            throw err;
-        }
-    }
-	async createBill(createBillData: CreateBillData) {
+	async createBillCode() {
+		//Using for auto generating bill code
+		const latest = await this.prismaService.bill.findFirst({
+			orderBy: {
+				id: 'desc',
+			},
+			select: {
+				code: true,
+			},
+		});
+		if (!latest) return `HD001`;
+		return (
+			'HD' +
+			(Number(latest.code.replace('HD', '')) + 1)
+				.toString()
+				.padStart(3, '0')
+		);
+	}
+	async deleteBill(id: number) {
 		try {
 			return await this.prismaService.$transaction(async (tx) => {
-				const bookCodes = createBillData.billDetails.map((b) => b.bookCode);
+				// Get bill details to restore inventory
+				const billDetails = await tx.billDetail.findMany({
+					where: { billId: id },
+				});
+
+				// Restore inventory for each item
+				for (const detail of billDetails) {
+					await tx.inventory.update({
+						where: { bookId: detail.bookId },
+						data: {
+							stock: {
+								increment: detail.quantity,
+							},
+						},
+					});
+				}
+
+				// Restore voucher quantities
+				const voucherUsages = await tx.voucherUsage.findMany({
+					where: { billId: id },
+				});
+
+				for (const usage of voucherUsages) {
+					await tx.voucher.update({
+						where: { id: usage.voucherId },
+						data: {
+							quantity: {
+								increment: 1,
+							},
+						},
+					});
+				}
+
+				// Delete related records
+				await tx.billDetail.deleteMany({
+					where: { billId: id },
+				});
+
+				await tx.voucherUsage.deleteMany({
+					where: { billId: id },
+				});
+
+				await tx.billIncome.deleteMany({
+					where: { billId: id },
+				});
+
+				// Delete the bill
+				const deletedBill = await tx.bill.delete({
+					where: { id },
+				});
+
+				return deletedBill;
+			});
+		} catch (err) {
+			console.log('Delete Bill Error:', err);
+			throw err;
+		}
+	}
+	async createBill(createBillData: CreateBillData) {
+		try {
+			const code = await this.createBillCode();
+			let customer = await this.prismaService.customer.findUnique({
+				where: { phone: createBillData.customerPhone },
+			});
+			if (!customer) {
+				customer = await this.customerService.createStrangeCustomer(
+					createBillData.customerPhone,
+				);
+			}
+			return await this.prismaService.$transaction(async (tx) => {
+				const bookCodes = createBillData.billDetails.map(
+					(b) => b.bookCode,
+				);
 
 				const books = await tx.book.findMany({
 					where: { code: { in: bookCodes } },
@@ -157,7 +208,8 @@ export class BillService {
 				for (const item of createBillData.billDetails) {
 					const book = bookMap.get(item.bookCode);
 
-					if (!book) throw new BadRequestException('Book not found');
+					if (!book)
+						throw new BadRequestException('Không tìm thấy sách');
 
 					const canSellBook =
 						await this.inventoryService.canSellBookByCode(
@@ -166,7 +218,7 @@ export class BillService {
 						);
 					if (canSellBook == false)
 						throw new BadRequestException(
-							'Cannot Sell books because restrict book stock minium remain',
+							'Không thể bán vì vi phạm quy định tồn kho tối thiểu',
 						);
 					totalCost += item.quantity * Number(book.cost);
 					const updated = await tx.inventory.update({
@@ -184,7 +236,7 @@ export class BillService {
 					});
 					if (updated.stock == 0)
 						throw new BadRequestException(
-							"Don't have enough books",
+							'Không đủ số lượng sách trong kho',
 						);
 				}
 				//Voucher
@@ -203,7 +255,9 @@ export class BillService {
 							voucher.expiresAt < new Date() ||
 							voucher.quantity <= 0
 						)
-							throw new BadRequestException('Voucher invalid');
+							throw new BadRequestException(
+								'Voucher không hợp lệ',
+							);
 
 						if (voucher.type === VoucherType.PERCENT)
 							totalCost = Math.max(
@@ -232,57 +286,50 @@ export class BillService {
 						});
 					}
 				}
-				const customer = await this.prismaService.customer.findFirst({
-					where: { phone: createBillData.customerPhone },
-					select: { id: true, code: true },
-				});
-				if (!customer)
-					throw new BadRequestException(
-						'Customer Phone does not exists',
-					);
 				//Tinh no cua mot khach hang
 
-				const _totalBillCost = await tx.bill.aggregate({
-					_sum: { cost: true },
+				const _totalDebit = (await tx.bill.aggregate({
+					_sum: { debit: true },
 					where: {
 						customerId: customer.id,
 					},
-				});
-				const _totalPaid = await tx.billIncome.aggregate({
-					_sum: { cost: true },
-					where: {
-						bill: { customerId: customer.id },
-					},
-				});
-
+				} as any)) as any;
+				//Tinh no cua khach hang
 				if (
-					Number(_totalBillCost._sum.cost ?? 0) -
-						Number(_totalPaid._sum.cost ?? 0) >
+					Number(_totalDebit?._sum?.debit ?? 0) +
+						(totalCost -
+							Number(createBillData.temporaryCost || 0)) >
 					DEBIT_MAX
 				)
 					throw new BadRequestException(
-						"Customer has the debit exceed charge. Can't sell",
+						'Công nợ của khách hàng đã vượt ngưỡng cho phép',
 					);
-				console.log("Tong gia tien: " , totalCost) 
-				console.log(createBillData.temporaryCost)
 				const bill = await tx.bill.create({
 					data: {
-						code: createBillData.code,
+						code,
 						customerId: customer.id,
 						status: createBillData.status,
-						cost: Math.max(
-							0,
-							// totalCost - (createBillData.temporaryCost || 0),
-							createBillData.temporaryCost || 0 
-						),
+						cost: totalCost,
 					},
 				});
-				
+				const billDebit = Math.max(
+					0,
+					totalCost - Number(createBillData.temporaryCost || 0),
+				);
+				await tx.$executeRaw`
+					UPDATE "Bill"
+					SET "debit" = ${billDebit}
+					WHERE "id" = ${bill.id}
+				`;
+
 				if (createBillData.billDetails) {
 					const billDetailData = createBillData.billDetails.map(
 						(b) => {
 							const book = bookMap.get(b.bookCode);
-							if (!book) throw new BadRequestException(`Book with code ${b.bookCode} not found`);
+							if (!book)
+								throw new BadRequestException(
+									`Không tìm thấy sách có mã ${b.bookCode}`,
+								);
 							return {
 								bookId: book.id,
 								quantity: b.quantity,
@@ -306,7 +353,14 @@ export class BillService {
 				}
 
 				return {
-					bill,
+					bill: {
+						...bill,
+						debit: billDebit,
+						status: mapEnumToVietnamese(
+							bill.status,
+							ENUM_VI_MAP.billStatus,
+						),
+					},
 				};
 			});
 		} catch (err) {
@@ -314,30 +368,68 @@ export class BillService {
 			throw err;
 		}
 	}
-	async getBillByCode(code : string) 
-	{
-		try 
-		{
+	async getBillByCode(code: string) {
+		try {
 			const bill = await this.prismaService.bill.findFirst({
-				where: { code }, 
+				where: { code },
 				select: {
-					id : true, 
-					code : true, 
-					cost : true, 
-					status : true, 
-					
-					customer: {
-						select: { id : true , name : true }
-					}, 
-					
-				}, 
+					id: true,
+					code: true,
+					cost: true,
+					status: true,
 
-			})
-			return bill 
-		} 
-		catch (err) {
-			console.log("get bill by code error" , err) 
-			throw err 
+					customer: {
+						select: { id: true, name: true },
+					},
+				},
+			});
+			if (!bill) return bill;
+			return {
+				...bill,
+				customer: {
+					id: bill.customer.id,
+					name: bill.customer.name ?? 'Chưa có thông tin',
+				},
+				status: mapEnumToVietnamese(
+					bill.status,
+					ENUM_VI_MAP.billStatus,
+				),
+			};
+		} catch (err) {
+			console.log('get bill by code error', err);
+			throw err;
+		}
+	}
+	async getBillById(id: number) {
+		try {
+			const bill = await this.prismaService.bill.findFirst({
+				where: { id },
+				select: {
+					id: true,
+					code: true,
+					cost: true,
+					status: true,
+
+					customer: {
+						select: { id: true, name: true },
+					},
+				},
+			});
+			if (!bill) return bill;
+			return {
+				...bill,
+				customer: {
+					id: bill.customer.id,
+					name: bill.customer.name ?? 'Chưa có thông tin',
+				},
+				status: mapEnumToVietnamese(
+					bill.status,
+					ENUM_VI_MAP.billStatus,
+				),
+			};
+		} catch (err) {
+			console.log('get bill by code error', err);
+			throw err;
 		}
 	}
 	//Update Bill
@@ -345,21 +437,30 @@ export class BillService {
 		try {
 			return await this.prismaService.$transaction(async (tx) => {
 				// update bill basic info
-				const customer = await tx.customer.findFirst({
-					where: { phone: updateBillData.customerPhone },
-					select: { id: true, phone: true },
-				});
-
-				if (!customer)
-					throw new BadRequestException('Customer not found');
+				let customer = null;
+				if (updateBillData.customerPhone) {
+					customer = await tx.customer.findUnique({
+						where: { phone: updateBillData.customerPhone },
+						select: { id: true, phone: true },
+					});
+					if (!customer) {
+						const createdGuest =
+							await this.customerService.createStrangeCustomer(
+								updateBillData.customerPhone,
+							);
+						customer = {
+							id: createdGuest.id,
+							phone: createdGuest.phone,
+						};
+					}
+				}
 
 				const bill = await tx.bill.update({
 					where: { id },
 					data: {
-						code: updateBillData.code,
-						customerId: customer.id,
+						customerId: customer ? customer.id : undefined,
 						status: updateBillData.status,
-						cost : updateBillData.cost 
+						cost: updateBillData.cost,
 					},
 				});
 
@@ -373,7 +474,9 @@ export class BillService {
 				});
 
 				if (updateBillData.billDetails) {
-					const bookCodes = updateBillData.billDetails.map((b) => b.bookCode);
+					const bookCodes = updateBillData.billDetails.map(
+						(b) => b.bookCode,
+					);
 					const books = await tx.book.findMany({
 						where: { code: { in: bookCodes } },
 					});
@@ -382,7 +485,10 @@ export class BillService {
 					const billDetailData = updateBillData.billDetails.map(
 						(b) => {
 							const book = bookMap.get(b.bookCode);
-							if (!book) throw new BadRequestException(`Book with code ${b.bookCode} not found`);
+							if (!book)
+								throw new BadRequestException(
+									`Không tìm thấy sách có mã ${b.bookCode}`,
+								);
 							return {
 								bookId: book.id,
 								quantity: b.quantity,

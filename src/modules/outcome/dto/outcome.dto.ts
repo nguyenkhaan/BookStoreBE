@@ -1,4 +1,5 @@
 import {
+	IsArray,
 	IsInt,
 	IsString,
 	IsEnum,
@@ -6,29 +7,59 @@ import {
 	Min,
 	IsNotEmpty,
 	Matches,
+	IsOptional,
+	ValidateNested,
 } from 'class-validator';
 import { OutcomeStatus } from '@prisma/client';
 import { PartialType } from '@nestjs/mapped-types';
 import { STOCK_IMPORT_NUMBER_MIN } from '@/bases/commons/constants/app.constant';
 import { BookCodeRegex } from '@/bases/commons/regex/app.regex';
+import { Type } from 'class-transformer';
 
-export class CreateOutcomeData {
+export class CreateOutcomeItemDto {
+	@Matches(BookCodeRegex)
+	@IsNotEmpty()
 	@IsString()
 	code: string;
 
-	@IsInt()
-	publisherId: number;
-
 	@IsNumber()
-	cost: number;
+	@Min(0)
+	@IsOptional()
+	baseCost: number;
 
 	@IsEnum(OutcomeStatus)
 	status: OutcomeStatus;
 	@IsInt()
 	@Min(STOCK_IMPORT_NUMBER_MIN) //toi thieu phai nhap 150 sach - So sach ton kho it nhat la 300 sach, khong duoc nhap thap hon
 	quantity: number;
-	@Matches(BookCodeRegex)
+	@IsString()
 	@IsNotEmpty()
-	bookCode: string;
+	@IsOptional()
+	bookTitle: string;
+
+	@IsOptional()
+	@IsNumber()
+	year?: number;
 }
-export class UpdateOutcomeData extends PartialType(CreateOutcomeData) {}
+
+export class CreateOutcomeData {
+	@IsInt()
+	publisherId: number;
+
+	@IsEnum(OutcomeStatus)
+	status: OutcomeStatus;
+
+	@IsArray()
+	@ValidateNested({ each: true })
+	@Type(() => CreateOutcomeItemDto)
+	items: CreateOutcomeItemDto[];
+}
+export class UpdateOutcomeData extends PartialType(CreateOutcomeItemDto) {
+	@IsOptional()
+	@IsInt()
+	publisherId?: number;
+
+	@IsOptional()
+	@IsEnum(OutcomeStatus)
+	status?: OutcomeStatus;
+}

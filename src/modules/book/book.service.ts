@@ -115,7 +115,7 @@ export class BookService {
 			if (!book)
 				return {
 					[ResponseBody.ERROR]: 0,
-					[ResponseBody.MESSAGE]: 'Book Not Found',
+					[ResponseBody.MESSAGE]: 'Không tìm thấy sách',
 				};
 
 			return {
@@ -156,7 +156,7 @@ export class BookService {
 			if (authors.length !== createBookData.authorIds.length)
 				return {
 					[ResponseBody.ERROR]: 5,
-					[ResponseBody.MESSAGE]: 'Author Not Found',
+					[ResponseBody.MESSAGE]: 'Không tìm thấy tác giả',
 				};
 
 			const publishers = await this.prismaService.publisher.findMany({
@@ -169,7 +169,7 @@ export class BookService {
 			if (publishers.length !== createBookData.publisherIds.length)
 				return {
 					[ResponseBody.ERROR]: 5,
-					[ResponseBody.MESSAGE]: 'Publisher Not Found',
+					[ResponseBody.MESSAGE]: 'Không tìm thấy nhà xuất bản',
 				};
 
 			let fileName: string | null = null;
@@ -179,11 +179,14 @@ export class BookService {
 				fileName = await this.minioService.uploadFile(file);
 			}
 
+			const retailCost = createBookData.baseCost
+				? createBookData.baseCost * 1.05
+				: createBookData.cost;
 			const book = await this.prismaService.book.create({
 				data: {
 					title: createBookData.title,
 					category: createBookData.category || BookCategory.GIAO_DUC,
-					cost: createBookData.cost,
+					cost: retailCost,
 					code: createBookData.code,
 					year: createBookData.year,
 					coverImage: fileName,
@@ -199,14 +202,11 @@ export class BookService {
 						})),
 					},
 
-					inventory:
-						createBookData.stock !== undefined
-							? {
-									create: {
-										stock: createBookData.stock,
-									},
-								}
-							: undefined,
+					inventory: {
+						create: {
+							stock: 0,
+						},
+					},
 				},
 			});
 			return book;
@@ -231,7 +231,7 @@ export class BookService {
 			if (!book)
 				return {
 					[ResponseBody.ERROR]: 5,
-					[ResponseBody.MESSAGE]: 'Book Not Found',
+					[ResponseBody.MESSAGE]: 'Không tìm thấy sách',
 				};
 
 			if (updateBook.authorIds) {
@@ -242,7 +242,7 @@ export class BookService {
 				if (authors.length !== updateBook.authorIds.length)
 					return {
 						[ResponseBody.ERROR]: 5,
-						[ResponseBody.MESSAGE]: 'Author Not Found',
+						[ResponseBody.MESSAGE]: 'Không tìm thấy tác giả',
 					};
 			}
 
@@ -254,7 +254,7 @@ export class BookService {
 				if (publishers.length !== updateBook.publisherIds.length)
 					return {
 						[ResponseBody.ERROR]: 5,
-						[ResponseBody.MESSAGE]: 'Publisher Not Found',
+						[ResponseBody.MESSAGE]: 'Không tìm thấy nhà xuất bản',
 					};
 			}
 
@@ -276,6 +276,9 @@ export class BookService {
 					}),
 					...(updateBook.cost && {
 						cost: updateBook.cost,
+					}),
+					...(updateBook.baseCost !== undefined && {
+						cost: updateBook.baseCost * 1.05,
 					}),
 					...(updateBook.category && {
 						category: updateBook.category,
@@ -332,7 +335,7 @@ export class BookService {
 			if (!book)
 				return {
 					[ResponseBody.ERROR]: 5,
-					[ResponseBody.MESSAGE]: 'Book Not Found',
+					[ResponseBody.MESSAGE]: 'Không tìm thấy sách',
 				};
 
 			await this.prismaService.book.update({
@@ -344,7 +347,7 @@ export class BookService {
 
 			return {
 				[ResponseBody.ERROR]: 0,
-				[ResponseBody.MESSAGE]: 'Delete Book Successfully',
+				[ResponseBody.MESSAGE]: 'Xóa sách thành công',
 			};
 		} catch (err) {
 			console.log(err);
@@ -527,7 +530,7 @@ export class BookService {
 
 			return {
 				[ResponseBody.ERROR]: 0,
-				[ResponseBody.MESSAGE]: 'Insert/update book successfully',
+				[ResponseBody.MESSAGE]: 'Thêm/cập nhật sách thành công',
 			};
 		} catch (err) {
 			console.log('Error', err);

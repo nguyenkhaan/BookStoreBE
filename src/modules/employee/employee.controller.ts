@@ -18,6 +18,8 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '@/bases/guards/role.guard';
 import type { Request } from 'express';
 import { CreateEmployeeDto, UpdateEmployeeDto } from './dto/employee.dto';
+@Roles(Role.ADMIN)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('employee')
 //http://localhost:4000/api
 export class EmployeeController {
@@ -31,8 +33,7 @@ export class EmployeeController {
 
 	// @Patch("/reset-employee-password")
 	//Lay tat ca nhan vien, Dat lai mat khau, chuc nang loc, tim kiem ???? Duma nhieu the
-	@Roles(Role.ADMIN)
-	@UseGuards(JwtAuthGuard, RolesGuard)
+
 	@Get()
 	async getAllEmployeeProfiles() {
 		const responseData = await this.employeeService.getAllEmployee();
@@ -50,8 +51,6 @@ export class EmployeeController {
 		return await this.employeeService.getOptions();
 	}
 
-	@Roles(Role.ADMIN)
-	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Post()
 	async createEmployeeAccount(@Body() employeeAccount: CreateEmployeeDto) {
 		const response =
@@ -71,8 +70,6 @@ export class EmployeeController {
 		return response;
 	}
 
-	@Roles(Role.EMPLOYEE)
-	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('profile')
 	async getProfile(@Req() req: Request) {
 		const user = req.user as any;
@@ -82,7 +79,7 @@ export class EmployeeController {
 		);
 		return responseData;
 	}
-
+	
 	@Get('code')
 	async getEmployeeByCode(@Query('code') code: string) {
 		return await this.employeeService.getEmployeeByCode(code);

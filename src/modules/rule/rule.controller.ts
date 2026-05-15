@@ -6,6 +6,7 @@ import {
 	Get,
 	Param,
 	ParseIntPipe,
+	Patch,
 	Post,
 	Put,
 	Req,
@@ -20,12 +21,16 @@ import type { Request } from 'express';
 @Controller('rule')
 export class RuleController {
 	constructor(private readonly ruleService: RuleService) {}
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get()
 	async getAllRules() {
 		const responseData = await this.ruleService.getAllRules();
 		return responseData;
 	}
 	//Use for get RuleStatus from Backend
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('options')
 	async getRulesOptions() {
 		return await this.ruleService.getOptions();
@@ -65,9 +70,15 @@ export class RuleController {
 	async getGeneralStatistic() {
 		return await this.ruleService.getGeneralStatistic();
 	}
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('/:ruleId')
 	async getRuleById(@Param('ruleId', ParseIntPipe) ruleId: number) {
 		const response = await this.ruleService.getRuleById(Number(ruleId));
 		return response;
 	}
+	@Roles(Role.ADMIN) 
+	@UseGuards(JwtAuthGuard , RolesGuard)
+	@Patch('/option-managing')  //dung de dat lai cac thong so duoc luu tru trong Backend 
+	async CustomOption() {}
 }
