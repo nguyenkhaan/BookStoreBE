@@ -8,10 +8,12 @@ import { VoucherService } from '../voucher/voucher.service';
 import { CustomerModule } from '../customer/customer.module';
 import { CustomerService } from '../customer/customer.service';
 import { InventoryModule } from '../inventory/inventory.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
-	imports: [AuthModule, VoucherModule, CustomerModule, InventoryModule],
+	imports: [AuthModule, VoucherModule, CustomerModule, EmailModule ,  InventoryModule],
 	controllers: [BillController],
 	providers: [BillService, VoucherService, CustomerService],
+	exports: [BillService]
 })
 export class BillModule {}

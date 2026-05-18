@@ -42,6 +42,13 @@ services:
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
   api:
     container_name: app-be-server
     build:

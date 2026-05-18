@@ -1,15 +1,37 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import {
+	BadRequestException,
+	ConflictException,
+	Injectable,
+} from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { MemberGrade } from '@prisma/client';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class CustomerService {
-	constructor(private readonly prismaService: PrismaService) {}
+	constructor(
+		private readonly prismaService: PrismaService, 
+		private readonly emailService : EmailService
+	) {}
 
 	private readonly customerMissingInfo = 'Chưa có thông tin';
 
+	private generateDefaultPassword(length: number = 8): string {
+		const chars =
+			'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+		let password = '';
+
+		for (let i = 0; i < length; i++) {
+			const randomIndex = Math.floor(Math.random() * chars.length);
+
+			password += chars[randomIndex];
+		}
+
+		return password;
+	}
 	private formatCustomerDisplay<
 		T extends {
 			active?: boolean | null;
@@ -79,13 +101,13 @@ export class CustomerService {
 	}
 	async createCustomerCode() {
 		//Using for auto generating bill code
-		const latest = await this.prismaService.customer.findFirst({ 
+		const latest = await this.prismaService.customer.findFirst({
 			where: {
-				code : {
-					not: null, 
-					contains: 'KH' 
-				}
-			}, 
+				code: {
+					not: null,
+					contains: 'KH',
+				},
+			},
 			orderBy: {
 				id: 'desc',
 			},
@@ -107,38 +129,60 @@ export class CustomerService {
 				await this.prismaService.customer.findUnique({
 					where: { phone: data.phone },
 				});
-			const existingByEmail = 
+			const existingByEmail =
 				await this.prismaService.customer.findUnique({
-					where: { email : data.email }
-				}) 
-			if (existingByEmail) 
-				throw new ConflictException("Email đã được sử dụng với một tài khoản khác")
-			if (existingByPhone && existingByPhone.active)
+					where: { email: data.email },
+				});
+			if (existingByEmail)
+				throw new ConflictException(
+					'Email đã được sử dụng với một tài khoản khác',
+				);
+			if (existingByPhone && existingByPhone.code)
 				throw new BadRequestException(
 					'Khách hàng đã đăng ký tài khoản',
 				);
-			const code = await this.createCustomerCode() 
-			if (existingByPhone && !existingByPhone.active) {
-				const upgradedCustomer =
+			const code = await this.createCustomerCode();
+			const password = await this.generateDefaultPassword();
+			const hashedPassword = await Bun.password.hash(password, {
+				algorithm: 'bcrypt',
+				cost: 10,
+			});
+
+			//Nang cap tai khoan vang lai thanh tai khoan chinh thuc
+			let customer = null 
+			if (existingByPhone && !existingByPhone.code) {
+				customer =
 					await this.prismaService.customer.update({
 						where: { id: existingByPhone.id },
 						data: {
 							...data,
-							active: true,
-							code 
+							code,
+							password : hashedPassword
 						},
 					});
-				return this.formatCustomerDisplay(upgradedCustomer);
 			}
-
-			const createdCustomer = await this.prismaService.customer.create({
-				data: {
-					...data,
-					active: true,
-					code 
-				},
-			});
-			return this.formatCustomerDisplay(createdCustomer);
+			// Tao luon mot tai khoan moi
+			else {
+				customer = await this.prismaService.customer.create({
+					data: {
+						...data,
+						code,
+						password : hashedPassword 
+					},
+				});
+			}
+			//Send email to de verify tai khoan 
+			await this.emailService.sendWelcomeMail(
+				data.email, 
+				'[Betabook] Thông tin tài khoản khách hàng', 
+				'customer_register', 
+				{
+					email : data.email, 
+					password, 
+					phone : customer.phone
+				}
+			)
+			return this.formatCustomerDisplay(customer);
 		} catch (err) {
 			console.log('Create customer error');
 			throw err;
@@ -151,13 +195,12 @@ export class CustomerService {
 				where: { phone },
 			});
 			if (customer) return customer;
-			const uPass = uuidv4() 
+			const uPass = uuidv4();
 			const password = await Bun.password.hash(uPass);
 			const sCustomer = await this.prismaService.customer.create({
 				data: {
 					name: 'Khách vãng lai',
 					phone,
-					active: false,
 					password,
 					code: null,
 					email: null,

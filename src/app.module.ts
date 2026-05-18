@@ -30,6 +30,7 @@ import { AuthorModule } from './modules/author/author.module';
 import { PublisherModule } from './modules/publisher/publisher.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { CategoryModule } from './modules/category/category.module';
+import { EmailModule } from './modules/email/email.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -57,6 +58,7 @@ import { CategoryModule } from './modules/category/category.module';
 		PublisherModule,
 		InventoryModule,
 		CategoryModule,
+		EmailModule
 	],
 	controllers: [AppController],
 	providers: [

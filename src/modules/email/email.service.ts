@@ -1,38 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class EmailService {
-	private transporter;
+	constructor(private readonly mailerService: MailerService) {}
 
-	constructor() {
-		this.transporter = nodemailer.createTransport({
-			service: 'gmail',
-			auth: {
-				user: process.env.EMAIL_USER,
-				pass: process.env.EMAIL_PASS,
-			},
+	async sendWelcomeMail(to: string , subject : string , template : string , context : Record<string , string>) {
+		await this.mailerService.sendMail({
+			to,
+			subject: subject,
+			template: template,
+			context: context 
 		});
-	}
-
-	async sendEmail(to: string, subject: string, html: string) {
-		try {
-			const info = await this.transporter.sendMail({
-				from: `"Bookstore System" <${process.env.EMAIL_USER}>`,
-				to,
-				subject,
-				html,
-			});
-
-			console.log('Email sent:', info.messageId);
-
-			return {
-				success: true,
-				messageId: info.messageId,
-			};
-		} catch (err) {
-			console.error('Send email error:', err);
-			throw err;
-		}
 	}
 }

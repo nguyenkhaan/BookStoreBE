@@ -1,6 +1,5 @@
 import { MemberGrade } from '@prisma/client';
 import {
-	IsBoolean,
 	IsEmail,
 	IsEnum,
 	IsOptional,
@@ -23,9 +22,6 @@ export class UpdateCustomerDto {
 	@IsOptional()
 	grade?: MemberGrade;
 
-	@IsBoolean()
-	@IsOptional()
-	active?: boolean;
 }
 
 export class CreateCustomerDto {
@@ -39,9 +35,9 @@ export class CreateCustomerDto {
 	@IsString()
 	phone: string;
 
-	@IsString()
-	@MinLength(6)
-	password: string;
+	// @IsString()
+	// @MinLength(6)
+	// password: string;
 
 	@IsEnum(MemberGrade)
 	grade: MemberGrade;

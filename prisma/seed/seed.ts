@@ -275,7 +275,6 @@ async function seedingCustomerData() {
 				email: 'an.nguyen@example.com',
 				phone: '0914234564',
 				password: 'hashed_password_1',
-				active: true,
 				grade: MemberGrade.BRONZE,
 			},
 			{
@@ -284,7 +283,6 @@ async function seedingCustomerData() {
 				email: 'bich.tran@example.com',
 				phone: '0901234567',
 				password: 'hashed_password_2',
-				active: true,
 				grade: MemberGrade.GOLD,
 			},
 			{
@@ -293,7 +291,6 @@ async function seedingCustomerData() {
 				email: 'minh.le@example.com',
 				phone: '0923456789',
 				password: 'hashed_password_3',
-				active: false,
 				grade: MemberGrade.SILVER,
 			},
 			{
@@ -302,7 +299,6 @@ async function seedingCustomerData() {
 				email: 'bao.pham@example.com',
 				phone: '0934567890',
 				password: 'hashed_password_4',
-				active: true,
 				grade: MemberGrade.DIAMOND,
 			},
 			{
@@ -311,7 +307,6 @@ async function seedingCustomerData() {
 				email: 'lan.vo@example.com',
 				phone: '0945678901',
 				password: 'hashed_password_5',
-				active: false,
 				grade: MemberGrade.SILVER,
 			},
 		],
