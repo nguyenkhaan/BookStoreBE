@@ -23,6 +23,18 @@ export class AdminService {
 		private readonly employeeService: EmployeeService,
 		private readonly minioService: MinioService,
 	) {}
+	async resetCustomerEmail(phone : string) 
+	{
+		//Tai khoan nay phai la 1 khach hang thuc thu va khong bi vo hieu hoa 
+		const customer = await this.prismaService.customer.findFirst({
+			where: { phone }
+		}) 
+		if (customer && customer.code && customer.email) 
+		{
+			//Day khong phai khach vang lai 
+			
+		}
+	}
 	async register(data: RegisterData, file: Express.Multer.File) {
 		try {
 			let fileUrl: string | null = null;

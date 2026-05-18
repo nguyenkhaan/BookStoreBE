@@ -9,6 +9,7 @@ import {
 	Patch,
 	Post,
 	Put,
+	Query,
 	Req,
 	UploadedFile,
 	UseGuards,
@@ -30,6 +31,14 @@ export class AdminController {
 	@Get('testing')
 	async testing() {
 		return 'Admin endpoint successfully';
+	}
+	//Lám them chuc nang giup reset lai mat khau va gui lai mat kahu ve email cho khach hang 
+	@Post() 
+	async resetCustomerAccount(
+		@Query('phone') phone : string 
+	) 
+	{
+		console.log(phone) 
 	}
 	@UseInterceptors(FileInterceptor('avatar'))
 	@Post('/employee/register')

@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Injectable } from '@nestjs/comm
 import { PrismaService } from '@/prisma/prisma.service';
 import { MemberGrade } from '@prisma/client';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CustomerService {
@@ -150,8 +151,8 @@ export class CustomerService {
 				where: { phone },
 			});
 			if (customer) return customer;
-
-			const password = await Bun.password.hash('default');
+			const uPass = uuidv4() 
+			const password = await Bun.password.hash(uPass);
 			const sCustomer = await this.prismaService.customer.create({
 				data: {
 					name: 'Khách vãng lai',
