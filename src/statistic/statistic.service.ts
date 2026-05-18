@@ -10,6 +10,35 @@ export class StatisticService {
 		private readonly prismaService: PrismaService,
 		private readonly statisticRepository: StatisticRepository,
 	) {}
+	async getRecentOrders(limit: number) {
+		const bills = await this.prismaService.bill.findMany({
+			select: {
+				id : true, 
+				code: true,
+				cost: true,
+				status: true,
+				customer: {
+					select: { name: true },
+				},
+				createdAt: true,
+			},
+
+			orderBy: {
+				createdAt: 'desc',
+			},
+			take: limit,
+		});
+		//Mapping to frotnend
+		return bills.map((bill) => {
+			return {
+				id : bill.id, 
+				code: bill.code,
+				amount: bill.cost,
+				status: bill.status,
+				date: bill.createdAt,
+			};
+		});
+	}
 	private async sumRevenueInDuration(startDate: Date, endDate: Date) {
 		const ans = await this.prismaService.bill.aggregate({
 			_sum: { cost: true },

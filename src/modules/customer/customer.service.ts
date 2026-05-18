@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { MemberGrade } from '@prisma/client';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
@@ -76,22 +76,47 @@ export class CustomerService {
 			throw err;
 		}
 	}
+	async createCustomerCode() {
+		//Using for auto generating bill code
+		const latest = await this.prismaService.customer.findFirst({ 
+			where: {
+				code : {
+					not: null, 
+					contains: 'KH' 
+				}
+			}, 
+			orderBy: {
+				id: 'desc',
+			},
+			select: {
+				code: true,
+			},
+		});
+		if (!latest || !latest.code) return `KH001`;
+		return (
+			'KH' +
+			(Number(latest.code?.replace('KH', '')) + 1)
+				.toString()
+				.padStart(3, '0')
+		);
+	}
 	async createCustomer(data: CreateCustomerDto) {
 		try {
 			const existingByPhone =
 				await this.prismaService.customer.findUnique({
 					where: { phone: data.phone },
 				});
-			if (existingByPhone && existingByPhone.deletedAt !== null)
-				throw new BadRequestException(
-					'Số điện thoại này không thể sử dụng',
-				);
-
+			const existingByEmail = 
+				await this.prismaService.customer.findUnique({
+					where: { email : data.email }
+				}) 
+			if (existingByEmail) 
+				throw new ConflictException("Email đã được sử dụng với một tài khoản khác")
 			if (existingByPhone && existingByPhone.active)
 				throw new BadRequestException(
 					'Khách hàng đã đăng ký tài khoản',
 				);
-
+			const code = await this.createCustomerCode() 
 			if (existingByPhone && !existingByPhone.active) {
 				const upgradedCustomer =
 					await this.prismaService.customer.update({
@@ -99,6 +124,7 @@ export class CustomerService {
 						data: {
 							...data,
 							active: true,
+							code 
 						},
 					});
 				return this.formatCustomerDisplay(upgradedCustomer);
@@ -108,6 +134,7 @@ export class CustomerService {
 				data: {
 					...data,
 					active: true,
+					code 
 				},
 			});
 			return this.formatCustomerDisplay(createdCustomer);

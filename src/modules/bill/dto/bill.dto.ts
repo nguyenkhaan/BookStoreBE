@@ -12,7 +12,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
-// import { BillCodeRegex } from '@/bases/commons/regex/app.regex';
+// import { BillCodeRegex } from '@/bases/commons/regex/appcustomer.regex';
 
 class CreateBillDetailData {
 	@IsString()

@@ -29,6 +29,10 @@ export class StatisticController {
 	) {
 		return await this.statisticService.getTopCustomers(limit);
 	}
+	@Get('/recent-orders')
+	async getRecentOrders(@Query('limit', ParseIntPipe) limit: number) {
+		return this.statisticService.getRecentOrders(limit) 
+	}
 	@Get('revenue')
 	async revenueGeneral() {
 		//Lay doanh thu tong quat

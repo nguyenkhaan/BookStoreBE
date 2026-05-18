@@ -47,7 +47,6 @@ enum VoucherStatus {
     UPCOMING 
     ENDED
 }
-
 enum TokenType {
     RESET_PASSWORD
     ACCESS
@@ -67,7 +66,7 @@ enum RuleStatus {
     
 }
 enum BillStatus {  //Check 
-    COMPLETE 
+    COMPLETE
     NOT_STARTED 
     OVERDUE  
 } 

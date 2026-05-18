@@ -30,10 +30,6 @@ export class UpdateCustomerDto {
 
 export class CreateCustomerDto {
 	@IsString()
-	@MinLength(3)
-	code: string;
-
-	@IsString()
 	@MinLength(2)
 	name: string;
 

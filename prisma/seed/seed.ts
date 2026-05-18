@@ -393,7 +393,7 @@ async function voucherSeeder() {
 		data: [
 			{
 				name: "DISCOUNT_10_PERCENT",
-				code: "VC10",
+				code: "KM001",
 				eventName: "Summer Sale 10%",
 				sale: 10,
 				status: "APPLYING",
@@ -406,7 +406,7 @@ async function voucherSeeder() {
 			},
 			{
 				name: "DISCOUNT_20_PERCENT",
-				code: "VC20",
+				code: "KM020",
 				eventName: "Big Sale 20%",
 				sale: 20,
 				status: "APPLYING",
@@ -419,7 +419,7 @@ async function voucherSeeder() {
 			},
 			{
 				name: "WELCOME_50K",
-				code: "VC50K",
+				code: "KM050",
 				eventName: "Welcome New Customer",
 				sale: 50000,
 				status: "UPCOMING",
@@ -432,7 +432,7 @@ async function voucherSeeder() {
 			},
 			{
 				name: "EXPIRED_TEST",
-				code: "VCOLD",
+				code: "KM040",
 				eventName: "Old Campaign",
 				sale: 15,
 				status: "ENDED",
