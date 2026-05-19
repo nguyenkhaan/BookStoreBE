@@ -6,6 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { EmployeeStatus, Role, TokenType } from '@prisma/client';
 import { CreateEmployeeDto, UpdateEmployeeDto } from './dto/employee.dto';
+import { EmailService } from '../email/email.service';
+
 
 @Injectable()
 export class EmployeeService {
@@ -13,6 +15,7 @@ export class EmployeeService {
 		private readonly prismaService: PrismaService,
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService,
+		private readonly emailService: EmailService,
 	) {}
 	async findEmployeeByCode(code: string) {
 		const employee = await this.prismaService.employee.findFirst({
@@ -46,6 +49,41 @@ export class EmployeeService {
 				});
 				return employee;
 			});
+			//Gui email den cho email cua nhan vien nay
+			if (result) {
+				const departmentName =
+					await this.prismaService.department.findFirst({
+						where: {
+							id: result.departmentId,
+						},
+						select: {
+							name: true,
+						},
+					});
+				const positionName =
+					await this.prismaService.position.findFirst({
+						where: {
+							id: result.positionId,
+						},
+						select: {
+							name: true,
+						},
+					});
+				//Sending email to employee to let they know
+				await this.emailService.sendWelcomeMail(
+					result.email,
+					'[UTAHIMEBOOK] Thông báo cấp tài khoản nhân viên',
+					'employee_register',
+					{
+						email: result.email,
+						name: result.name,
+						department: departmentName?.name || 'Chưa có thông tin',
+						position: positionName?.name || 'Chưa có thông tin',
+						phone: result.phone,
+						password: data.password,
+					},
+				);
+			}
 			return result;
 		} catch (err) {
 			console.log('create employee error', err);
@@ -113,12 +151,46 @@ export class EmployeeService {
 				});
 				return employee;
 			});
+			if (result) {
+				const departmentName =
+					await this.prismaService.department.findFirst({
+						where: {
+							id: result.departmentId,
+						},
+						select: {
+							name: true,
+						},
+					});
+				const positionName =
+					await this.prismaService.position.findFirst({
+						where: {
+							id: result.positionId,
+						},
+						select: {
+							name: true,
+						},
+					});
+				//Sending email to verify the update
+				await this.emailService.sendWelcomeMail(
+					result.email,
+					'[UtahimeBook] Thông báo cập nhật tài khoản nhân viên',
+					'employee_update',
+					{
+						email: result.email,
+						name : result.name, 
+						phone: result.phone,
+						department: departmentName?.name || '',
+						position: positionName?.name || '',
+					},
+				);
+			}
 			return result;
 		} catch (err) {
 			console.log('update employee account error', err);
 			throw err;
 		}
 	}
+
 	async deleteAccount(id: number) {
 		const res = await this.prismaService.employee.update({
 			where: {
@@ -138,6 +210,7 @@ export class EmployeeService {
 					email: true,
 					avatar: true,
 					phone: true,
+					name: true,
 					status: true,
 					id: true,
 					code: true,

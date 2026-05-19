@@ -8,6 +8,7 @@ import { MemberGrade } from '@prisma/client';
 import { CreateCustomerDto, UpdateCustomerDto } from './dto/customer.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { EmailService } from '../email/email.service';
+import { generateRandomPassword } from '@/utlitis/randomPassword';
 
 @Injectable()
 export class CustomerService {
@@ -18,20 +19,7 @@ export class CustomerService {
 
 	private readonly customerMissingInfo = 'Chưa có thông tin';
 
-	private generateDefaultPassword(length: number = 8): string {
-		const chars =
-			'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-		let password = '';
-
-		for (let i = 0; i < length; i++) {
-			const randomIndex = Math.floor(Math.random() * chars.length);
-
-			password += chars[randomIndex];
-		}
-
-		return password;
-	}
 	private formatCustomerDisplay<
 		T extends {
 			active?: boolean | null;
@@ -146,7 +134,7 @@ export class CustomerService {
 					'Khách hàng đã đăng ký tài khoản',
 				);
 			const code = await this.createCustomerCode();
-			const password = await this.generateDefaultPassword();
+			const password = generateRandomPassword();
 			const hashedPassword = await Bun.password.hash(password, {
 				algorithm: 'bcrypt',
 				cost: 10,

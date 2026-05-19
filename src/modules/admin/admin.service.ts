@@ -1,5 +1,5 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { RegisterData, UpdateEmployeeData } from './dto/admin.dto';
 import { JwtService } from '@nestjs/jwt';
 import { TokenBody } from '@/bases/commons/enums/token.enum';
@@ -13,7 +13,7 @@ import { ResponseBody } from '@/bases/commons/enums/response.enum';
 import type { Express } from 'express';
 import { MinioService } from '@/minio/minio.service';
 import { DEFAULT_AVATAR } from '@/bases/commons/constants/app.constant';
-
+import { EmailService } from '../email/email.service';
 @Injectable()
 export class AdminService {
 	constructor(
@@ -22,17 +22,15 @@ export class AdminService {
 		private readonly configService: ConfigService,
 		private readonly employeeService: EmployeeService,
 		private readonly minioService: MinioService,
+		private readonly emailService : EmailService
 	) {}
-	async resetCustomerEmail(phone : string) 
-	{
-		//Tai khoan nay phai la 1 khach hang thuc thu va khong bi vo hieu hoa 
+	async resetCustomerEmail(phone: string) {
+		//Tai khoan nay phai la 1 khach hang thuc thu va khong bi vo hieu hoa
 		const customer = await this.prismaService.customer.findFirst({
-			where: { phone }
-		}) 
-		if (customer && customer.code && customer.email) 
-		{
-			//Day khong phai khach vang lai 
-			
+			where: { phone },
+		});
+		if (customer && customer.code && customer.email) {
+			//Day khong phai khach vang lai
 		}
 	}
 	async register(data: RegisterData, file: Express.Multer.File) {
@@ -112,6 +110,66 @@ export class AdminService {
 			throw err;
 		}
 	}
+	async resetEmployeePassword(employeeId: number) {
+		const employee = await this.prismaService.employee.findFirst({
+			where: { id: employeeId },
+		});
+		if (!employee) throw new NotFoundException('Không tìm thấy nhân viên');
+		const password = generateRandomPassword();
+		const hashedPassword = await Bun.password.hash(password, {
+			algorithm: 'bcrypt',
+			cost: 10,
+		});
+		await this.prismaService.employee.update({
+			where: { id: employeeId },
+			data: {
+				password: hashedPassword,
+			},
+		});
+		await this.emailService.sendWelcomeMail(
+			employee.email,
+			'[UtahimeBook] Thông báo đặt lại mật khẩu',
+			'reset_password',
+			{
+				password,
+			},
+		);
+		return {
+			message:
+				'Đặt lại mật khẩu thành công. Hãy kiểm tra hòm thư của bạn',
+		};
+	}
+
+	async resetCustomerPassword(customerId: number) {
+		const customer = await this.prismaService.customer.findFirst({
+			where: { id: customerId },
+		});
+		if (!customer || !customer.email) throw new NotFoundException('Không tìm thấy nhân viên');
+		const password = generateRandomPassword();
+		const hashedPassword = await Bun.password.hash(password, {
+			algorithm: 'bcrypt',
+			cost: 10,
+		});
+		await this.prismaService.employee.update({
+			where: { id: customerId },
+			data: {
+				password: hashedPassword,
+			},
+		});
+		await this.emailService.sendWelcomeMail(
+			customer.email,
+			'[UtahimeBook] Thông báo đặt lại mật khẩu',
+			'reset_password',
+			{
+				password,
+			},
+		);
+		return {
+			message:
+				'Đặt lại mật khẩu thành công. Hãy kiểm tra hòm thư của bạn',
+		};
+	}
+
 
 	async resetPasswordToDefault(id: number) {
 		try {

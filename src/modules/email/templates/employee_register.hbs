@@ -1,0 +1,159 @@
+<div
+    style="
+        max-width: 640px;
+        margin: 0 auto;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #111827;
+    "
+>
+    <!-- Header -->
+    <div
+        style="
+            background: #ff6900;
+            padding: 24px;
+            text-align: center;
+        "
+    >
+        <h1
+            style="
+                color: white;
+                margin: 0;
+                font-size: 28px;
+            "
+        >
+            UtahimeBook 
+        </h1>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 32px">
+        <p
+            style="
+                font-size: 16px;
+                line-height: 1.7;
+                margin-top: 0;
+            "
+        >
+            Chào mừng thành viên mới <strong>{{name}}</strong>,
+        </p>
+
+        <p
+            style="
+                font-size: 16px;
+                line-height: 1.7;
+            "
+        >
+            Chào mừng bạn đã chính thức gia nhập đội ngũ nhân sự của <strong>UtahimeBook</strong>. 
+            Tài khoản nội bộ dành cho nhân viên của bạn đã được khởi tạo thành công trên hệ thống quản trị.
+        </p>
+
+        <!-- Khối 1: Thông tin cá nhân & Công việc -->
+        <h3 style="font-size: 16px; margin: 24px 0 8px 0; color: #ff6900;">
+            I. THÔNG TIN NHÂN VIÊN
+        </h3>
+        <div
+            style="
+                background: #f9fafb;
+                border-left: 4px solid #d1d5db;
+                padding: 16px;
+                margin-bottom: 20px;
+            "
+        >
+            <p style="margin: 0 0 10px 0; font-size: 15px;">
+                <strong>Họ và tên:</strong> {{name}}
+            </p>
+            <p style="margin: 0 0 10px 0; font-size: 15px;">
+                <strong>Số điện thoại:</strong> {{phone}}
+            </p>
+            <p style="margin: 0 0 10px 0; font-size: 15px;">
+                <strong>Phòng ban:</strong> {{department}}
+            </p>
+            <p style="margin: 0; font-size: 15px;">
+                <strong>Chức vụ:</strong> {{position}}
+            </p>
+        </div>
+
+        <!-- Khối 2: Thông tin đăng nhập -->
+        <h3 style="font-size: 16px; margin: 20px 0 8px 0; color: #ff6900;">
+            II. THÔNG TIN ĐĂNG NHẬP
+        </h3>
+        <div
+            style="
+                background: #f3f4f6;
+                border-radius: 10px;
+                padding: 20px;
+                margin-bottom: 24px;
+            "
+        >
+            <p style="margin: 0 0 12px 0; font-size: 15px;">
+                <strong>Email / Tài khoản:</strong> 
+                <span style="color: #2563eb; font-weight: bold;">{{email}}</span>
+            </p>
+            <p style="margin: 0; font-size: 15px;">
+                <strong>Mật khẩu tạm thời:</strong> 
+                <code style="background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 15px;">{{password}}</code>
+            </p>
+        </div>
+
+        <!-- Khối Cảnh báo bảo mật -->
+        <div
+            style="
+                background: #fef3c7;
+                border: 1px solid #fcd34d;
+                padding: 16px;
+                border-radius: 10px;
+                margin-bottom: 24px;
+            "
+        >
+            <p
+                style="
+                    margin: 0;
+                    color: #92400e;
+                    line-height: 1.6;
+                    font-size: 14px;
+                "
+            >
+                <strong>Lưu ý bảo mật:</strong> Để đảm bảo an toàn thông tin nội bộ, vui lòng truy cập vào hệ thống và <strong>thực hiện đổi mật khẩu ngay lập tức</strong> trong lần đăng nhập đầu tiên.
+            </p>
+        </div>
+
+        <p
+            style="
+                font-size: 16px;
+                line-height: 1.7;
+            "
+        >
+            Nếu gặp bất kỳ khó khăn nào trong quá trình đăng nhập, bạn vui lòng liên hệ Bộ phận Nhân sự hoặc Đội ngũ Kỹ thuật để được hỗ trợ.
+        </p>
+
+        <p
+            style="
+                margin-top: 32px;
+                font-size: 16px;
+            "
+        >
+            Chúc bạn có một hành trình làm việc tuyệt vời tại UtahimeBook!
+            <br /><br />
+            Trân trọng,
+            <br />
+            <strong>UtahimeBook Team</strong>
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <div
+        style="
+            background: #f9fafb;
+            padding: 16px;
+            text-align: center;
+            font-size: 13px;
+            color: #6b7280;
+        "
+    >
+        © UtahimeBook Workplace. All rights reserved.
+    </div>
+</div>

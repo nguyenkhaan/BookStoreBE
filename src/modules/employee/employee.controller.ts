@@ -57,7 +57,6 @@ export class EmployeeController {
 			await this.employeeService.createAccount(employeeAccount);
 		return response;
 	}
-
 	@Put('/:employeeId')
 	async updateEmployeeAccount(
 		@Param('employeeId', ParseIntPipe) employeeId: number,

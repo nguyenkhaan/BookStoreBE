@@ -13,7 +13,7 @@
     <div
         style="
             background: #ff6900;
-            padding: 24px;custom
+            padding: 24px;
             text-align: center;
         "
     >
@@ -24,7 +24,7 @@
                 font-size: 28px;
             "
         >
-            UtahimeBook
+            UtahimeBook Portal
         </h1>
     </div>
 
@@ -36,7 +36,7 @@
                 margin-top: 0;
             "
         >
-            Xin chào quý khách,
+            Chào <strong>{{name}}</strong>,
         </p>
 
         <p
@@ -45,7 +45,7 @@
                 line-height: 1.7;
             "
         >
-            Hệ thống <strong>UtahimeBook</strong> xin thông báo: Tài khoản của quý khách vừa được cập nhật thông tin thành công.
+            Thông tin nhân sự của bạn trên hệ thống quản trị nội bộ **UtahimeBook** vừa được cập nhật thành công. 
         </p>
 
         <p
@@ -54,7 +54,7 @@
                 line-height: 1.7;
             "
         >
-            Dưới đây là thông tin tài khoản hiện tại sau khi thay đổi:
+            Dưới đây là thông tin hồ sơ hiện tại của bạn sau khi thay đổi:
         </p>
 
         <div
@@ -65,30 +65,24 @@
                 margin: 24px 0;
             "
         >
-            <p style="margin: 0 0 12px 0">
-                <strong>Họ và tên:</strong>
-                {{name}}
+            <p style="margin: 0 0 12px 0; font-size: 15px;">
+                <strong>Họ và tên:</strong> {{name}}
             </p>
 
-            <p style="margin: 0 0 12px 0">
-                <strong>Số điện thoại:</strong>
-                {{phone}}
+            <p style="margin: 0 0 12px 0; font-size: 15px;">
+                <strong>Email nội bộ:</strong> {{email}}
             </p>
 
-            <p style="margin: 0 0 12px 0">
-                <strong>Email:</strong>
-                {{email}}
+            <p style="margin: 0 0 12px 0; font-size: 15px;">
+                <strong>Số điện thoại:</strong> {{phone}}
             </p>
 
-            <p style="margin: 0 0 12px 0">
-                <strong>Hạng thành viên:</strong>
-                <span style="color: {{gradeColor}}; font-weight: bold;">{{gradeText}}</span>
+            <p style="margin: 0 0 12px 0; font-size: 15px;">
+                <strong>Phòng ban:</strong> {{department}}
             </p>
-            
 
-            <p style="margin: 0">
-                <strong>Trạng thái mật khẩu:</strong>
-                <span style="color: #059669; font-weight: bold;">Đã thay đổi</span> (Nếu quý khách vừa cập nhật mật khẩu mới)
+            <p style="margin: 0; font-size: 15px;">
+                <strong>Chức vụ:</strong> {{position}}
             </p>
         </div>
 
@@ -106,10 +100,10 @@
                     margin: 0;
                     color: #1e40af;
                     line-height: 1.6;
-                    font-size: 15px;
+                    font-size: 14px;
                 "
             >
-                Nếu hành động này <strong>không phải do quý khách thực hiện</strong>, vui lòng liên hệ ngay với chúng tôi hoặc thực hiện tính năng quên mật khẩu để bảo vệ tài khoản.
+                <strong>Lưu ý bảo mật:</strong> Nếu hành động cập nhật thông tin này <strong>không phải do bạn thực hiện</strong> hoặc có sai sót về mặt dữ liệu, vui lòng báo cáo ngay cho Bộ phận Nhân sự (HR) hoặc Đội ngũ Kỹ thuật để kịp thời kiểm tra và xử lý.
             </p>
         </div>
 
@@ -119,7 +113,7 @@
                 line-height: 1.7;
             "
         >
-            Mọi thắc mắc xin liên hệ trung tâm hỗ trợ khách hàng UtahimeBook.
+            Mọi thắc mắc khác liên quan đến tài khoản và quyền hạn trên Portal, vui lòng phản hồi lại email này.
         </p>
 
         <p
@@ -143,6 +137,6 @@
             color: #6b7280;
         "
     >
-        © UtahimeBook. All rights reserved.
+        © UtahimeBook Workplace. All rights reserved.
     </div>
 </div>
