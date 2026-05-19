@@ -18,6 +18,8 @@ model BillDetail {
     bookId   Int
     book     Book @relation(fields: [bookId], references: [id])
     billId   Int
-    bill     Bill @relation(fields: [billId], references: [id])
+    bill     Bill @relation(fields: [billId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     quantity Int
+
+    @@unique([billId, bookId])
 }

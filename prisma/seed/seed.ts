@@ -7,6 +7,7 @@ import {
 	RuleStatus,
 	RuleType,
 	MemberGrade,
+	Prisma,
 } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
@@ -243,7 +244,7 @@ async function employeeSeeder() {
 	await prismaClient.employee.createMany({
 		data: employees.map((emp) => ({
 			...emp,
-			password: hashedPassword,  
+			password: hashedPassword,
 		})),
 		skipDuplicates: true,
 	});
@@ -387,62 +388,62 @@ async function voucherSeeder() {
 	await prismaClient.voucher.createMany({
 		data: [
 			{
-				name: "DISCOUNT_10_PERCENT",
-				code: "KM001",
-				eventName: "Summer Sale 10%",
+				name: 'DISCOUNT_10_PERCENT',
+				code: 'KM001',
+				eventName: 'Summer Sale 10%',
 				sale: 10,
-				status: "APPLYING",
+				status: 'APPLYING',
 				usedNumber: 0,
 				quantity: 100,
-				expiresAt: new Date("2026-12-31"),
-				startDate: new Date("2026-01-01"),
-				type: "PERCENT",
-				description: "Giảm 10% toàn bộ đơn hàng",
+				expiresAt: new Date('2026-12-31'),
+				startDate: new Date('2026-01-01'),
+				type: 'PERCENT',
+				description: 'Giảm 10% toàn bộ đơn hàng',
 			},
 			{
-				name: "DISCOUNT_20_PERCENT",
-				code: "KM020",
-				eventName: "Big Sale 20%",
+				name: 'DISCOUNT_20_PERCENT',
+				code: 'KM020',
+				eventName: 'Big Sale 20%',
 				sale: 20,
-				status: "APPLYING",
+				status: 'APPLYING',
 				usedNumber: 0,
 				quantity: 50,
-				expiresAt: new Date("2026-12-31"),
-				startDate: new Date("2026-01-01"),
-				type: "PERCENT",
-				description: "Giảm 20% đơn hàng lớn",
+				expiresAt: new Date('2026-12-31'),
+				startDate: new Date('2026-01-01'),
+				type: 'PERCENT',
+				description: 'Giảm 20% đơn hàng lớn',
 			},
 			{
-				name: "WELCOME_50K",
-				code: "KM050",
-				eventName: "Welcome New Customer",
+				name: 'WELCOME_50K',
+				code: 'KM050',
+				eventName: 'Welcome New Customer',
 				sale: 50000,
-				status: "UPCOMING",
+				status: 'UPCOMING',
 				usedNumber: 0,
 				quantity: 200,
-				expiresAt: new Date("2026-06-30"),
-				startDate: new Date("2026-05-01"),
-				type: "VND",
-				description: "Giảm 50k cho khách hàng mới",
+				expiresAt: new Date('2026-06-30'),
+				startDate: new Date('2026-05-01'),
+				type: 'VND',
+				description: 'Giảm 50k cho khách hàng mới',
 			},
 			{
-				name: "EXPIRED_TEST",
-				code: "KM040",
-				eventName: "Old Campaign",
+				name: 'EXPIRED_TEST',
+				code: 'KM040',
+				eventName: 'Old Campaign',
 				sale: 15,
-				status: "ENDED",
+				status: 'ENDED',
 				usedNumber: 10,
 				quantity: 10,
-				expiresAt: new Date("2025-01-01"),
-				startDate: new Date("2024-01-01"),
-				type: "PERCENT",
-				description: "Voucher đã hết hạn",
+				expiresAt: new Date('2025-01-01'),
+				startDate: new Date('2024-01-01'),
+				type: 'PERCENT',
+				description: 'Voucher đã hết hạn',
 			},
 		],
 		skipDuplicates: true,
 	});
 
-	console.log("Seeded Voucher Successfully");
+	console.log('Seeded Voucher Successfully');
 }
 
 async function billIncomeOutcomeSeeder() {
@@ -453,7 +454,7 @@ async function billIncomeOutcomeSeeder() {
 	const publishers = await prismaClient.publisher.findMany();
 
 	if (!customers.length || !books.length || !employees.length) {
-		throw new Error("Missing required seed data");
+		throw new Error('Missing required seed data');
 	}
 
 	// =========================
@@ -487,7 +488,7 @@ async function billIncomeOutcomeSeeder() {
 		bills.push(bill);
 	}
 
-	console.log("Created 6 Bills");
+	console.log('Created 6 Bills');
 
 	// =========================
 	// 2. 3 BILLS USE VOUCHER
@@ -504,7 +505,7 @@ async function billIncomeOutcomeSeeder() {
 		});
 	}
 
-	console.log("Applied 3 Vouchers");
+	console.log('Applied 3 Vouchers');
 
 	// =========================
 	// 3. 3 BILL INCOMES
@@ -514,8 +515,8 @@ async function billIncomeOutcomeSeeder() {
 			data: {
 				code: `INC00${i + 1}`,
 				cost: 500 + i * 100,
-				status: "COMPLETE",
-				paymentMethod: "CASH",
+				status: 'COMPLETE',
+				paymentMethod: 'CASH',
 				employeeId: employees[i % employees.length].id,
 				billId: bills[i].id,
 				shortDescription: `Income for bill ${bills[i].code}`,
@@ -523,26 +524,48 @@ async function billIncomeOutcomeSeeder() {
 		});
 	}
 
-	console.log("Created 3 Bill Incomes");
+	console.log('Created 3 Bill Incomes');
 
 	// =========================
 	// 4. 3 BILL OUTCOMES
 	// =========================
 	for (let i = 0; i < 3; i++) {
+		const selectedBooks = [
+			books[i % books.length],
+			books[(i + 1) % books.length],
+		];
+
+		const items = selectedBooks.map((book, index) => ({
+			bookId: book.id,
+			quantity: 2 + index + i,
+			unitCost: book.cost,
+		}));
+
+		items.reduce(
+			(sum, item) => sum + Number(item.unitCost) * item.quantity,
+			0,
+		);
+	
 		await prismaClient.billOutcome.create({
 			data: {
 				code: `OUT00${i + 1}`,
+
 				publisherId: publishers[i % publishers.length].id,
+
 				employeeId: employees[i % employees.length].id,
-				bookId: books[i % books.length].id,
-				cost: 800 + i * 120,
-				status: "COMPLETE",
-				quantity: 2 + i,
+
+				status: 'COMPLETE',
+
+				cost: new Prisma.Decimal(650),
+
+				outcomeItems: {
+					create: items,
+				},
 			},
 		});
 	}
 
-	console.log("Created 3 Bill Outcomes");
+	console.log('Created 3 Bill Outcomes with items');
 }
 
 async function seeder() {
@@ -553,12 +576,12 @@ async function seeder() {
 		await publisherSeeder();
 		await bookSeeder(); // ✅ NEW
 		await adminSeeder();
-		await employeeSeeder(); 
-		await employeeRoleSeeder(); 
-		await seedingCustomerData(); 
+		await employeeSeeder();
+		await employeeRoleSeeder();
+		await seedingCustomerData();
 		await seedingRules();
-		await voucherSeeder() 
-		await billIncomeOutcomeSeeder() 
+		await voucherSeeder();
+		await billIncomeOutcomeSeeder();
 		console.log('Seeding completed');
 	} catch (error) {
 		console.error(error);

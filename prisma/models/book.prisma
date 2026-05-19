@@ -18,21 +18,25 @@ model AuthorBook {
     id       Int    @id @default(autoincrement())
     bookId   Int
     authorId Int
-    author   Author @relation(fields: [authorId], references: [id])
-    book     Book   @relation(fields: [bookId], references: [id])
+    author   Author @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    book     Book   @relation(fields: [bookId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+    @@unique([authorId, bookId])
 }
 
 model PublisherBook {
     id          Int       @id @default(autoincrement())
     bookId      Int
-    publisher   Publisher @relation(fields: [publisherId], references: [id])
-    book        Book      @relation(fields: [bookId], references: [id])
+    publisher   Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+    book        Book      @relation(fields: [bookId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     publisherId Int
+
+    @@unique([publisherId, bookId])
 }
 
 model Inventory {
     bookId    Int      @id
-    book      Book     @relation(fields: [bookId], references: [id])
+    book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade, onUpdate: Cascade)
     stock     Int      @default(0)
     updatedAt DateTime @updatedAt
 }
@@ -52,8 +56,8 @@ model Book {
     inventory    Inventory?
     category     BookCategory    @default(THIEU_NHI)
     deletedAt    DateTime?
-    billOutcomes BillOutcome[]
-
+   
+    outcomeItems BillOutcomeItem[]
     @@index([cost])
     @@index([title])
 }

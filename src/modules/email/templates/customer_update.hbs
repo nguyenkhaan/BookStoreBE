@@ -13,7 +13,7 @@
     <div
         style="
             background: #ff6900;
-            padding: 24px;
+            padding: 24px;custom
             text-align: center;
         "
     >
@@ -45,8 +45,7 @@
                 line-height: 1.7;
             "
         >
-            Đây là email thông tin tài khoản khách hàng từ
-            <strong>BetaBook</strong>.
+            Hệ thống <strong>BetaBook</strong> xin thông báo: Tài khoản của quý khách vừa được cập nhật thông tin thành công.
         </p>
 
         <p
@@ -55,8 +54,7 @@
                 line-height: 1.7;
             "
         >
-            Tài khoản của quý khách đã nhận được sự thay đổi.
-            Sau đây là thông tin tài khoản mới:
+            Dưới đây là thông tin tài khoản hiện tại sau khi thay đổi:
         </p>
 
         <div
@@ -68,8 +66,8 @@
             "
         >
             <p style="margin: 0 0 12px 0">
-                <strong>Email:</strong>
-                {{email}}
+                <strong>Họ và tên:</strong>
+                {{name}}
             </p>
 
             <p style="margin: 0 0 12px 0">
@@ -77,16 +75,27 @@
                 {{phone}}
             </p>
 
+            <p style="margin: 0 0 12px 0">
+                <strong>Email:</strong>
+                {{email}}
+            </p>
+
+            <p style="margin: 0 0 12px 0">
+                <strong>Hạng thành viên:</strong>
+                <span style="color: {{gradeColor}}; font-weight: bold;">{{gradeText}}</span>
+            </p>
+            
+
             <p style="margin: 0">
-                <strong>Mật khẩu:</strong>
-                {{password}}
+                <strong>Trạng thái mật khẩu:</strong>
+                <span style="color: #059669; font-weight: bold;">Đã thay đổi</span> (Nếu quý khách vừa cập nhật mật khẩu mới)
             </p>
         </div>
 
         <div
             style="
-                background: #fef3c7;
-                border: 1px solid #fcd34d;
+                background: #eff6ff;
+                border: 1px solid #bfdbfe;
                 padding: 16px;
                 border-radius: 10px;
                 margin-bottom: 24px;
@@ -95,13 +104,12 @@
             <p
                 style="
                     margin: 0;
-                    color: #92400e;
+                    color: #1e40af;
                     line-height: 1.6;
                     font-size: 15px;
                 "
             >
-                Vui lòng không chia sẻ thông tin này cho bất kỳ ai.
-                Hãy đổi mật khẩu ngay sau khi đăng nhập thành công.
+                Nếu hành động này <strong>không phải do quý khách thực hiện</strong>, vui lòng liên hệ ngay với chúng tôi hoặc thực hiện tính năng quên mật khẩu để bảo vệ tài khoản.
             </p>
         </div>
 
@@ -111,8 +119,7 @@
                 line-height: 1.7;
             "
         >
-            Mọi thắc mắc xin liên hệ trung tâm hỗ trợ khách hàng
-            BetaBook.
+            Mọi thắc mắc xin liên hệ trung tâm hỗ trợ khách hàng BetaBook.
         </p>
 
         <p

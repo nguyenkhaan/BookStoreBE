@@ -12,8 +12,8 @@ import { EmailService } from '../email/email.service';
 @Injectable()
 export class CustomerService {
 	constructor(
-		private readonly prismaService: PrismaService, 
-		private readonly emailService : EmailService
+		private readonly prismaService: PrismaService,
+		private readonly emailService: EmailService,
 	) {}
 
 	private readonly customerMissingInfo = 'Chưa có thông tin';
@@ -149,17 +149,16 @@ export class CustomerService {
 			});
 
 			//Nang cap tai khoan vang lai thanh tai khoan chinh thuc
-			let customer = null 
+			let customer = null;
 			if (existingByPhone && !existingByPhone.code) {
-				customer =
-					await this.prismaService.customer.update({
-						where: { id: existingByPhone.id },
-						data: {
-							...data,
-							code,
-							password : hashedPassword
-						},
-					});
+				customer = await this.prismaService.customer.update({
+					where: { id: existingByPhone.id },
+					data: {
+						...data,
+						code,
+						password: hashedPassword,
+					},
+				});
 			}
 			// Tao luon mot tai khoan moi
 			else {
@@ -167,21 +166,21 @@ export class CustomerService {
 					data: {
 						...data,
 						code,
-						password : hashedPassword 
+						password: hashedPassword,
 					},
 				});
 			}
-			//Send email to de verify tai khoan 
+			//Send email to de verify tai khoan
 			await this.emailService.sendWelcomeMail(
-				data.email, 
-				'[Betabook] Thông tin tài khoản khách hàng', 
-				'customer_register', 
+				data.email,
+				'[Betabook] Thông tin tài khoản khách hàng',
+				'customer_register',
 				{
-					email : data.email, 
-					password, 
-					phone : customer.phone
-				}
-			)
+					email: data.email,
+					password,
+					phone: customer.phone,
+				},
+			);
 			return this.formatCustomerDisplay(customer);
 		} catch (err) {
 			console.log('Create customer error');
@@ -293,14 +292,30 @@ export class CustomerService {
 	async updateCustomerById(id: number, data: UpdateCustomerDto) {
 		try {
 			const customer = await this.findCustomerById(id);
-			if (!customer)
-				throw new BadRequestException('Không tìm thấy khách hàng');
+			if (!customer || !customer.email)
+				throw new BadRequestException(
+					'Không tìm thấy khách hàng. Vui lòng đăng ký tài khoản trước khi sử dụng dịch vụ',
+				);
 			const result = await this.prismaService.customer.update({
 				where: { id },
 				data: {
 					...data,
 				},
 			});
+			//Sau khi update xong thi gui email ve
+			const mappedGrade = this.emailService.gradeMapping(customer.grade);
+			await this.emailService.sendWelcomeMail(
+				customer.email,
+				'Thông báo cập nhật tài khoản',
+				'customer_update',
+				{
+					name: customer.name,
+					email: customer.email,
+					phone: customer.phone || '',
+					gradeText: mappedGrade.text,
+					gradeColor: mappedGrade.color,
+				},
+			);
 			return result;
 		} catch (err) {
 			console.log(err);

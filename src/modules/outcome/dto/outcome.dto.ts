@@ -27,8 +27,6 @@ export class CreateOutcomeItemDto {
 	@IsOptional()
 	baseCost: number;
 
-	@IsEnum(OutcomeStatus)
-	status: OutcomeStatus;
 	@IsInt()
 	@Min(STOCK_IMPORT_NUMBER_MIN) //toi thieu phai nhap 150 sach - So sach ton kho it nhat la 300 sach, khong duoc nhap thap hon
 	quantity: number;
@@ -40,6 +38,15 @@ export class CreateOutcomeItemDto {
 	@IsOptional()
 	@IsNumber()
 	year?: number;
+
+	@IsOptional() 
+	@IsArray() 
+	@IsInt({each : true})
+	publisherIds : number[] 
+	@IsOptional() 
+	@IsArray() 
+	@IsInt({each : true })
+	authorIds: number[] 
 }
 
 export class CreateOutcomeData {
