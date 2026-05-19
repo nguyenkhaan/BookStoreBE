@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class UpdateSettingDto {
   @IsString()
@@ -8,4 +8,8 @@ export class UpdateSettingDto {
   @IsString()
   @IsNotEmpty()
   value: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
 }

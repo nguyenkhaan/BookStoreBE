@@ -14,7 +14,10 @@ export class SettingService {
 		const updatePromises = settings.map((item) =>
 			this.prisma.systemSetting.update({
 				where: { key: item.key },
-				data: { value: item.value },
+				data: {
+					value: item.value,
+					description: item.description ?? '',
+				},
 			}),
 		);
 		await Promise.all(updatePromises);
