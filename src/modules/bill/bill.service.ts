@@ -356,10 +356,7 @@ export class BillService {
 					bill: {
 						...bill,
 						debit: billDebit,
-						status: mapEnumToVietnamese(
-							bill.status,
-							ENUM_VI_MAP.billStatus,
-						),
+						status: bill.status
 					},
 				};
 			});
@@ -376,6 +373,7 @@ export class BillService {
 					id: true,
 					code: true,
 					cost: true,
+					debit: true,
 					status: true,
 
 					customer: {
@@ -390,10 +388,8 @@ export class BillService {
 					id: bill.customer.id,
 					name: bill.customer.name ?? 'Chưa có thông tin',
 				},
-				status: mapEnumToVietnamese(
-					bill.status,
-					ENUM_VI_MAP.billStatus,
-				),
+				status: bill.status,
+				debit: Number(bill.debit ?? 0),
 			};
 		} catch (err) {
 			console.log('get bill by code error', err);

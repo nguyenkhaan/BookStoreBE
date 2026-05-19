@@ -4,13 +4,102 @@ import {
 	NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { CreateIncomeDto } from './dto/income.dto';
-import { UpdateIncomeDto } from './dto/income.dto';
-import { BillStatus } from '@prisma/client';
+import { CreateIncomeDto, UpdateIncomeDto } from './dto/income.dto';
+import { BillStatus, IncomeStatus, Prisma } from '@prisma/client';
 import { ENUM_VI_MAP, mapEnumToVietnamese } from '@/utlitis/enumLocalization';
+
+const incomeSelect = {
+	code: true,
+	billId: true,
+	id: true,
+	cost: true,
+	updatedAt: true,
+	createdAt: true,
+	paymentMethod: true,
+	shortDescription: true,
+	status: true,
+	bill: {
+		select: {
+			customer: true,
+			code: true,
+		},
+	},
+	employee: true,
+} satisfies Prisma.BillIncomeSelect;
+
 @Injectable()
 export class IncomeService {
 	constructor(private prisma: PrismaService) {}
+
+	private mapIncomeResponse(income: any) {
+		return {
+			code: income.code,
+			id: income.id,
+			cost: income.cost,
+			status: income.status,
+			statusLabel: mapEnumToVietnamese(
+				income.status,
+				ENUM_VI_MAP.incomeStatus,
+			),
+			updatedAt: income.updatedAt,
+			createdAt: income.createdAt,
+			paymentMethod: income.paymentMethod,
+			paymentMethodLabel: mapEnumToVietnamese(
+				income.paymentMethod,
+				ENUM_VI_MAP.incomePaymentType,
+			),
+			shortDescription: income.shortDescription,
+			bill: {
+				billId: income.billId,
+				billCode: income.bill.code,
+			},
+			customer: {
+				customerId: income.bill.customer.id,
+				customerName: income.bill.customer.name ?? 'Khách vãng lai',
+			},
+			employee: {
+				employeeId: income.employee.id,
+				employeeName: income.employee.name,
+			},
+		};
+	}
+
+	private resolveBillStatus(currentStatus: BillStatus, debit: number) {
+		if (debit === 0) {
+			return BillStatus.COMPLETE;
+		}
+
+		return currentStatus === BillStatus.OVERDUE
+			? BillStatus.OVERDUE
+			: BillStatus.NOT_STARTED;
+	}
+
+	private async updateBillDebt(
+		tx: Prisma.TransactionClient,
+		billId: number,
+		nextDebit: number,
+	) {
+		const normalizedDebit = Math.max(0, Number(nextDebit) || 0);
+		const currentBill = await tx.bill.findUnique({
+			where: { id: billId },
+			select: {
+				status: true,
+			},
+		});
+
+		if (!currentBill) {
+			throw new NotFoundException('Không tìm thấy hóa đơn');
+		}
+
+		await tx.bill.update({
+			where: { id: billId },
+			data: {
+				debit: normalizedDebit,
+				status: this.resolveBillStatus(currentBill.status, normalizedDebit),
+			},
+		});
+	}
+
 	async getGeneralStatistic() {
 		try {
 			const totalIncomeBills = await this.prisma.billIncome.aggregate({
@@ -48,63 +137,16 @@ export class IncomeService {
 			throw err;
 		}
 	}
+
 	async getAllIncome() {
 		const incomes = await this.prisma.billIncome.findMany({
 			where: {
 				deletedAt: null,
 			},
-			select: {
-				code: true,
-				billId: true,
-				id: true,
-				cost: true,
-				updatedAt: true,
-				createdAt: true,
-				paymentMethod: true,
-				shortDescription: true,
-				status: true,
-				bill: {
-					select: {
-						customer: true,
-						code: true,
-					},
-				},
-				employee: true,
-			},
+			select: incomeSelect,
 		});
-		const resultIncomes = incomes.map((income) => {
-			return {
-				code: income.code,
-				id: income.id,
-				cost: income.cost,
-				status: income.status,
-				statusLabel: mapEnumToVietnamese(
-					income.status,
-					ENUM_VI_MAP.incomeStatus,
-				),
-				updatedAt: income.updatedAt,
-				createdAt: income.createdAt,
-				paymentMethod: income.paymentMethod,
-				paymentMethodLabel: mapEnumToVietnamese(
-					income.paymentMethod,
-					ENUM_VI_MAP.incomePaymentType,
-				),
-				shortDescription: income.shortDescription,
-				bill: {
-					billId: income.billId,
-					billCode: income.bill.code,
-				},
-				customer: {
-					customerId: income.bill.customer.id,
-					customerName: income.bill.customer.name ?? 'Khách vãng lai',
-				},
-				employee: {
-					employeeId: income.employee.id,
-					employeeName: income.employee.name,
-				},
-			};
-		});
-		return resultIncomes;
+
+		return incomes.map((income) => this.mapIncomeResponse(income));
 	}
 
 	async getIncomeById(id: number) {
@@ -136,8 +178,9 @@ export class IncomeService {
 
 		return income;
 	}
+
 	async createIncomeCode() {
-		const latest = await this.prisma.billOutcome.findFirst({
+		const latest = await this.prisma.billIncome.findFirst({
 			orderBy: {
 				id: 'desc',
 			},
@@ -146,6 +189,7 @@ export class IncomeService {
 			},
 		});
 		if (!latest) return `INC001`;
+		console.log(latest.code) 
 		return (
 			'INC' +
 			(Number(latest.code.replace('INC', '')) + 1)
@@ -153,16 +197,31 @@ export class IncomeService {
 				.padStart(3, '0')
 		);
 	}
+
 	async createIncome(employeeId: number, dto: CreateIncomeDto) {
-		let code = await this.createIncomeCode();
+		const code = await this.createIncomeCode();
 		return this.prisma.$transaction(async (tx) => {
 			const bill = await tx.bill.findUnique({
 				where: { code: dto.billCode },
+				select: {
+					id: true,
+					debit: true,
+				},
 			});
 
 			if (!bill) {
 				throw new NotFoundException('Không tìm thấy hóa đơn');
 			}
+
+			if (dto.status === IncomeStatus.COMPLETE) {
+				const currentDebit = Number(bill.debit ?? 0);
+				if (dto.cost > currentDebit) {
+					throw new BadRequestException(
+						'Số tiền thu không được vượt quá số nợ còn lại',
+					);
+				}
+			}
+
 			const createdIncome = await tx.billIncome.create({
 				data: {
 					code,
@@ -171,119 +230,162 @@ export class IncomeService {
 					employeeId,
 					shortDescription: dto.shortDescription,
 					paymentMethod: dto.paymentMethod,
+					status: dto.status,
 				},
 			});
 
-			await tx.bill.update({
-				where: { id: bill.id },
-				data: {
-					debit: {
-						decrement: dto.cost,
-					},
-				} as any,
-			});
-			await tx.$executeRaw`
-				UPDATE "Bill"
-				SET "debit" = GREATEST(0, "debit")
-				WHERE "id" = ${bill.id}
-			`;
+			if (dto.status === IncomeStatus.COMPLETE) {
+				const remain = Math.max(0, Number(bill.debit ?? 0) - dto.cost);
+				await this.updateBillDebt(tx, bill.id, remain);
+			}
+
 			const income = await tx.billIncome.findUnique({
 				where: { id: createdIncome.id },
-				select: {
-					code: true,
-					billId: true,
-					id: true,
-					cost: true,
-					updatedAt: true,
-					createdAt: true,
-					paymentMethod: true,
-					shortDescription: true,
-					status: true,
-					bill: {
-						select: {
-							customer: true,
-							code: true,
-						},
-					},
-					employee: true,
-				},
+				select: incomeSelect,
 			});
 			if (!income)
 				throw new BadRequestException('Không thể tạo phiếu thu');
-			return {
-				code,
-				id: income.id,
-				status: income.status,
-				statusLabel: mapEnumToVietnamese(
-					income.status,
-					ENUM_VI_MAP.incomeStatus,
-				),
-				cost: income.cost,
-				updatedAt: income.updatedAt,
-				createdAt: income.createdAt,
-				paymentMethod: income.paymentMethod,
-				paymentMethodLabel: mapEnumToVietnamese(
-					income.paymentMethod,
-					ENUM_VI_MAP.incomePaymentType,
-				),
-				shortDescription: income.shortDescription,
-				bill: {
-					billId: income.billId,
-					billCode: income.bill.code,
-				},
-				customer: {
-					customerId: income.bill.customer.id,
-					customerName: income.bill.customer.name ?? 'Khách vãng lai',
-				},
-				employee: {
-					employeeId: income.employee.id,
-					employeeName: income.employee.name,
-				},
-			};
+			return this.mapIncomeResponse(income);
 		});
 	}
-	async updateIncome(id: number, dto: UpdateIncomeDto) {
-		const income = await this.prisma.billIncome.findUnique({
-			where: { id },
-		});
-		const dataForUpdate: any = {};
-		if (dto.cost) dataForUpdate.cost = dto.cost;
-		if (dto.paymentMethod) dataForUpdate.paymentMethod = dto.paymentMethod;
-		if (dto.shortDescription)
-			dataForUpdate.shortDescription = dto.shortDescription;
-		if (dto.status) dataForUpdate.status = dto.status;
 
-		if (dto.billCode) {
-			const bill = await this.prisma.bill.findUnique({
-				where: { code: dto.billCode },
+	async updateIncome(id: number, dto: UpdateIncomeDto) {
+		return this.prisma.$transaction(async (tx) => {
+			const income = await tx.billIncome.findUnique({
+				where: { id },
+				include: {
+					bill: {
+						select: {
+							id: true,
+							debit: true,
+							status: true,
+						},
+					},
+				},
 			});
-			if (!bill) throw new BadRequestException('Không tìm thấy hóa đơn');
-			dataForUpdate.billId = bill.id;
-		}
-		if (!income) {
-			throw new NotFoundException('Không tìm thấy phiếu thu');
-		}
-	
-		return this.prisma.billIncome.update({
-			where: { id },
-			data: dataForUpdate,
+			if (!income || income.deletedAt) {
+				throw new NotFoundException('Không tìm thấy phiếu thu');
+			}
+
+			let targetBill = income.bill;
+			if (dto.billCode) {
+				const bill = await tx.bill.findUnique({
+					where: { code: dto.billCode },
+					select: {
+						id: true,
+						debit: true,
+						status: true,
+					},
+				});
+				if (!bill) throw new BadRequestException('Không tìm thấy hóa đơn');
+				targetBill = bill;
+			}
+
+			const nextStatus = dto.status ?? income.status;
+			const nextCost = Number(dto.cost ?? income.cost);
+			if (nextCost <= 0) {
+				throw new BadRequestException('Số tiền thu phải lớn hơn 0');
+			}
+
+			const availableDebit =
+				targetBill.id === income.bill.id && income.status === IncomeStatus.COMPLETE
+					? Number(targetBill.debit ?? 0) + Number(income.cost)
+					: Number(targetBill.debit ?? 0);
+
+			if (
+				nextStatus === IncomeStatus.COMPLETE &&
+				nextCost > Math.max(0, availableDebit)
+			) {
+				throw new BadRequestException(
+					'Số tiền thu không được vượt quá số nợ còn lại',
+				);
+			}
+
+			if (income.status === IncomeStatus.COMPLETE) {
+				await this.updateBillDebt(
+					tx,
+					income.bill.id,
+					Number(income.bill.debit ?? 0) + Number(income.cost),
+				);
+			}
+
+			if (nextStatus === IncomeStatus.COMPLETE) {
+				const targetBillRefreshed = await tx.bill.findUnique({
+					where: { id: targetBill.id },
+					select: {
+						id: true,
+						debit: true,
+					},
+				});
+				if (!targetBillRefreshed) {
+					throw new NotFoundException('Không tìm thấy hóa đơn');
+				}
+
+				await this.updateBillDebt(
+					tx,
+					targetBillRefreshed.id,
+					Number(targetBillRefreshed.debit ?? 0) - nextCost,
+				);
+			}
+
+			await tx.billIncome.update({
+				where: { id },
+				data: {
+					cost: nextCost,
+					paymentMethod: dto.paymentMethod ?? income.paymentMethod,
+					shortDescription:
+						dto.shortDescription ?? income.shortDescription,
+					status: nextStatus,
+					billId: targetBill.id,
+				},
+			});
+
+			const updatedIncome = await tx.billIncome.findUnique({
+				where: { id },
+				select: incomeSelect,
+			});
+			if (!updatedIncome) {
+				throw new NotFoundException('Không tìm thấy phiếu thu');
+			}
+
+			return this.mapIncomeResponse(updatedIncome);
 		});
 	}
 
 	async deleteIncome(id: number) {
-		const income = await this.prisma.billIncome.findUnique({
-			where: { id },
-		});
+		return this.prisma.$transaction(async (tx) => {
+			const income = await tx.billIncome.findUnique({
+				where: { id },
+				include: {
+					bill: {
+						select: {
+							id: true,
+							debit: true,
+						},
+					},
+				},
+			});
 
-		if (!income) {
-			throw new NotFoundException('Không tìm thấy phiếu thu');
-		}
+			if (!income || income.deletedAt) {
+				throw new NotFoundException('Không tìm thấy phiếu thu');
+			}
 
-		return this.prisma.billIncome.update({
-			where: { id },
-			data: {
-				deletedAt: new Date(),
-			},
+			await tx.billIncome.update({
+				where: { id },
+				data: {
+					deletedAt: new Date(),
+				},
+			});
+
+			if (income.status === IncomeStatus.COMPLETE) {
+				await this.updateBillDebt(
+					tx,
+					income.bill.id,
+					Number(income.bill.debit ?? 0) + Number(income.cost),
+				);
+			}
+
+			return { success: true };
 		});
 	}
 }

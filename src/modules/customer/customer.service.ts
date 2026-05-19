@@ -65,6 +65,7 @@ export class CustomerService {
 					email: string;
 					phone: string;
 					grade: string;
+					totalBills: string; 
 					totalPaid: string; // Decimal trả về string
 				}[]
 			>`
@@ -75,7 +76,8 @@ export class CustomerService {
                     c.email,
                     c.phone,
                     c.grade,
-                    COALESCE(SUM(bi.cost), 0) as totalPaid
+                    COALESCE(SUM(bi.cost), 0) as "totalPaid", 
+					COUNT(DISTINCT b.id) as "totalBills"
                 FROM "Customer" c
                 LEFT JOIN "Bill" b ON b."customerId" = c.id
                 LEFT JOIN "BillIncome" bi 
@@ -83,15 +85,17 @@ export class CustomerService {
                     AND bi."deletedAt" IS NULL
                 WHERE c."deletedAt" IS NULL
                 GROUP BY c.id
-                ORDER BY totalPaid DESC
+                ORDER BY "totalPaid" DESC
             `;
 
 			// Convert Decimal string -> number (nếu cần)
 			return data.map((item) => {
 				const formatted = this.formatCustomerDisplay(item);
+				console.log(formatted) 
 				return {
 					...formatted,
 					totalPaid: Number(item.totalPaid),
+					totalBills: Number(item.totalBills) 
 				};
 			});
 		} catch (err) {
