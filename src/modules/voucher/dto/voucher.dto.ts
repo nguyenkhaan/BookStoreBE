@@ -1,4 +1,3 @@
-import { VoucherCodeRegex } from '@/bases/commons/regex/app.regex';
 import { PartialType } from '@nestjs/mapped-types';
 import { VoucherStatus, VoucherType } from '@prisma/client';
 import { Type } from 'class-transformer';
@@ -8,18 +7,13 @@ import {
 	IsEnum,
 	IsInt,
 	Min,
-	Matches,
 	IsOptional,
 	IsDate,
 	IsNumber,
 } from 'class-validator';
 
 export class CreateVoucherData {
-	@IsString()
-	@Matches(VoucherCodeRegex, {
-		message: 'voucher code must be in format KM001',
-	})
-	code: string;
+	
 	@IsNumber()
 	usedNumber: number;
 	@IsString()

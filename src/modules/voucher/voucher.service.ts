@@ -1,5 +1,5 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateVoucherData, UpdateVoucherData } from './dto/voucher.dto';
 import { VoucherStatus, VoucherType } from '@prisma/client';
 import { TransactionClient } from 'generated/prisma/internal/prismaNamespace';
@@ -124,10 +124,27 @@ export class VoucherService {
 		});
 		return v;
 	}
+	async createVoucherCode() {
+		const latest = await this.prismaService.voucher.findFirst({
+			orderBy: {
+				id: 'desc',
+			},
+			select: {
+				code: true,
+			},
+		});
+		if (!latest) return `KM001`;
+		console.log(latest.code);
+		return (
+			'KM' +
+			(Number(latest.code.replace('KM', '')) + 1)
+				.toString()
+				.padStart(3, '0')
+		);
+	}
 	async createVoucher(createVoucherData: CreateVoucherData) {
 		try {
-			const v = await this.findVoucherByCode(createVoucherData.code);
-			if (v) throw new BadRequestException('Mã voucher đã tồn tại');
+			const code = await this.createVoucherCode() 
 			const voucher = await this.prismaService.voucher.create({
 				data: {
 					name: createVoucherData.name,
@@ -140,7 +157,7 @@ export class VoucherService {
 					expiresAt: new Date(createVoucherData.expiresAt),
 					type: createVoucherData.type,
 					startDate: createVoucherData.startDate,
-					code: createVoucherData.code,
+					code
 				},
 			});
 
