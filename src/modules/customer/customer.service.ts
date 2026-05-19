@@ -79,7 +79,6 @@ export class CustomerService {
 			// Convert Decimal string -> number (nếu cần)
 			return data.map((item) => {
 				const formatted = this.formatCustomerDisplay(item);
-				console.log(formatted) 
 				return {
 					...formatted,
 					totalPaid: Number(item.totalPaid),

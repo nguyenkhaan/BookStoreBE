@@ -215,6 +215,7 @@ async function employeeSeeder() {
 			positionId: positions[0].id,
 			status: EmployeeStatus.WORKING,
 			active: true,
+			resume: 'https://drive.google.com/file/d/13JSo5306YRzPLV6xC1twL8MHYKyZzxTD/view?usp=sharing', 
 			salary: 1200,
 		},
 		{
@@ -225,6 +226,7 @@ async function employeeSeeder() {
 			departmentId: departments[1].id,
 			positionId: positions[1].id,
 			status: EmployeeStatus.WORKING,
+			resume: 'https://drive.google.com/file/d/13JSo5306YRzPLV6xC1twL8MHYKyZzxTD/view?usp=sharing', 
 			active: true,
 			salary: 1500,
 		},
@@ -235,6 +237,7 @@ async function employeeSeeder() {
 			name: 'Le Van C',
 			departmentId: departments[2].id,
 			positionId: positions[2].id,
+			resume: 'https://drive.google.com/file/d/13JSo5306YRzPLV6xC1twL8MHYKyZzxTD/view?usp=sharing', 
 			status: EmployeeStatus.RETIRED,
 			active: false,
 			salary: 1000,
@@ -545,7 +548,7 @@ async function billIncomeOutcomeSeeder() {
 			(sum, item) => sum + Number(item.unitCost) * item.quantity,
 			0,
 		);
-	
+
 		await prismaClient.billOutcome.create({
 			data: {
 				code: `OUT00${i + 1}`,
@@ -568,6 +571,43 @@ async function billIncomeOutcomeSeeder() {
 	console.log('Created 3 Bill Outcomes with items');
 }
 
+async function SeedingSetting() {
+	const defaultSettings = [
+		{
+			key: 'SALARY_MAX',
+			value: '100000000',
+			description: 'Lương tối đa',
+		},
+		{
+			key: 'COST_MAX',
+			value: '10000000',
+			description: 'Chi phí tối đa',
+		},
+		{
+			key: 'STOCK_MIN',
+			value: '20',
+			description: 'Số lượng sách tối thiểu trong kho',
+		},
+		{
+			key: 'DEBIT_MAX',
+			value: '100000',
+			description: 'Số nợ tối đa của khách hàng',
+		},
+		{
+			key: 'TI_GIA_BAN',
+			value: '1.05',
+			description: 'Tỉ giá bán sách (Ví dụ: 1.05 = 105%)',
+		},
+		{
+			key: 'STOCK_IMPORT_NUMBER_MIN', 
+			value: '150', 
+			description: 'Số lượng sách tối thiểu khi nhập'
+		}
+	];
+	await prismaClient.systemSetting.createMany({
+		data : defaultSettings
+	})
+}
 async function seeder() {
 	try {
 		await departmentSeeder();
@@ -582,6 +622,7 @@ async function seeder() {
 		await seedingRules();
 		await voucherSeeder();
 		await billIncomeOutcomeSeeder();
+		await SeedingSetting() 
 		console.log('Seeding completed');
 	} catch (error) {
 		console.error(error);

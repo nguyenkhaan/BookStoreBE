@@ -10,4 +10,3 @@ export const BILL_COST_MAX = 10000000; //Gia t
 //ri hoa don toi da
 export const STOCK_IMPORT_NUMBER_MIN = 150; //So luong nhap hang toi thieu
 export const TI_GIA_BAN = 1.05 // 105% 
-

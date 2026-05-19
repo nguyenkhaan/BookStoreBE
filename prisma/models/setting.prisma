@@ -1,0 +1,6 @@
+model SystemSetting {
+  key         String   @id // Ví dụ: "SALARY_MAX", "STOCK_MIN"
+  value       String   // Lưu dạng String để cân được cả số nguyên, số thực (sau đó BE/FE tự ép kiểu)
+  description String?  // Mô tả ngắn gọn để hiển thị lên giao diện cho dễ hiểu
+  updatedAt   DateTime @updatedAt
+}

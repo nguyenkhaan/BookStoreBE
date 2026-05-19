@@ -81,6 +81,7 @@ export class EmployeeService {
 						position: positionName?.name || 'Chưa có thông tin',
 						phone: result.phone,
 						password: data.password,
+						
 					},
 				);
 			}
@@ -214,6 +215,7 @@ export class EmployeeService {
 					status: true,
 					id: true,
 					code: true,
+					resume: true, 
 					salary: true,
 					createdAt: true,
 					position: {

@@ -5,10 +5,10 @@ import {
 } from '@nestjs/common';
 import { BillStatus, VoucherStatus, VoucherType } from '@prisma/client';
 import { CreateBillData, UpdateBillData } from './dto/bill.dto';
-import { DEBIT_MAX } from '@/bases/commons/constants/app.constant';
 import { InventoryService } from '../inventory/inventory.service';
 import { CustomerService } from '../customer/customer.service';
 import { ENUM_VI_MAP, mapEnumToVietnamese } from '@/utlitis/enumLocalization';
+import { SettingService } from '../settings/settings.service';
 // import { VoucherService } from '../voucher/voucher.service';
 @Injectable()
 export class BillService {
@@ -16,6 +16,7 @@ export class BillService {
 		private readonly prismaService: PrismaService,
 		private readonly inventoryService: InventoryService,
 		private readonly customerService: CustomerService,
+		private readonly settingService : SettingService
 	) {}
 	async getGeneralStatistic() {
 		try {
@@ -75,7 +76,6 @@ export class BillService {
 						email: bill.customer.email ?? 'Chưa có thông tin',
 						code: bill.customer.code ?? 'Chưa có thông tin',
 						phone: bill.customer.phone,
-						active: bill.customer.active,
 					},
 
 					voucherUsage: bill.voucherUsage.map((usage) => {
@@ -299,7 +299,7 @@ export class BillService {
 					Number(_totalDebit?._sum?.debit ?? 0) +
 						(totalCost -
 							Number(createBillData.temporaryCost || 0)) >
-					DEBIT_MAX
+					(await this.settingService.getSettingValue('DEBIT_MAX'))
 				)
 					throw new BadRequestException(
 						'Công nợ của khách hàng đã vượt ngưỡng cho phép',

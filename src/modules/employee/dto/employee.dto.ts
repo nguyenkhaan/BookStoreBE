@@ -46,6 +46,9 @@ export class CreateEmployeeDto {
 	@IsOptional()
 	@IsString()
 	avatar?: string;
+	@IsOptional() 
+	@IsString() 
+	resume : string 
 }
 
 export class UpdateEmployeeDto extends PartialType(CreateEmployeeDto) {}

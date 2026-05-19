@@ -8,13 +8,14 @@ import { CreateOutcomeData, UpdateOutcomeData } from './dto/outcome.dto';
 import { BookCategory, OutcomeStatus } from '@prisma/client';
 import { InventoryService } from '../inventory/inventory.service';
 import { ENUM_VI_MAP, mapEnumToVietnamese } from '@/utlitis/enumLocalization';
-import { TI_GIA_BAN } from '@/bases/commons/constants/app.constant';
+import { SettingService } from '../settings/settings.service';
 // Clm AI ganh cong lung cai file nay
 @Injectable()
 export class OutcomeService {
 	constructor(
 		private readonly prismaService: PrismaService,
 		private readonly inventoryService: InventoryService,
+		private readonly settingService : SettingService
 	) {}
 
 	private formatOutcomeForFrontend(outcome: {
@@ -318,6 +319,8 @@ export class OutcomeService {
 				let totalCost = 0;
 
 				for (const item of createOutcomeData.items) {
+					if (item.quantity < (await this.settingService.getSettingValue('STOCK_IMPORT_NUMBER_MIN'))) 
+						throw new BadRequestException('Không đạt số lượng sách tối thiểu khi nhập')
 					let book = await tx.book.findFirst({
 						where: {
 							code: item.code,
@@ -329,19 +332,19 @@ export class OutcomeService {
 					/**
 					 * Giá bán = giá nhập + 5%
 					 */
-					const retailPrice = baseCost * 1.05;
+					const retailPrice = baseCost * (await this.settingService.getSettingValue('TI_GIA_BAN'));
 
 					/**
 					 * Nếu sách chưa tồn tại -> tạo mới
 					 */
 					if (!book) {
+						
 						if (!item.bookTitle) {
 							throw new BadRequestException(
 								`Thiếu tiêu đề cho sách mới ${item.code}`,
 							);
 						}
-						console.log(item.publisherIds);
-						console.log(item.authorIds);
+
 						book = await tx.book.create({
 							data: {
 								code: item.code,
@@ -672,7 +675,7 @@ export class OutcomeService {
 								data: {
 									cost:
 										Number(updateOutcomeData.baseCost) *
-										TI_GIA_BAN,
+										(await this.settingService.getSettingValue('TI_GIA_BAN'))
 								},
 							});
 						}
