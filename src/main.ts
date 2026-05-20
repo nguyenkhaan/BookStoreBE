@@ -30,6 +30,13 @@ async function bootstrap() {
 	const reset = '\x1b[0m';
 	const bold = '\x1b[1m';
 
+	// Thêm đoạn này vào file src/main.ts
+	(BigInt.prototype as any).toJSON = function () {
+		return Number(this) > Number.MAX_SAFE_INTEGER
+			? this.toString()
+			: Number(this);
+	};
+
 	// Helper to ensure padding works with strings
 	const pad = (str: string, len: number) => str.padEnd(len);
 

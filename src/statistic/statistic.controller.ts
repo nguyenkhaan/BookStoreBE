@@ -19,45 +19,60 @@ import { RevenueChartQueryDto } from './dto/statistic.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class StatisticController {
 	constructor(private readonly statisticService: StatisticService) {}
-	@Get('general') //Lay thong tin thong ke tong quan
+
+	@Get('general')
 	async getGeneralStatistic() {
 		return await this.statisticService.getGeneralStatistic();
 	}
+
 	@Get('top-customer')
 	async getTopCustomers(
 		@Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
 	) {
 		return await this.statisticService.getTopCustomers(limit);
 	}
+
 	@Get('/recent-orders')
 	async getRecentOrders(@Query('limit', ParseIntPipe) limit: number) {
-		return this.statisticService.getRecentOrders(limit) 
+		return this.statisticService.getRecentOrders(limit);
 	}
+
 	@Get('revenue')
 	async revenueGeneral() {
-		//Lay doanh thu tong quat
 		return await this.statisticService.getGeneralRevenue();
 	}
-	@Get('revenue/month/:month') //Doanh thu
+
+	@Get('revenue/month/:month')
 	async revenueInMonths(@Param('month', ParseIntPipe) month: number) {
 		return await this.statisticService.getRevenueInRecentMonths(
 			Number(month),
 		);
 	}
+
 	@Get('revenue/bill/:month')
 	async totalBillsInMonths(@Param('month', ParseIntPipe) month: number) {
 		return await this.statisticService.getCountBillInRecentMonths(
 			Number(month),
 		);
 	}
+
 	@Get('/top-books')
 	async getTopBook() {
 		return await this.statisticService.getTopHighBooks();
 	}
-	@Get('inventory') //Ton khi
+
+	@Get('inventory')
 	async getInventoryBook() {
 		return await this.statisticService.getInventoryByCategory();
 	}
+
+	@Get('inventory-flow')
+	async getInventoryFlow(
+		@Query('limit', new DefaultValuePipe(6), ParseIntPipe) limit: number,
+	) {
+		return await this.statisticService.getInventoryFlow(limit);
+	}
+
 	@Get('customers')
 	async getGradeCustomers() {
 		return await this.statisticService.getCustomerByGrade();
@@ -67,13 +82,10 @@ export class StatisticController {
 	async getRevenueChart(@Query() query: RevenueChartQueryDto) {
 		return await this.statisticService.getRevenueChart(query);
 	}
+
 	@Get('customer/debit')
 	async getCustomerDebit() {
 		return await this.statisticService.getCustomerDebit();
 	}
-	@Get('/:month')
-	async statisticGeneral(@Param('month', ParseIntPipe) month: number) {
-		console.log(month);
-		//Thong ke tat ca thong tin theo 1 thang cu the
-	}
+
 }
