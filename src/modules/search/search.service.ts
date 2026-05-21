@@ -39,7 +39,6 @@ export class SearchService {
 					name: true,
 					email: true,
 					phone: true,
-					active: true,
 					grade: true,
 				},
 			});
@@ -394,7 +393,6 @@ export class SearchService {
 					code: true,
 					publisherId: true,
 					employeeId: true,
-					bookId: true,
 					cost: true,
 					quantity: true,
 					status: true,
