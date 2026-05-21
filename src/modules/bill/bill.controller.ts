@@ -34,15 +34,11 @@ export class BillController {
 	async getGeneralStatistic() {
 		return await this.billService.getGeneralStatistic();
 	}
-	@Roles(Role.ADMIN)
-	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('code/:codex')
 	async getBillByCode(@Param('codex') codex: string) {
 		const response = await this.billService.getBillByCode(codex);
 		return response;
 	}
-	@Roles(Role.ADMIN)
-	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('/:billId')
 	async getBillByID(@Param('billId') billId: number) {
 		const response = await this.billService.getBillById(Number(billId));
@@ -64,7 +60,8 @@ export class BillController {
 		const responseData = await this.billService.createBill(createBillData);
 		return responseData;
 	}
-
+	@Roles(Role.ADMIN) 
+	@UseGuards(JwtAuthGuard , RolesGuard)
 	@Put('/:billId')
 	async updateBill(
 		@Param('billId', ParseIntPipe) billId: number,

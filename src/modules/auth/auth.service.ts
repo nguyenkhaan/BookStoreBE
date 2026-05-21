@@ -13,6 +13,7 @@ import {
 	REFRESH_LIVE_TIME,
 } from '@/bases/commons/constants/jwt.constant';
 import { hashSHA256 } from '@/utlitis/sha256';
+// import { EmployeeService } from '../employee/employee.service';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,42 @@ export class AuthService {
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService,
 	) {}
+	async getMyProfile(id: number) {
+		try {
+			const employee = await this.prismaService.employee.findFirst({
+				where: {
+					id,
+				},
+				select: {
+					email: true,
+					avatar: true,
+					phone: true,
+					id: true,
+					salary: true,
+					createdAt: true,
+					status: true,
+					name: true,
+					code: true,
+					position: {
+						select: {
+							name: true,
+						},
+					},
+					department: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			});
+			if (!employee)
+				throw new BadRequestException('Employee Profile Not Found');
+			return employee;
+		} catch (err) {
+			console.log('Get Employee Profile Error: ', err);
+			throw err;
+		}
+	}
 	async validateUser(email: string, password: string) {
 		try {
 			const user = await this.prismaService.employee.findFirst({

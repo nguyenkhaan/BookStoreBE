@@ -77,6 +77,7 @@ export class AdminController {
 	}
 	@Post('/employee/reset-password/:employeeId')
 	async resetEmployeePassword(@Param('employeeId', ParseIntPipe) employeeId: number) {
+		console.log("Hello") 
 		return await this.adminService.resetEmployeePassword(Number(employeeId));
 	}
 	@Post('/customer/reset-password/:customerId')

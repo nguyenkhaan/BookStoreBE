@@ -68,6 +68,21 @@ export class AuthController {
 			message: 'Cannot get information',
 		}; //Tra ve thong tin co ban cho ben nguoi dung
 	}
+	@UseGuards(JwtAuthGuard)
+	@Post('reset-password')
+	// async resetPassword(@Req() req: Request) {}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('profile')
+	async getProfile(@Req() req: Request) {
+		const user = req.user as any;
+		console.log(user) 
+		const { id } = user;
+		const responseData = await this.authService.getMyProfile(
+			Number(id),
+		);
+		return responseData;
+	}
 }
 /* Jwt Payload 
   purpose: "ACCESS",

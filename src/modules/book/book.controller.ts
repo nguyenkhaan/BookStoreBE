@@ -31,7 +31,7 @@ export class BookController {
 	}
 	@Post()
 	@UseInterceptors(FileInterceptor('coverImage'))
-	@Roles(Role.ADMIN)
+	@Roles(Role.EMPLOYEE)
 	@UseGuards(JwtAuthGuard, RolesGuard)
 	async createBook(
 		@Body() createBookData: CreateBookData,
@@ -51,7 +51,7 @@ export class BookController {
 		return responseData;
 	}
 
-	@Roles(Role.ADMIN)
+	@Roles(Role.EMPLOYEE)
 	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('/statistic')
 	async statisticBookInformation() {
@@ -92,7 +92,7 @@ export class BookController {
 		return responseData;
 	}
 	@Delete('/:bookId')
-	@Roles(Role.EMPLOYEE)
+	@Roles(Role.ADMIN)
 	@UseGuards(JwtAuthGuard)
 	async deleteBook(@Param('bookId', ParseIntPipe) bookId: number) {
 		const responseData = await this.bookService.deleteBookById(bookId);
