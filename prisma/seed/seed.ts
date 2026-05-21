@@ -15,6 +15,14 @@ const prismaClient = new PrismaClient({
 	adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
 });
 
+function getRandomDate() {
+	const end = new Date('2026-05-20T00:00:00Z');
+	const start = new Date('2025-11-01T00:00:00Z');
+	return new Date(
+		start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+	);
+}
+
 async function departmentSeeder() {
 	const DEPARTMENT_LISTS = [
 		{ name: 'Resource Department' },
@@ -28,8 +36,6 @@ async function departmentSeeder() {
 		data: DEPARTMENT_LISTS,
 		skipDuplicates: true,
 	});
-
-	console.log('Seeding Department Successfully');
 }
 
 async function positionSeeder() {
@@ -45,8 +51,6 @@ async function positionSeeder() {
 		data: POSITION_LISTS,
 		skipDuplicates: true,
 	});
-
-	console.log('Seeding Position Successfully');
 }
 
 async function publisherSeeder() {
@@ -62,25 +66,31 @@ async function publisherSeeder() {
 		data: publishers,
 		skipDuplicates: true,
 	});
-
-	console.log('Seeding Publisher Successfully');
 }
 
 async function authorSeeder() {
 	const authors = [
-		{ code: 'AUTHOR001', name: 'Na Tra' },
-		{ code: 'AUTHOR002', name: 'Ly Tinh' },
-		{ code: 'AUTHOR003', name: 'Ton Ngo Khong' },
-		{ code: 'AUTHOR004', name: 'Duong Tien' },
-		{ code: 'AUTHOR005', name: 'Hao Thien Khuyen' },
+		{ code: 'AUTHOR001', name: 'Ngo Thua An' },
+		{ code: 'AUTHOR002', name: 'Hua Trong Lam' },
+		{ code: 'AUTHOR003', name: 'J.K. Rowling' },
+		{ code: 'AUTHOR004', name: 'Fujiko F. Fujio' },
+		{ code: 'AUTHOR005', name: 'Dale Carnegie' },
+		{ code: 'AUTHOR006', name: 'Robert C. Martin' },
+		{ code: 'AUTHOR007', name: 'Yuval Noah Harari' },
+		{ code: 'AUTHOR008', name: 'Paulo Coelho' },
+		{ code: 'AUTHOR009', name: 'Erich Gamma' },
+		{ code: 'AUTHOR010', name: 'Martin Fowler' },
+		{ code: 'AUTHOR011', name: 'Andrew Hunt' },
+		{ code: 'AUTHOR012', name: 'Eric Evans' },
+		{ code: 'AUTHOR013', name: 'Uncle Bob' },
+		{ code: 'AUTHOR014', name: 'Fred Brooks' },
+		{ code: 'AUTHOR015', name: 'Steve McConnell' },
 	];
 
 	await prismaClient.author.createMany({
 		data: authors,
 		skipDuplicates: true,
 	});
-
-	console.log('Seeding Author Successfully');
 }
 
 async function bookSeeder() {
@@ -88,15 +98,106 @@ async function bookSeeder() {
 		{
 			code: 'BOOK001',
 			title: 'Journey to the West',
-			cost: 100,
+			cost: 120000,
 			year: 2020,
 			category: BookCategory.THIEU_NHI,
 		},
 		{
 			code: 'BOOK002',
 			title: 'Heavenly War',
-			cost: 150,
+			cost: 150000,
 			year: 2021,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK003',
+			title: 'Harry Potter 1',
+			cost: 250000,
+			year: 1997,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK004',
+			title: 'Doraemon Vol 1',
+			cost: 25000,
+			year: 1992,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK005',
+			title: 'Dac Nhan Tam',
+			cost: 85000,
+			year: 1936,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK006',
+			title: 'Clean Code',
+			cost: 450000,
+			year: 2008,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK007',
+			title: 'Sapiens',
+			cost: 300000,
+			year: 2011,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK008',
+			title: 'Nha Gia Kim',
+			cost: 79000,
+			year: 1988,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK009',
+			title: 'Design Patterns',
+			cost: 500000,
+			year: 1994,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK010',
+			title: 'Refactoring',
+			cost: 480000,
+			year: 1999,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK011',
+			title: 'The Pragmatic Programmer',
+			cost: 400000,
+			year: 1999,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK012',
+			title: 'Domain-Driven Design',
+			cost: 550000,
+			year: 2003,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK013',
+			title: 'Clean Architecture',
+			cost: 450000,
+			year: 2017,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK014',
+			title: 'The Mythical Man-Month',
+			cost: 350000,
+			year: 1975,
+			category: BookCategory.THIEU_NHI,
+		},
+		{
+			code: 'BOOK015',
+			title: 'Code Complete',
+			cost: 600000,
+			year: 1993,
 			category: BookCategory.THIEU_NHI,
 		},
 	];
@@ -106,14 +207,10 @@ async function bookSeeder() {
 		skipDuplicates: true,
 	});
 
-	console.log('Seeding Book Successfully');
-
-	// Get data for relations
 	const allBooks = await prismaClient.book.findMany();
 	const allAuthors = await prismaClient.author.findMany();
 	const allPublishers = await prismaClient.publisher.findMany();
 
-	// AuthorBook relations
 	const authorBooks = allBooks.map((book, index) => ({
 		bookId: book.id,
 		authorId: allAuthors[index % allAuthors.length].id,
@@ -124,7 +221,6 @@ async function bookSeeder() {
 		skipDuplicates: true,
 	});
 
-	// PublisherBook relations
 	const publisherBooks = allBooks.map((book, index) => ({
 		bookId: book.id,
 		publisherId: allPublishers[index % allPublishers.length].id,
@@ -135,18 +231,15 @@ async function bookSeeder() {
 		skipDuplicates: true,
 	});
 
-	// Inventory
 	const inventories = allBooks.map((book) => ({
 		bookId: book.id,
-		stock: 100,
+		stock: Math.floor(Math.random() * 101) + 300,
 	}));
 
 	await prismaClient.inventory.createMany({
 		data: inventories,
 		skipDuplicates: true,
 	});
-
-	console.log('Seeding Relations & Inventory Successfully');
 }
 
 async function adminSeeder() {
@@ -190,10 +283,8 @@ async function adminSeeder() {
 		],
 		skipDuplicates: true,
 	});
-
-	console.log('Admin created:', admin.email);
 }
-//Employee Seeder
+
 async function employeeSeeder() {
 	const DEFAULT_PASSWORD = '123456';
 
@@ -215,8 +306,8 @@ async function employeeSeeder() {
 			positionId: positions[0].id,
 			status: EmployeeStatus.WORKING,
 			active: true,
-			resume: 'https://drive.google.com/file/d/13JSo5306YRzPLV6xC1twL8MHYKyZzxTD/view?usp=sharing', 
-			salary: 1200,
+			resume: 'https://drive.google.com/file/d/13JSo5306YRzPLV6xC1twL8MHYKyZzxTD/view?usp=sharing',
+			salary: 12000000,
 		},
 		{
 			code: 'NV002',
@@ -226,9 +317,9 @@ async function employeeSeeder() {
 			departmentId: departments[1].id,
 			positionId: positions[1].id,
 			status: EmployeeStatus.WORKING,
-			resume: 'https://drive.google.com/file/d/13JSo5306YRzPLV6xC1twL8MHYKyZzxTD/view?usp=sharing', 
+			resume: 'https://drive.google.com/file/d/13JSo5306YRzPLV6xC1twL8MHYKyZzxTD/view?usp=sharing',
 			active: true,
-			salary: 1500,
+			salary: 15000000,
 		},
 		{
 			code: 'NV003',
@@ -237,10 +328,10 @@ async function employeeSeeder() {
 			name: 'Le Van C',
 			departmentId: departments[2].id,
 			positionId: positions[2].id,
-			resume: 'https://drive.google.com/file/d/13JSo5306YRzPLV6xC1twL8MHYKyZzxTD/view?usp=sharing', 
+			resume: 'https://drive.google.com/file/d/13JSo5306YRzPLV6xC1twL8MHYKyZzxTD/view?usp=sharing',
 			status: EmployeeStatus.RETIRED,
 			active: false,
-			salary: 1000,
+			salary: 10000000,
 		},
 	];
 
@@ -251,9 +342,8 @@ async function employeeSeeder() {
 		})),
 		skipDuplicates: true,
 	});
-
-	console.log('Seeding Employees Successfully');
 }
+
 async function employeeRoleSeeder() {
 	const employees = await prismaClient.employee.findMany();
 
@@ -264,10 +354,8 @@ async function employeeRoleSeeder() {
 
 	await prismaClient.userRole.createMany({
 		data: roles,
-		skipDuplicates: true, // ✅ tránh duplicate nếu đã có
+		skipDuplicates: true,
 	});
-
-	console.log('Seeding UserRole EMPLOYEE Successfully');
 }
 
 async function seedingCustomerData() {
@@ -313,9 +401,129 @@ async function seedingCustomerData() {
 				password: 'hashed_password_5',
 				grade: MemberGrade.SILVER,
 			},
+			{
+				code: 'KH006',
+				name: 'Dao Tuan Anh',
+				email: 'anh.dao@example.com',
+				phone: '0981234561',
+				password: 'hashed_password_6',
+				grade: MemberGrade.BRONZE,
+			},
+			{
+				code: 'KH007',
+				name: 'Vu Hoang Yen',
+				email: 'yen.vu@example.com',
+				phone: '0981234562',
+				password: 'hashed_password_7',
+				grade: MemberGrade.GOLD,
+			},
+			{
+				code: 'KH008',
+				name: 'Bui Thanh Son',
+				email: 'son.bui@example.com',
+				phone: '0981234563',
+				password: 'hashed_password_8',
+				grade: MemberGrade.BRONZE,
+			},
+			{
+				code: 'KH009',
+				name: 'Doan Truc Ly',
+				email: 'ly.doan@example.com',
+				phone: '0981234564',
+				password: 'hashed_password_9',
+				grade: MemberGrade.SILVER,
+			},
+			{
+				code: 'KH010',
+				name: 'Dinh Nhat Vu',
+				email: 'vu.dinh@example.com',
+				phone: '0981234565',
+				password: 'hashed_password_10',
+				grade: MemberGrade.DIAMOND,
+			},
+			{
+				code: 'KH011',
+				name: 'Hoang Kim Ngan',
+				email: 'ngan.hoang@example.com',
+				phone: '0981234566',
+				password: 'hashed_password_11',
+				grade: MemberGrade.SILVER,
+			},
+			{
+				code: 'KH012',
+				name: 'Trinh Van Dat',
+				email: 'dat.trinh@example.com',
+				phone: '0981234567',
+				password: 'hashed_password_12',
+				grade: MemberGrade.BRONZE,
+			},
+			{
+				code: 'KH013',
+				name: 'Ngo Minh Khoa',
+				email: 'khoa.ngo@example.com',
+				phone: '0981234568',
+				password: 'hashed_password_13',
+				grade: MemberGrade.GOLD,
+			},
+			{
+				code: 'KH014',
+				name: 'Phan Thuy Tien',
+				email: 'tien.phan@example.com',
+				phone: '0981234569',
+				password: 'hashed_password_14',
+				grade: MemberGrade.BRONZE,
+			},
+			{
+				code: 'KH015',
+				name: 'Lam Gia Huy',
+				email: 'huy.lam@example.com',
+				phone: '0981234570',
+				password: 'hashed_password_15',
+				grade: MemberGrade.SILVER,
+			},
+			{
+				code: 'KH016',
+				name: 'Chau Ngoc Thao',
+				email: 'thao.chau@example.com',
+				phone: '0981234571',
+				password: 'hashed_password_16',
+				grade: MemberGrade.DIAMOND,
+			},
+			{
+				code: 'KH017',
+				name: 'Ly Tuan Phat',
+				email: 'phat.ly@example.com',
+				phone: '0981234572',
+				password: 'hashed_password_17',
+				grade: MemberGrade.BRONZE,
+			},
+			{
+				code: 'KH018',
+				name: 'Mai Thi Hue',
+				email: 'hue.mai@example.com',
+				phone: '0981234573',
+				password: 'hashed_password_18',
+				grade: MemberGrade.SILVER,
+			},
+			{
+				code: 'KH019',
+				name: 'Ton That Binh',
+				email: 'binh.ton@example.com',
+				phone: '0981234574',
+				password: 'hashed_password_19',
+				grade: MemberGrade.GOLD,
+			},
+			{
+				code: 'KH020',
+				name: 'Vuong Nhat Minh',
+				email: 'minh.vuong@example.com',
+				phone: '0981234575',
+				password: 'hashed_password_20',
+				grade: MemberGrade.BRONZE,
+			},
 		],
+		skipDuplicates: true,
 	});
-	console.log('Seeded customer data');
 }
 
 async function seedingRules() {
@@ -384,7 +592,6 @@ async function seedingRules() {
 			},
 		],
 	});
-	console.log('Seeded rule data:');
 }
 
 async function voucherSeeder() {
@@ -401,7 +608,7 @@ async function voucherSeeder() {
 				expiresAt: new Date('2026-12-31'),
 				startDate: new Date('2026-01-01'),
 				type: 'PERCENT',
-				description: 'Giảm 10% toàn bộ đơn hàng',
+				description: 'Giam 10% toan bo don hang',
 			},
 			{
 				name: 'DISCOUNT_20_PERCENT',
@@ -414,7 +621,7 @@ async function voucherSeeder() {
 				expiresAt: new Date('2026-12-31'),
 				startDate: new Date('2026-01-01'),
 				type: 'PERCENT',
-				description: 'Giảm 20% đơn hàng lớn',
+				description: 'Giam 20% don hang lon',
 			},
 			{
 				name: 'WELCOME_50K',
@@ -427,7 +634,7 @@ async function voucherSeeder() {
 				expiresAt: new Date('2026-06-30'),
 				startDate: new Date('2026-05-01'),
 				type: 'VND',
-				description: 'Giảm 50k cho khách hàng mới',
+				description: 'Giam 50k cho khach hang moi',
 			},
 			{
 				name: 'EXPIRED_TEST',
@@ -440,13 +647,11 @@ async function voucherSeeder() {
 				expiresAt: new Date('2025-01-01'),
 				startDate: new Date('2024-01-01'),
 				type: 'PERCENT',
-				description: 'Voucher đã hết hạn',
+				description: 'Voucher da het han',
 			},
 		],
 		skipDuplicates: true,
 	});
-
-	console.log('Seeded Voucher Successfully');
 }
 
 async function billIncomeOutcomeSeeder() {
@@ -460,161 +665,149 @@ async function billIncomeOutcomeSeeder() {
 		throw new Error('Missing required seed data');
 	}
 
-	// =========================
-	// 1. CREATE 6 BILLS
-	// =========================
 	const bills = [];
 
-	for (let i = 0; i < 6; i++) {
+	for (let i = 0; i < 150; i++) {
+		const book1 = books[i % books.length];
+		const book2 = books[(i + 3) % books.length];
+
+		const qty1 = (i % 4) + 1;
+		const qty2 = (i % 3) + 1;
+
+		const totalCost = Number(book1.cost) * qty1 + Number(book2.cost) * qty2;
+
+		let debitAmount = 0;
+		const scenarioFlag = i % 3;
+
+		if (scenarioFlag === 0) {
+			debitAmount = 0;
+		} else if (scenarioFlag === 1) {
+			debitAmount = totalCost * 0.2;
+		} else {
+			debitAmount = totalCost * 0.4;
+		}
+
+		const randomDate = getRandomDate();
+
 		const bill = await prismaClient.bill.create({
 			data: {
-				code: `HD00${i + 1}`,
+				code: `HD${String(i + 1).padStart(4, '0')}`,
 				customerId: customers[i % customers.length].id,
 				status: BillStatus.COMPLETE,
-				cost: 0,
-				debit: 2 * i * 1000,
+				cost: totalCost,
+				debit: debitAmount,
+				createdAt: randomDate,
+				updatedAt: randomDate,
 				billDetail: {
 					create: [
+						{ bookId: book1.id, quantity: qty1 },
+						{ bookId: book2.id, quantity: qty2 },
+					],
+				},
+			},
+		});
+		bills.push(bill);
+
+		const incomeAmount = totalCost - debitAmount;
+		if (incomeAmount > 0) {
+			await prismaClient.billIncome.create({
+				data: {
+					code: `INC${String(i + 1).padStart(4, '0')}`,
+					cost: incomeAmount,
+					status: 'COMPLETE',
+					paymentMethod: 'CASH',
+					employeeId: employees[i % employees.length].id,
+					billId: bill.id,
+					createdAt: randomDate,
+					updatedAt: randomDate,
+					shortDescription: `Income for bill ${bill.code}`,
+				},
+			});
+		}
+
+		if (i % 5 === 0) {
+			const voucher = vouchers[i % vouchers.length];
+			await prismaClient.voucherUsage.create({
+				data: {
+					billId: bill.id,
+					voucherId: voucher.id,
+					usedAt: randomDate,
+				},
+			});
+		}
+	}
+
+	for (let i = 0; i < 30; i++) {
+		const book1 = books[i % books.length];
+		const book2 = books[(i + 5) % books.length];
+		const qty1 = Math.floor(Math.random() * 50) + 100;
+		const qty2 = Math.floor(Math.random() * 50) + 100;
+
+		const totalOutcomeCost =
+			Number(book1.cost) * qty1 + Number(book2.cost) * qty2;
+		const randomDate = getRandomDate();
+
+		await prismaClient.billOutcome.create({
+			data: {
+				code: `OUT${String(i + 1).padStart(3, '0')}`,
+				publisherId: publishers[i % publishers.length].id,
+				employeeId: employees[i % employees.length].id,
+				status: 'COMPLETE',
+				cost: new Prisma.Decimal(totalOutcomeCost),
+				createdAt: randomDate,
+				updatedAt: randomDate,
+				outcomeItems: {
+					create: [
 						{
-							bookId: books[i % books.length].id,
-							quantity: 1 + i,
+							bookId: book1.id,
+							quantity: qty1,
+							unitCost: book1.cost,
 						},
 						{
-							bookId: books[(i + 1) % books.length].id,
-							quantity: 2,
+							bookId: book2.id,
+							quantity: qty2,
+							unitCost: book2.cost,
 						},
 					],
 				},
 			},
 		});
-
-		bills.push(bill);
 	}
-
-	console.log('Created 6 Bills');
-
-	// =========================
-	// 2. 3 BILLS USE VOUCHER
-	// =========================
-	for (let i = 0; i < 3; i++) {
-		const voucher = vouchers[i % vouchers.length];
-
-		await prismaClient.voucherUsage.create({
-			data: {
-				billId: bills[i].id,
-				voucherId: voucher.id,
-				usedAt: new Date(),
-			},
-		});
-	}
-
-	console.log('Applied 3 Vouchers');
-
-	// =========================
-	// 3. 3 BILL INCOMES
-	// =========================
-	for (let i = 0; i < 3; i++) {
-		await prismaClient.billIncome.create({
-			data: {
-				code: `INC00${i + 1}`,
-				cost: 500 + i * 100,
-				status: 'COMPLETE',
-				paymentMethod: 'CASH',
-				employeeId: employees[i % employees.length].id,
-				billId: bills[i].id,
-				shortDescription: `Income for bill ${bills[i].code}`,
-			},
-		});
-	}
-
-	console.log('Created 3 Bill Incomes');
-
-	// =========================
-	// 4. 3 BILL OUTCOMES
-	// =========================
-	for (let i = 0; i < 3; i++) {
-		const selectedBooks = [
-			books[i % books.length],
-			books[(i + 1) % books.length],
-		];
-
-		const items = selectedBooks.map((book, index) => ({
-			bookId: book.id,
-			quantity: 2 + index + i,
-			unitCost: book.cost,
-		}));
-
-		items.reduce(
-			(sum, item) => sum + Number(item.unitCost) * item.quantity,
-			0,
-		);
-
-		await prismaClient.billOutcome.create({
-			data: {
-				code: `OUT00${i + 1}`,
-
-				publisherId: publishers[i % publishers.length].id,
-
-				employeeId: employees[i % employees.length].id,
-
-				status: 'COMPLETE',
-
-				cost: new Prisma.Decimal(650),
-
-				outcomeItems: {
-					create: items,
-				},
-			},
-		});
-	}
-
-	console.log('Created 3 Bill Outcomes with items');
 }
 
 async function SeedingSetting() {
 	const defaultSettings = [
-		{
-			key: 'SALARY_MAX',
-			value: '100000000',
-			description: 'Lương tối đa',
-		},
-		{
-			key: 'COST_MAX',
-			value: '10000000',
-			description: 'Chi phí tối đa',
-		},
+		{ key: 'SALARY_MAX', value: '100000000', description: 'Luong toi da' },
+		{ key: 'COST_MAX', value: '10000000', description: 'Chi phi toi da' },
 		{
 			key: 'STOCK_MIN',
 			value: '20',
-			description: 'Số lượng sách tối thiểu trong kho',
+			description: 'So luong sach toi thieu trong kho',
 		},
 		{
 			key: 'DEBIT_MAX',
 			value: '100000',
-			description: 'Số nợ tối đa của khách hàng',
+			description: 'So no toi da cua khach hang',
 		},
+		{ key: 'TI_GIA_BAN', value: '1.05', description: 'Ti gia ban sach' },
 		{
-			key: 'TI_GIA_BAN',
-			value: '1.05',
-			description: 'Tỉ giá bán sách (Ví dụ: 1.05 = 105%)',
+			key: 'STOCK_IMPORT_NUMBER_MIN',
+			value: '150',
+			description: 'So luong sach toi thieu khi nhap',
 		},
-		{
-			key: 'STOCK_IMPORT_NUMBER_MIN', 
-			value: '150', 
-			description: 'Số lượng sách tối thiểu khi nhập'
-		}
 	];
 	await prismaClient.systemSetting.createMany({
-		data : defaultSettings
-	})
+		data: defaultSettings,
+	});
 }
+
 async function seeder() {
 	try {
 		await departmentSeeder();
 		await positionSeeder();
 		await authorSeeder();
 		await publisherSeeder();
-		await bookSeeder(); // ✅ NEW
+		await bookSeeder();
 		await adminSeeder();
 		await employeeSeeder();
 		await employeeRoleSeeder();
@@ -622,8 +815,7 @@ async function seeder() {
 		await seedingRules();
 		await voucherSeeder();
 		await billIncomeOutcomeSeeder();
-		await SeedingSetting() 
-		console.log('Seeding completed');
+		await SeedingSetting();
 	} catch (error) {
 		console.error(error);
 	} finally {

@@ -2,11 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { INestApplication } from '@nestjs/common';
-
+import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
 	const port = process.env.PORT || 4000;
 	const app = await NestFactory.create(AppModule);
-
+	const configService = app.get(ConfigService) 
 	app.setGlobalPrefix('api');
 	app.useGlobalPipes(
 		new ValidationPipe({
@@ -14,7 +14,10 @@ async function bootstrap() {
 			whitelist: true,
 		}),
 	);
-	app.enableCors();
+	app.enableCors({
+		origin: configService.get('FRONTEND_URL'), 
+		credentials : true 
+	});
 	await processSwagger(app);
 	await app.listen(port);
 
@@ -29,6 +32,13 @@ async function bootstrap() {
 	const yellow = '\x1b[33m';
 	const reset = '\x1b[0m';
 	const bold = '\x1b[1m';
+
+	// Thêm đoạn này vào file src/main.ts
+	(BigInt.prototype as any).toJSON = function () {
+		return Number(this) > Number.MAX_SAFE_INTEGER
+			? this.toString()
+			: Number(this);
+	};
 
 	// Helper to ensure padding works with strings
 	const pad = (str: string, len: number) => str.padEnd(len);
