@@ -394,7 +394,6 @@ export class SearchService {
 					publisherId: true,
 					employeeId: true,
 					cost: true,
-					quantity: true,
 					status: true,
 					createdAt: true,
 				},
