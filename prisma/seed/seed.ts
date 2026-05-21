@@ -299,7 +299,7 @@ async function employeeSeeder() {
 	const employees = [
 		{
 			code: 'NV001',
-			email: 'employee1@gmail.com',
+			email: '24520059@gm.uit.edu.vn',
 			phone: '0900000001',
 			name: 'Nguyen Van A',
 			departmentId: departments[0].id,
