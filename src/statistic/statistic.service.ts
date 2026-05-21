@@ -10,10 +10,11 @@ export class StatisticService {
 		private readonly prismaService: PrismaService,
 		private readonly statisticRepository: StatisticRepository,
 	) {}
+
 	async getRecentOrders(limit: number) {
 		const bills = await this.prismaService.bill.findMany({
 			select: {
-				id : true, 
+				id: true,
 				code: true,
 				cost: true,
 				status: true,
@@ -22,28 +23,25 @@ export class StatisticService {
 				},
 				createdAt: true,
 			},
-
 			orderBy: {
 				createdAt: 'desc',
 			},
 			take: limit,
 		});
-		//Mapping to frotnend
-		return bills.map((bill) => {
-			return {
-				id : bill.id, 
-				code: bill.code,
-				amount: bill.cost,
-				status: bill.status,
-				date: bill.createdAt,
-			};
-		});
+
+		return bills.map((bill) => ({
+			id: bill.id,
+			code: bill.code,
+			amount: bill.cost,
+			status: bill.status,
+			date: bill.createdAt,
+		}));
 	}
+
 	private async sumRevenueInDuration(startDate: Date, endDate: Date) {
 		const ans = await this.prismaService.bill.aggregate({
 			_sum: { cost: true },
 			where: {
-				//Trang thai: Khac DAHUY ==== Cap nhat lai o phan sua chua trang thai
 				createdAt: {
 					gte: startDate,
 					lt: endDate,
@@ -53,8 +51,9 @@ export class StatisticService {
 		});
 		return Number(ans._sum.cost) || 0;
 	}
+
 	private async countBillsInDuration(startDate: Date, endDate: Date) {
-		const ans = await this.prismaService.bill.aggregate({
+		return await this.prismaService.bill.aggregate({
 			_count: { code: true },
 			_avg: { cost: true },
 			where: {
@@ -65,13 +64,13 @@ export class StatisticService {
 				status: BillStatus.COMPLETE,
 			},
 		});
-		return ans;
 	}
 
 	private calProportionRate(a: number, b: number) {
 		if (a == 0) return 0;
 		return Number((((b - a) * 100) / a).toFixed(1));
 	}
+
 	private async calTotalCustomers() {
 		const ans = await this.prismaService.customer.aggregate({
 			_count: { code: true },
@@ -79,6 +78,7 @@ export class StatisticService {
 		});
 		return ans._count.code;
 	}
+
 	private async calTotalRevenue() {
 		const totalRevenue = await this.prismaService.bill.aggregate({
 			_sum: { cost: true },
@@ -88,12 +88,14 @@ export class StatisticService {
 		});
 		return totalRevenue._sum.cost || 0;
 	}
+
 	private async calTotalBills() {
 		const totalBills = await this.prismaService.bill.aggregate({
 			_count: { code: true },
 		});
 		return totalBills._count.code;
 	}
+
 	private async calTotalBooks() {
 		const totalBooks = await this.prismaService.billDetail.aggregate({
 			_sum: { quantity: true },
@@ -105,30 +107,21 @@ export class StatisticService {
 		});
 		return totalBooks._sum.quantity || 0;
 	}
-	//Public Method
-	//Lay thong tin thong ke tong quan
-	async getGeneralStatistic() {
-		try {
-			//Tong doanh thu tu truoc den nay
-			const totalRevenue = await this.calTotalRevenue();
-			//Tong so luong khach hang
-			const totalCustomers = await this.calTotalCustomers();
 
-			const totalBills = await this.calTotalBills();
-			const totalBooks = await this.calTotalBooks();
-			return {
-				totalRevenue,
-				totalCustomers,
-				totalBills,
-				totalBooks,
-			};
-		} catch (err) {
-			console.log('General revenue error: ', err);
-			throw err;
-		}
+	async getGeneralStatistic() {
+		const totalRevenue = await this.calTotalRevenue();
+		const totalCustomers = await this.calTotalCustomers();
+		const totalBills = await this.calTotalBills();
+		const totalBooks = await this.calTotalBooks();
+
+		return {
+			totalRevenue,
+			totalCustomers,
+			totalBills,
+			totalBooks,
+		};
 	}
 
-	//Lay thong tin thong ke cho doanh thu
 	async getGeneralRevenue() {
 		const now = new Date();
 		const previousMonth = new Date(
@@ -138,7 +131,7 @@ export class StatisticService {
 		);
 		const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 		const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-		//Doanh thu
+
 		const thisMonthRevenue = await this.sumRevenueInDuration(
 			currentMonth,
 			nextMonth,
@@ -147,7 +140,7 @@ export class StatisticService {
 			previousMonth,
 			currentMonth,
 		);
-		//So luong don hang trong thang
+
 		const thisMonthBills = await this.countBillsInDuration(
 			currentMonth,
 			nextMonth,
@@ -156,7 +149,6 @@ export class StatisticService {
 			previousMonth,
 			currentMonth,
 		);
-		//counting
 
 		return {
 			monthRevenue: thisMonthRevenue,
@@ -176,184 +168,148 @@ export class StatisticService {
 			),
 		};
 	}
+
 	async getRevenueInRecentMonths(month: number) {
-		try {
-			const now = new Date();
-			const endMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-			const startMonth = new Date(
-				now.getFullYear(),
-				now.getMonth() - month,
-				1,
-			);
-			//
-			const result = await this.prismaService.$queryRaw`
-	                     SELECT 
-	                    TO_CHAR("createdAt", 'YYYY-MM') as month,
-	                    SUM(cost) as revenue
-	                    FROM "Bill"
-	                    WHERE "createdAt" >= ${startMonth}
-	                      AND "createdAt" < ${endMonth}
-	                      AND status = ${BillStatus.COMPLETE}
-	                    GROUP BY TO_CHAR("createdAt", 'YYYY-MM')
-	                    ORDER BY month ASC
-	                    `;
-			return result;
-		} catch (err) {
-			console.log(err);
-			throw err;
-		}
+		const now = new Date();
+		const endMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+		const startMonth = new Date(
+			now.getFullYear(),
+			now.getMonth() - month,
+			1,
+		);
+
+		return await this.prismaService.$queryRaw`
+            SELECT 
+                TO_CHAR("createdAt", 'YYYY-MM') as month,
+                SUM(cost) as revenue
+            FROM "Bill"
+            WHERE "createdAt" >= ${startMonth}
+                AND "createdAt" < ${endMonth}
+                AND status = ${BillStatus.COMPLETE}
+            GROUP BY TO_CHAR("createdAt", 'YYYY-MM')
+            ORDER BY month ASC
+        `;
 	}
+
 	async getCountBillInRecentMonths(month: number) {
-		try {
-			const now = new Date();
-			const endMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-			const startMonth = new Date(
-				now.getFullYear(),
-				now.getMonth() - month,
-				1,
-			);
-			const result = await this.prismaService.$queryRaw`
-	                SELECT TO_CHAR("createdAt", 'YYYY-MM') as month, 
-	                COUNT(code) as bill_count
-	                FROM "Bill" 
-	                WHERE "createdAt" >= ${startMonth}
-	                      AND "createdAt" < ${endMonth}
-	                      AND status = ${BillStatus.COMPLETE}
-	                GROUP BY TO_CHAR("createdAt", 'YYYY-MM') 
-	                ORDER BY month ASC 
-	            `;
-			return result;
-		} catch (err) {
-			console.log(err);
-			throw err;
-		}
+		const now = new Date();
+		const endMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+		const startMonth = new Date(
+			now.getFullYear(),
+			now.getMonth() - month,
+			1,
+		);
+
+		return await this.prismaService.$queryRaw`
+            SELECT 
+                TO_CHAR("createdAt", 'YYYY-MM') as month, 
+                COUNT(code) as bill_count
+            FROM "Bill" 
+            WHERE "createdAt" >= ${startMonth}
+                AND "createdAt" < ${endMonth}
+                AND status = ${BillStatus.COMPLETE}
+            GROUP BY TO_CHAR("createdAt", 'YYYY-MM') 
+            ORDER BY month ASC 
+        `;
 	}
-	//Top 5 sach co doanh thu cao nhat
+
 	async getTopHighBooks() {
-		try {
-			const topBooks = await this.prismaService.billDetail.groupBy({
-				by: ['bookId'],
-				_sum: {
-					quantity: true,
-				},
-				orderBy: {
-					_sum: {
-						quantity: 'desc',
-					},
-				},
-				where: {
-					book: { deletedAt: null },
-				},
-				take: 5,
-			});
+		const topBooks = await this.prismaService.billDetail.groupBy({
+			by: ['bookId'],
+			_sum: { quantity: true },
+			orderBy: { _sum: { quantity: 'desc' } },
+			where: {
+				book: { deletedAt: null },
+				bill: { status: BillStatus.COMPLETE },
+			},
+			take: 5,
+		});
 
-			//Get detail top book information
-			const topBooksIds = topBooks.map((book) => book.bookId);
-			const result = [];
-			const selectedBooks = await this.prismaService.book.findMany({
-				where: {
-					id: { in: topBooksIds },
-					deletedAt: null,
-				},
-				select: {
-					id: true,
-					code: true,
-					title: true,
-				},
-			});
-			const mp = new Map();
-			selectedBooks.map((book) => {
-				mp.set(book.id, book);
-				return book.id;
-			});
-			for (const book of topBooks) {
-				if (mp.has(book.bookId)) {
-					result.push({
-						...mp.get(book.bookId),
-						sum: book._sum.quantity ?? 0,
-					});
-				}
-			}
-			return result;
-		} catch (err) {
-			console.log(err);
-			throw err;
-		}
+		const topBooksIds = topBooks.map((book) => book.bookId);
+		const selectedBooks = await this.prismaService.book.findMany({
+			where: { id: { in: topBooksIds }, deletedAt: null },
+			select: { id: true, code: true, title: true },
+		});
+
+		return selectedBooks
+			.map((book) => {
+				const soldData = topBooks.find((t) => t.bookId === book.id);
+				return {
+					bookId: book.id,
+					bookCode: book.code,
+					title: book.title,
+					totalSold: soldData?._sum.quantity ?? 0,
+				};
+			})
+			.sort((a, b) => b.totalSold - a.totalSold);
 	}
+
 	async getInventoryByCategory() {
-		try {
-			const books = await this.prismaService.book.findMany({
-				where: {
-					deletedAt: null,
-					inventory: {
-						stock: { gt: 0 }, //Khi nao goi la ton kho? Tren bao nhieu thi goi la ton kho ?
-					},
-				},
-				select: {
-					category: true,
-					cost: true,
-					inventory: {
-						select: {
-							stock: true,
-						},
-					},
-				},
-			});
+		const books = await this.prismaService.book.findMany({
+			where: { deletedAt: null, inventory: { stock: { gt: 0 } } },
+			select: {
+				category: true,
+				inventory: { select: { stock: true } },
+			},
+		});
 
-			const map = new Map<
-				string,
-				{ count: number; totalValue: number }
-			>();
-
-			for (const book of books) {
-				const category = book.category;
-				const stock = book.inventory?.stock || 0;
-				const cost = Number(book.cost);
-
-				if (!map.has(category)) {
-					map.set(category, {
-						count: 0,
-						totalValue: 0,
-					});
-				}
-
-				const current = map.get(category)!;
-
-				current.count += 1;
-				current.totalValue += cost * stock;
-			}
-
-			return Array.from(map.entries()).map(([category, value]) => ({
-				category,
-				count: value.count,
-				totalValue: value.totalValue,
-			}));
-		} catch (err) {
-			console.log(err);
-			throw err;
+		const map = new Map<string, number>();
+		for (const book of books) {
+			const category = book.category || 'Khác';
+			const stock = book.inventory?.stock || 0;
+			map.set(category, (map.get(category) || 0) + stock);
 		}
+
+		return Array.from(map.entries()).map(([category, stock], index) => ({
+			categoryCode: `CAT-${index + 1}`,
+			categoryName: category,
+			value: stock,
+		}));
 	}
+
+	async getInventoryFlow(months: number) {
+		const rows = await this.prismaService.$queryRaw<any[]>`
+            WITH months AS (
+                SELECT TO_CHAR(GENERATE_SERIES(
+                    DATE_TRUNC('month', CURRENT_DATE) - (${months - 1} || ' months')::interval,
+                    DATE_TRUNC('month', CURRENT_DATE),
+                    '1 month'::interval
+                ), 'YYYY-MM') AS month
+            ),
+            exports AS (
+                SELECT TO_CHAR(b."createdAt", 'YYYY-MM') AS month, SUM(bd.quantity) AS qty
+                FROM "BillDetail" bd
+                JOIN "Bill" b ON b.id = bd."billId"
+                WHERE b.status = 'COMPLETE'
+                GROUP BY month
+            )
+            SELECT m.month, COALESCE(e.qty, 0) AS "exportQuantity", 0 AS "importQuantity"
+            FROM months m
+            LEFT JOIN exports e ON m.month = e.month
+            ORDER BY m.month ASC
+        `;
+		return rows.map((r) => ({
+			month: r.month,
+			exportQuantity: Number(r.exportQuantity),
+			importQuantity: Number(r.importQuantity),
+		}));
+	}
+
 	async getCustomerByGrade() {
-		try {
-			const customers = await this.prismaService.customer.groupBy({
-				by: ['grade'],
-				_count: { code: true },
-				where: {
-					deletedAt: null,
-				},
-			});
-			return customers.map((customer) => ({
-				grade: customer.grade,
-				total: customer._count.code,
-			}));
-		} catch (err) {
-			console.log(err);
-			throw err;
-		}
+		const customers = await this.prismaService.customer.groupBy({
+			by: ['grade'],
+			_count: { code: true },
+			where: { deletedAt: null },
+		});
+
+		return customers.map((customer) => ({
+			grade: customer.grade,
+			total: customer._count.code,
+		}));
 	}
+
 	async getRevenueChart(query: RevenueChartQueryDto) {
-		const month = query.month ?? 6;
-		return await this.statisticRepository.getRevenueChart(month);
+		return await this.statisticRepository.getRevenueChart(query.month ?? 6);
 	}
 
 	async getCustomerDebit() {

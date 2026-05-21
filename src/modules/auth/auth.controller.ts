@@ -45,7 +45,6 @@ export class AuthController {
 			console.log(user);
 			const id = user.id;
 			const roles = user.roles;
-			console.log(id, roles);
 			const responseData = await this.authService.logout(id, roles);
 			return responseData;
 		}

@@ -21,7 +21,9 @@ export class TopCustomerQueryDto {
 
 export class RevenueChartItemDto {
 	month: string;
-	revenue: number;
+	totalRevenue: number;
+	actualReceived: number;
+	debtAdded: number;
 }
 
 export class CustomerDebitMonthlyItemDto {
@@ -44,3 +46,4 @@ export class TopCustomerItemDto {
 	grade: string;
 	totalPaid: number;
 }
+

@@ -8,7 +8,6 @@ import { EmployeeStatus, Role, TokenType } from '@prisma/client';
 import { CreateEmployeeDto, UpdateEmployeeDto } from './dto/employee.dto';
 import { EmailService } from '../email/email.service';
 
-
 @Injectable()
 export class EmployeeService {
 	constructor(
@@ -25,69 +24,89 @@ export class EmployeeService {
 	}
 	async createAccount(data: CreateEmployeeDto) {
 		try {
-			const employee = await this.findEmployeeByCode(data.code);
-			if (employee)
-				throw new BadRequestException('employee code has been exists');
 			const result = await this.prismaService.$transaction(async (tx) => {
+				const existedEmployee = await tx.employee.findUnique({
+					where: {
+						code: data.code,
+					},
+				});
+
+				if (existedEmployee) {
+					throw new BadRequestException(
+						'Mã nhân viên đã tồn tại',
+					);
+				}
+
 				const password = await Bun.password.hash(data.password, {
 					algorithm: 'bcrypt',
 					cost: 10,
 				});
+
 				const employee = await tx.employee.create({
 					data: {
 						...data,
 						password,
-						//Phat trien them gui mail de bat active = true (neu kip)
 						active: true,
 					},
 				});
+
 				await tx.userRole.create({
 					data: {
 						userId: employee.id,
 						role: Role.EMPLOYEE,
 					},
 				});
-				return employee;
-			});
-			//Gui email den cho email cua nhan vien nay
-			if (result) {
-				const departmentName =
-					await this.prismaService.department.findFirst({
-						where: {
-							id: result.departmentId,
-						},
-						select: {
-							name: true,
-						},
-					});
-				const positionName =
-					await this.prismaService.position.findFirst({
-						where: {
-							id: result.positionId,
-						},
-						select: {
-							name: true,
-						},
-					});
-				//Sending email to employee to let they know
-				await this.emailService.sendWelcomeMail(
-					result.email,
-					'[UTAHIMEBOOK] Thông báo cấp tài khoản nhân viên',
-					'employee_register',
-					{
-						email: result.email,
-						name: result.name,
-						department: departmentName?.name || 'Chưa có thông tin',
-						position: positionName?.name || 'Chưa có thông tin',
-						phone: result.phone,
-						password: data.password,
-						
+
+				const department = await tx.department.findUnique({
+					where: {
+						id: employee.departmentId,
 					},
-				);
-			}
-			return result;
+					select: {
+						name: true,
+					},
+				});
+
+				const position = await tx.position.findUnique({
+					where: {
+						id: employee.positionId,
+					},
+					select: {
+						name: true,
+					},
+				});
+
+				return {
+					employee,
+					departmentName: department?.name || 'Chưa có thông tin',
+
+					positionName: position?.name || 'Chưa có thông tin',
+				};
+			});
+
+			// Send mail OUTSIDE transaction
+			await this.emailService.sendWelcomeMail(
+				result.employee.email,
+				'[UTAHIMEBOOK] Thông báo cấp tài khoản nhân viên',
+				'employee_register',
+				{
+					email: result.employee.email,
+
+					name: result.employee.name,
+
+					department: result.departmentName,
+
+					position: result.positionName,
+
+					phone: result.employee.phone,
+
+					password: data.password,
+				},
+			);
+
+			return result.employee;
 		} catch (err) {
 			console.log('create employee error', err);
+
 			throw err;
 		}
 	}
@@ -178,7 +197,7 @@ export class EmployeeService {
 					'employee_update',
 					{
 						email: result.email,
-						name : result.name, 
+						name: result.name,
 						phone: result.phone,
 						department: departmentName?.name || '',
 						position: positionName?.name || '',
@@ -215,7 +234,7 @@ export class EmployeeService {
 					status: true,
 					id: true,
 					code: true,
-					resume: true, 
+					resume: true,
 					salary: true,
 					createdAt: true,
 					position: {
