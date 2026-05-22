@@ -45,3 +45,10 @@ export class LoginData {
 	})
 	password: string;
 }
+
+export class ResetPassword 
+{
+	@IsString() 
+	@IsNotEmpty() 
+	password : string; 
+}

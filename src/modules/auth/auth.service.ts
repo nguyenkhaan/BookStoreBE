@@ -13,6 +13,7 @@ import {
 	REFRESH_LIVE_TIME,
 } from '@/bases/commons/constants/jwt.constant';
 import { hashSHA256 } from '@/utlitis/sha256';
+import { ResetPassword } from './dto/auth.dto';
 // import { EmployeeService } from '../employee/employee.service';
 
 @Injectable()
@@ -52,7 +53,7 @@ export class AuthService {
 				},
 			});
 			if (!employee)
-				throw new BadRequestException('Employee Profile Not Found');
+				throw new BadRequestException('Không tìm thấy hồ sơ nhân viên để update');
 			return employee;
 		} catch (err) {
 			console.log('Get Employee Profile Error: ', err);
@@ -77,6 +78,33 @@ export class AuthService {
 		} catch (err) {
 			console.log('Valdating User Error: ', err);
 			throw err;
+		}
+	}
+	async resetPassword(userId : number , data : ResetPassword) 
+	{
+		try 
+		{
+			const employee = await this.prismaService.employee.findFirst({
+				where: {id : userId}
+			}) 
+			if (!employee) 
+				throw new BadRequestException("Không tìm thấy nhân viên để đổi mật khẩu")
+			const hashedPassword = await Bun.password.hash(data.password , {
+				algorithm: 'bcrypt', 
+				cost: 10 
+			})
+			await this.prismaService.employee.update({
+				where: {id : userId}, 
+				data: {
+					password: hashedPassword
+				}
+			})
+			return true 
+		} 
+		catch (err) 
+		{
+			console.log("Reset password error" , err) 
+			throw err 
 		}
 	}
 	async getMe(id: number) {
