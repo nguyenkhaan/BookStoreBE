@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import type { Request } from 'express';
@@ -6,6 +6,7 @@ import { Roles } from '@/bases/decorators/role.decorators';
 import { Role } from '@prisma/client';
 import { RolesGuard } from '@/bases/guards/role.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { ResetPassword } from './dto/auth.dto';
 @Controller('auth')
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}
@@ -70,7 +71,12 @@ export class AuthController {
 	@UseGuards(JwtAuthGuard)
 	@Post('reset-password')
 	// async resetPassword(@Req() req: Request) {}
-
+	async resetPassword(@Req() req : Request , @Body() data : ResetPassword) 
+	{
+		const userId = (req.user as any).id 
+		const responseData = await this.authService.resetPassword(Number(userId) , data) 
+		return responseData
+	}
 	@UseGuards(JwtAuthGuard)
 	@Get('profile')
 	async getProfile(@Req() req: Request) {
