@@ -80,6 +80,7 @@ export class VoucherService {
 			const vouchers = await this.prismaService.voucher.findMany({
 				where: { deletedAt: null },
 			});
+			console.log(vouchers) 
 			return vouchers;
 		} catch (err) {
 			console.log('Get All Vouchers Error:', err);

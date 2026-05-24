@@ -76,7 +76,6 @@ export class OutcomeController {
 		const user = req.user as any;
 		const employeeId = user.id;
 		if (employeeId) {
-			console.log(employeeId);
 			const responseData = await this.outcomeService.createOutcomeBill(
 				employeeId,
 				createOutcomeData,

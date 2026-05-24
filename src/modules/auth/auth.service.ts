@@ -69,7 +69,7 @@ export class AuthService {
 			});
 			if (!user)
 				throw new UnauthorizedException(
-					'Employee has not been registered',
+					'Nhân viên chưa được đăng ký tài khoản',
 				);
 			const results = await Bun.password.verify(password, user.password);
 
@@ -84,11 +84,15 @@ export class AuthService {
 	{
 		try 
 		{
+
 			const employee = await this.prismaService.employee.findFirst({
 				where: {id : userId}
 			}) 
 			if (!employee) 
 				throw new BadRequestException("Không tìm thấy nhân viên để đổi mật khẩu")
+			const verify = await Bun.password.verify(data.currentPassword , employee.password) 
+			if (!verify) 
+				throw new BadRequestException("Mật khẩu cũ không khớp. Vui lòng nhập lại")
 			const hashedPassword = await Bun.password.hash(data.password , {
 				algorithm: 'bcrypt', 
 				cost: 10 
@@ -135,7 +139,7 @@ export class AuthService {
 					},
 				},
 			});
-			if (!employee) throw new BadRequestException('employee not found');
+			if (!employee) throw new BadRequestException('Không tìm thấy nhân viên');
 			const userRoles = await this.prismaService.userRole.findMany({
 				where: {
 					userId: employee.id,
@@ -155,10 +159,10 @@ export class AuthService {
 	}
 
 	async login(email: string, password: string, user: any) {
-		try {
+		try { 
 			console.log('Login: ', email);
 			const result = await Bun.password.verify(password, user.password);
-			if (!result) throw new BadRequestException('Wrong Password');
+			if (!result) throw new BadRequestException('Sai mật khẩu');
 			const roles = await this.prismaService.userRole.findMany({
 				where: {
 					userId: user.id,
@@ -168,7 +172,7 @@ export class AuthService {
 				},
 			});
 			const userRoles = roles.map((roleO) => roleO.role);
-			if (!roles) throw new BadRequestException("Don't have roles");
+			if (!roles) throw new BadRequestException("Vai trò người dùng không phù hợp để tạo phiên đăng nhập");
 			const accessSecretKey =
 				this.configService.get<string>('ACCESS_SECRET_KEY');
 			const refreshSecretKey =
