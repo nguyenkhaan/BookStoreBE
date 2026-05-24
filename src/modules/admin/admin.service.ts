@@ -41,7 +41,7 @@ export class AdminService {
 				where: { email: data.email },
 			});
 			if (employee && employee.active)
-				throw new BadRequestException('Employee has been registered');
+				throw new BadRequestException('Nhân viên đã có tài khoản');
 			const hashPassword = await Bun.password.hash(data.password, {
 				algorithm: 'bcrypt',
 				cost: 10,
@@ -150,7 +150,7 @@ export class AdminService {
 			algorithm: 'bcrypt',
 			cost: 10,
 		});
-		await this.prismaService.employee.update({
+		await this.prismaService.customer.update({
 			where: { id: customerId },
 			data: {
 				password: hashedPassword,
@@ -175,7 +175,7 @@ export class AdminService {
 		try {
 			const employee = await this.employeeService.getEmployeeById(id);
 			if (!employee)
-				throw new BadRequestException('Cannot Find Employee To Update');
+				throw new BadRequestException('Không tìm thấy nhân viên để đặt lại mật khẩu');
 			const password = generateRandomPassword();
 			const hashPassword = await Bun.password.hash(password, {
 				cost: 10,

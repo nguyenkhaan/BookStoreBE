@@ -8,9 +8,9 @@ import {
 	IsNotEmpty,
 	IsOptional,
 	ValidateNested,
+	ArrayMinSize,
 } from 'class-validator';
 import { OutcomeStatus } from '@prisma/client';
-import { PartialType } from '@nestjs/mapped-types';
 import { Type } from 'class-transformer';
 
 export class CreateOutcomeItemDto {
@@ -25,6 +25,7 @@ export class CreateOutcomeItemDto {
 
 	@IsInt()
 	quantity: number;
+
 	@IsString()
 	@IsNotEmpty()
 	@IsOptional()
@@ -34,14 +35,15 @@ export class CreateOutcomeItemDto {
 	@IsNumber()
 	year?: number;
 
-	@IsOptional() 
-	@IsArray() 
-	@IsInt({each : true})
-	publisherIds : number[] 
-	@IsOptional() 
-	@IsArray() 
-	@IsInt({each : true })
-	authorIds: number[] 
+	@IsOptional()
+	@IsArray()
+	@IsInt({ each: true })
+	publisherIds: number[];
+
+	@IsOptional()
+	@IsArray()
+	@IsInt({ each: true })
+	authorIds: number[];
 }
 
 export class CreateOutcomeData {
@@ -52,11 +54,13 @@ export class CreateOutcomeData {
 	status: OutcomeStatus;
 
 	@IsArray()
+	@ArrayMinSize(1)
 	@ValidateNested({ each: true })
 	@Type(() => CreateOutcomeItemDto)
 	items: CreateOutcomeItemDto[];
 }
-export class UpdateOutcomeData extends PartialType(CreateOutcomeItemDto) {
+
+export class UpdateOutcomeData {
 	@IsOptional()
 	@IsInt()
 	publisherId?: number;
@@ -64,4 +68,11 @@ export class UpdateOutcomeData extends PartialType(CreateOutcomeItemDto) {
 	@IsOptional()
 	@IsEnum(OutcomeStatus)
 	status?: OutcomeStatus;
+
+	@IsOptional()
+	@IsArray()
+	@ArrayMinSize(1)
+	@ValidateNested({ each: true })
+	@Type(() => CreateOutcomeItemDto)
+	items?: CreateOutcomeItemDto[];
 }

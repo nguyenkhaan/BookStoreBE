@@ -244,7 +244,7 @@ async function bookSeeder() {
 
 async function adminSeeder() {
 	const ADMIN_EMAIL = 'admin@gmail.com';
-	const ADMIN_PASSWORD = 'admin';
+	const ADMIN_PASSWORD = 'cloudian';
 
 	const hashPassword = await Bun.password.hash(ADMIN_PASSWORD, {
 		algorithm: 'bcrypt',
@@ -777,23 +777,28 @@ async function billIncomeOutcomeSeeder() {
 
 async function SeedingSetting() {
 	const defaultSettings = [
-		{ key: 'SALARY_MAX', value: '100000000', description: 'Luong toi da' },
-		{ key: 'COST_MAX', value: '10000000', description: 'Chi phi toi da' },
+		{ key: 'SALARY_MAX', value: '100000000', description: 'Lương tối đa cho nhân viên' },
+		{ key: 'COST_MAX', value: '10000000', description: 'Chi phí tối đa' },
 		{
 			key: 'STOCK_MIN',
 			value: '20',
-			description: 'So luong sach toi thieu trong kho',
+			description: 'Số lượng sách tối thiểu phải có trong kho',
 		},
 		{
 			key: 'DEBIT_MAX',
 			value: '100000',
-			description: 'So no toi da cua khach hang',
+			description: 'Số nợ tối đa của khách hàng',
 		},
-		{ key: 'TI_GIA_BAN', value: '1.05', description: 'Ti gia ban sach' },
+		{ key: 'TI_GIA_BAN', value: '1.05', description: 'Tỉ giá bán sách' },
 		{
 			key: 'STOCK_IMPORT_NUMBER_MIN',
 			value: '150',
-			description: 'So luong sach toi thieu khi nhap',
+			description: 'Số lượng sách tối thiểu khi nhập hàng',
+		},
+		{
+			key: 'STOCK_MAX',
+			value: '800',
+			description: 'Số lượng sách tối đa trong kho',
 		},
 	];
 	await prismaClient.systemSetting.createMany({

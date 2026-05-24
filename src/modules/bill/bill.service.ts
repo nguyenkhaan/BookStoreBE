@@ -1,9 +1,6 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import {
-	BadRequestException,
-	Injectable,
-} from '@nestjs/common';
-import { BillStatus, VoucherStatus, VoucherType } from '@prisma/client';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { BillStatus, VoucherType } from '@prisma/client';
 import { CreateBillData, UpdateBillData } from './dto/bill.dto';
 import { InventoryService } from '../inventory/inventory.service';
 import { CustomerService } from '../customer/customer.service';
@@ -16,7 +13,7 @@ export class BillService {
 		private readonly prismaService: PrismaService,
 		private readonly inventoryService: InventoryService,
 		private readonly customerService: CustomerService,
-		private readonly settingService : SettingService
+		private readonly settingService: SettingService,
 	) {}
 	async getGeneralStatistic() {
 		try {
@@ -247,18 +244,17 @@ export class BillService {
 						const voucher = await tx.voucher.findUnique({
 							where: { id: v.voucherId },
 						});
-
-						if (
-							!voucher ||
-							voucher.status === VoucherStatus.ENDED ||
-							voucher.deletedAt != null ||
-							voucher.expiresAt < new Date() ||
-							voucher.quantity <= 0
-						)
+						if (!voucher || voucher.quantity <= 0)
 							throw new BadRequestException(
 								'Voucher không hợp lệ',
 							);
-
+						if (
+							voucher.expiresAt <
+							new Date(new Date().setHours(0, 0, 0, 0))
+						)
+							throw new BadRequestException(
+								'Voucher đã hết hạn sử dụng',
+							);
 						if (voucher.type === VoucherType.PERCENT)
 							totalCost = Math.max(
 								0,
@@ -278,6 +274,9 @@ export class BillService {
 								quantity: {
 									decrement: 1,
 								},
+								usedNumber: {
+									increment: 1 
+								}
 							},
 						});
 
@@ -356,7 +355,7 @@ export class BillService {
 					bill: {
 						...bill,
 						debit: billDebit,
-						status: bill.status
+						status: bill.status,
 					},
 				};
 			});

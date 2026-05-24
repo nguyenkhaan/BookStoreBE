@@ -14,18 +14,18 @@ export class RegisterData {
 	@IsNotEmpty()
 	@Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/, {
 		message:
-			'Password at least 5 characters, including at least a characters and a number',
+			'Password phải chứa ít nhất 5 kí tự, bao gồm cả chữ cái và chữ số',
 	})
 	password: string;
 	@IsString()
 	@Matches(/^\d{10,11}$/, {
-		message: 'Phone number must between 10 and 11 numbers',
+		message: 'Số điện thoại chỉ bao gồm 10 - 11 chữ số',
 	})
 	phone: string;
 	@IsString()
 	name: string;
 	@IsEnum(EmployeeStatus, {
-		message: 'Employee status Khong phu hop',
+		message: 'Trạng thái làm việc không hợp lệ',
 	})
 	status: EmployeeStatus;
 	@IsNumber()
@@ -40,15 +40,28 @@ export class LoginData {
 	@IsNotEmpty()
 	email: string;
 	@IsString()
-	@Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/, {
-		message: 'Password phải có ít nhất 5 ký tự và chứa cả chữ và số',
+	@Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/, {
+		message: 'Password phải có ít nhất 6 ký tự và chứa cả chữ và số',
 	})
 	password: string;
 }
 
-export class ResetPassword 
-{
-	@IsString() 
-	@IsNotEmpty() 
-	password : string; 
+export class ResetPassword {
+	@IsString({
+		message: 'Mật khẩu hiện tại phải đúng định dạng ',
+	})
+	@IsNotEmpty({
+		message: 'Mật khẩu hiện tại không được để trống,',
+	})
+	currentPassword: string;
+	@IsString({
+		message: 'Mật khẩu hiện tại phải đúng định dạng ',
+	})
+	@IsNotEmpty({
+		message: 'Mật khẩu mới không được để trống, ',
+	})
+	@Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/, {
+		message: 'Password phải có ít nhất 5 ký tự và chứa cả chữ và số ',
+	})
+	password: string;
 }

@@ -25,15 +25,18 @@ export class EmployeeService {
 	async createAccount(data: CreateEmployeeDto) {
 		try {
 			const result = await this.prismaService.$transaction(async (tx) => {
-				const existedEmployee = await tx.employee.findUnique({
+				const existedEmployee = await tx.employee.findFirst({
 					where: {
-						code: data.code,
+						OR: [
+							{code : data.code }, 
+							{email : data.email}
+						]
 					},
 				});
 
 				if (existedEmployee) {
 					throw new BadRequestException(
-						'Mã nhân viên đã tồn tại',
+						'Mã nhân viên hoặc email đã tồn tại. Hãy cập nhật lại thông tin',
 					);
 				}
 
