@@ -777,25 +777,44 @@ async function billIncomeOutcomeSeeder() {
 
 async function SeedingSetting() {
 	const defaultSettings = [
-		{ key: 'SALARY_MAX', value: '100000000', description: 'Lương tối đa cho nhân viên' },
-		{ key: 'COST_MAX', value: '10000000', description: 'Chi phí tối đa' },
 		{
+			id: 1,
+			key: 'SALARY_MAX',
+			value: '100000000',
+			description: 'Lương tối đa cho nhân viên',
+		},
+		{
+			id: 2,
+			key: 'COST_MAX',
+			value: '10000000',
+			description: 'Chi phí tối đa',
+		},
+		{
+			id: 3,
 			key: 'STOCK_MIN',
 			value: '20',
 			description: 'Số lượng sách tối thiểu phải có trong kho',
 		},
 		{
+			id: 4,
 			key: 'DEBIT_MAX',
 			value: '100000',
 			description: 'Số nợ tối đa của khách hàng',
 		},
-		{ key: 'TI_GIA_BAN', value: '1.05', description: 'Tỉ giá bán sách' },
 		{
+			id: 5,
+			key: 'TI_GIA_BAN',
+			value: '1.05',
+			description: 'Tỉ giá bán sách',
+		},
+		{
+			id: 6,
 			key: 'STOCK_IMPORT_NUMBER_MIN',
 			value: '150',
 			description: 'Số lượng sách tối thiểu khi nhập hàng',
 		},
 		{
+			id: 7,
 			key: 'STOCK_MAX',
 			value: '800',
 			description: 'Số lượng sách tối đa trong kho',

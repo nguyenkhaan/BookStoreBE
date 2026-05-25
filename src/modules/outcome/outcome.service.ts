@@ -11,7 +11,6 @@ import {
 } from './dto/outcome.dto';
 import { Book, BookCategory, OutcomeStatus, Prisma } from '@prisma/client';
 import { InventoryService } from '../inventory/inventory.service';
-import { ENUM_VI_MAP, mapEnumToVietnamese } from '@/utlitis/enumLocalization';
 import { SettingService } from '../settings/settings.service';
 
 type OutcomeItemSnapshot = {
@@ -34,6 +33,7 @@ type ImportSettings = {
 	minImportQuantity: number;
 	retailPriceRatio: number;
 	maxStock: number;
+	minInventory : number 
 };
 
 @Injectable()
@@ -107,10 +107,7 @@ export class OutcomeService {
 		return {
 			id: outcome.id,
 			code: outcome.code,
-			status: mapEnumToVietnamese(
-				outcome.status,
-				ENUM_VI_MAP.outcomeStatus,
-			),
+			status: outcome.status,
 			publisherId: outcome.publisherId,
 			publisherName: outcome.publisher?.name ?? null,
 			employeeId: outcome.employeeId,
@@ -200,17 +197,19 @@ export class OutcomeService {
 	}
 
 	private async loadImportSettings(): Promise<ImportSettings> {
-		const [minImportQuantity, retailPriceRatio, maxStock] =
+		const [minImportQuantity, retailPriceRatio, maxStock , minInventory] =
 			await Promise.all([
 				this.settingService.getSettingValue('STOCK_IMPORT_NUMBER_MIN'),
 				this.settingService.getSettingValue('TI_GIA_BAN'),
-				this.settingService.getSettingValue('STOCK_MAX'),
+				this.settingService.getSettingValue('STOCK_MAX'), 
+				this.settingService.getSettingValue('STOCK_MIN') 
 			]);
 
 		return {
 			minImportQuantity,
 			retailPriceRatio,
 			maxStock,
+			minInventory 
 		};
 	}
 
@@ -321,12 +320,15 @@ export class OutcomeService {
 				tx,
 				book.id,
 				item.quantity,
+				settings.minInventory , 
 				settings.maxStock,
+				
+			
 			);
 
 		if (!canImport) {
 			throw new BadRequestException(
-				`Số lượng nhập không hợp lệ cho sách ${book.code}. Đảm bảo sách không vượt quá số tồn kho và lớn hơn số lượng nhập tối thiếu `,
+				`Số lượng nhập không hợp lệ cho sách ${book.code}. Đảm bảo sách không vượt quá giới hạn trong kho và số sách còn lại đủ ít để nhập `,
 			);
 		}
 

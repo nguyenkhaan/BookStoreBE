@@ -7,7 +7,9 @@ export class SettingService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async getAllSettings() {
-		return this.prisma.systemSetting.findMany();
+		return this.prisma.systemSetting.findMany({
+			orderBy:  {id : 'asc'}
+		});
 	}
 
 	async updateSettings(settings: UpdateSettingDto[]) {

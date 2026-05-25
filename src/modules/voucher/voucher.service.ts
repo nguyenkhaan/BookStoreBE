@@ -1,5 +1,5 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateVoucherData, UpdateVoucherData } from './dto/voucher.dto';
 import { VoucherStatus, VoucherType } from '@prisma/client';
 import { TransactionClient } from 'generated/prisma/internal/prismaNamespace';
@@ -145,6 +145,8 @@ export class VoucherService {
 	}
 	async createVoucher(createVoucherData: CreateVoucherData) {
 		try {
+			if (createVoucherData.expiresAt < createVoucherData.startDate) 
+				throw new BadRequestException("Ngày bắt đầu phải nhỏ hơn ngày hết hạn")
 			const code = await this.createVoucherCode() 
 			const voucher = await this.prismaService.voucher.create({
 				data: {
