@@ -51,7 +51,9 @@ export class RuleService {
 	}
 	async getAllRules() {
 		try {
-			const rules = await this.prismaService.rule.findMany();
+			const rules = await this.prismaService.rule.findMany({
+				orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
+			});
 			return rules;
 		} catch (err) {
 			console.log('Get all Rules Error', err);

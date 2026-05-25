@@ -66,6 +66,7 @@ export class BookService {
 						},
 					},
 				},
+				orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
 			});
 
 			const booksWithUrl = await Promise.all(

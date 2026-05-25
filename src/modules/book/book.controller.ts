@@ -55,7 +55,6 @@ export class BookController {
 	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('/statistic')
 	async statisticBookInformation() {
-		console.log('Running');
 		//Thong ke tong so luong dau sach, tong so tien sach,...
 		const responseData = await this.bookService.statisticBook();
 		return responseData;

@@ -23,9 +23,7 @@ export class StatisticService {
 				},
 				createdAt: true,
 			},
-			orderBy: {
-				createdAt: 'desc',
-			},
+			orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
 			take: limit,
 		});
 

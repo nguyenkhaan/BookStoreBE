@@ -27,10 +27,7 @@ export class EmployeeService {
 			const result = await this.prismaService.$transaction(async (tx) => {
 				const existedEmployee = await tx.employee.findFirst({
 					where: {
-						OR: [
-							{code : data.code }, 
-							{email : data.email}
-						]
+						OR: [{ code: data.code }, { email: data.email }],
 					},
 				});
 
@@ -251,6 +248,7 @@ export class EmployeeService {
 						},
 					},
 				},
+				orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
 			});
 			return employees;
 		} catch (err) {

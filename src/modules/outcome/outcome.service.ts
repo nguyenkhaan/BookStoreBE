@@ -565,6 +565,10 @@ export class OutcomeService {
 					updatedAt: true,
 					...this.getOutcomeInclude(),
 				},
+				orderBy: [
+					{updatedAt: 'desc'}, 
+					{createdAt: 'desc'}
+				]
 			});
 			return outcomeBills.map((item) =>
 				this.formatOutcomeForFrontend(item),
