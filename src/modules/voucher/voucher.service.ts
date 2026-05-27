@@ -1,5 +1,5 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateVoucherData, UpdateVoucherData } from './dto/voucher.dto';
 import { VoucherStatus, VoucherType } from '@prisma/client';
 import { TransactionClient } from 'generated/prisma/internal/prismaNamespace';
@@ -79,8 +79,9 @@ export class VoucherService {
 		try {
 			const vouchers = await this.prismaService.voucher.findMany({
 				where: { deletedAt: null },
+				orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
 			});
-			console.log(vouchers) 
+			console.log(vouchers);
 			return vouchers;
 		} catch (err) {
 			console.log('Get All Vouchers Error:', err);
@@ -100,6 +101,7 @@ export class VoucherService {
 						gt: new Date(),
 					},
 				},
+				orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
 			});
 			return vouchers;
 		} catch (err) {
@@ -145,7 +147,11 @@ export class VoucherService {
 	}
 	async createVoucher(createVoucherData: CreateVoucherData) {
 		try {
-			const code = await this.createVoucherCode() 
+			if (createVoucherData.expiresAt < createVoucherData.startDate)
+				throw new BadRequestException(
+					'Ngày bắt đầu phải nhỏ hơn ngày hết hạn',
+				);
+			const code = await this.createVoucherCode();
 			const voucher = await this.prismaService.voucher.create({
 				data: {
 					name: createVoucherData.name,
@@ -158,7 +164,7 @@ export class VoucherService {
 					expiresAt: new Date(createVoucherData.expiresAt),
 					type: createVoucherData.type,
 					startDate: createVoucherData.startDate,
-					code
+					code,
 				},
 			});
 

@@ -13,9 +13,10 @@ export class InventoryService {
 	canImportToStock(
 		currentStock: number,
 		addNum: number,
+		minStock : number, 
 		maxStock: number,
 	): boolean {
-		return currentStock < 300 && currentStock + addNum <= maxStock;
+		return currentStock <= minStock && currentStock + addNum <= maxStock;
 	}
 
 	async canImportBookByCode(code: string, addNum: number) {
@@ -24,20 +25,22 @@ export class InventoryService {
 		});
 		const currentStock = inventory?.stock ?? 0;
 		const maxStock = await this.settingService.getSettingValue('STOCK_MAX');
-		return this.canImportToStock(currentStock, addNum, maxStock);
+		const minStock = await this.settingService.getSettingValue('STOCK_MIN') 
+		return this.canImportToStock(currentStock, addNum, minStock , maxStock);
 	}
 
 	async canImportBookInTransaction(
 		tx: Prisma.TransactionClient,
 		bookId: number,
 		addNum: number,
+		minStock : number, 
 		maxStock: number,
 	): Promise<boolean> {
 		const inventory = await tx.inventory.findUnique({
 			where: { bookId },
 		});
 		const currentStock = inventory?.stock ?? 0;
-		return this.canImportToStock(currentStock, addNum, maxStock);
+		return this.canImportToStock(currentStock, addNum, minStock , maxStock);
 	}
 	async canSellBookByCode(code: string, sellNum: number) {
 		const inventory = await this.prismaService.inventory.findFirst({

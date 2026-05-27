@@ -144,6 +144,10 @@ export class IncomeService {
 				deletedAt: null,
 			},
 			select: incomeSelect,
+			orderBy: [
+				{createdAt: 'desc'}, 
+				{updatedAt: 'desc'}
+			]
 		});
 
 		return incomes.map((income) => this.mapIncomeResponse(income));

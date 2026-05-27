@@ -1,7 +1,7 @@
 model Voucher {
     id            Int            @id @default(autoincrement())
     name          String //Them ma khuyen mai (code) 
-    code          String        @unique
+    code          String         @unique
     eventName     String
     sale          Decimal
     status        VoucherStatus
@@ -13,6 +13,8 @@ model Voucher {
     description   String         @default("") @db.Text
     type          VoucherType
     startDate     DateTime?
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
 }
 
 model VoucherUsage {

@@ -41,6 +41,7 @@ export class SearchService {
 					phone: true,
 					grade: true,
 				},
+				orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
 			});
 			return customers;
 		} catch (err) {
@@ -81,6 +82,7 @@ export class SearchService {
 					salary: true,
 					active: true,
 				},
+				orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
 			});
 			return employees;
 		} catch (err) {
@@ -170,6 +172,7 @@ export class SearchService {
 						},
 					},
 				},
+				orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
 			});
 
 			return books;
@@ -198,6 +201,7 @@ export class SearchService {
 					...(status && { status }),
 					...(type && { type }),
 				},
+				orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
 			});
 			return rules;
 		} catch (err) {
@@ -323,6 +327,7 @@ export class SearchService {
 					shortDescription: true,
 					createdAt: true,
 				},
+				orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
 			});
 
 			return incomes;
@@ -397,6 +402,7 @@ export class SearchService {
 					status: true,
 					createdAt: true,
 				},
+				orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
 			});
 
 			return outcomes;

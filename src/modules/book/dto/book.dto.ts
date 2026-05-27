@@ -5,13 +5,11 @@ import {
 	IsNumber,
 	IsOptional,
 	IsString,
-	Matches,
 	Min,
 } from 'class-validator';
 
 import { Transform, Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
-import { BookCodeRegex } from '@/bases/commons/regex/app.regex';
 import { BookCategory } from '@prisma/client';
 import { STOCK_IMPORT_NUMBER_MIN } from '@/bases/commons/constants/app.constant';
 
@@ -19,9 +17,6 @@ export class CreateBookData {
 	@IsString()
 	title: string;
 	@IsString()
-	@Matches(BookCodeRegex, {
-		message: 'Book Code must be in format BK001',
-	})
 	code: string;
 
 	@IsNumber()

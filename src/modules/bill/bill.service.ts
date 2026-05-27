@@ -59,6 +59,10 @@ export class BillService {
 						include: { voucher: true },
 					},
 				},
+				orderBy: [
+					{updatedAt : 'desc'}, 
+					{createdAt : 'desc'}
+				]
 			});
 			const resultBills = bills.map((bill) => {
 				return {

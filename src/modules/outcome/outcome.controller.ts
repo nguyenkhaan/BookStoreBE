@@ -51,14 +51,14 @@ export class OutcomeController {
 			status,
 		};
 	}
-	@Roles(Role.ADMIN)
+	@Roles(Role.EMPLOYEE)
 	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('/code/:code')
 	async getOutcomeByCode(@Param('code') code: string) {
 		const responseData = await this.outcomeService.getOutcomeByCode(code);
 		return responseData;
 	}
-	@Roles(Role.ADMIN)
+	@Roles(Role.EMPLOYEE)
 	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Get('/:outcomeId')
 	async getOutcomeById(@Param('outcomeId', ParseIntPipe) outcomeId: number) {
