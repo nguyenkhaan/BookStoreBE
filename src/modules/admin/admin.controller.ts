@@ -22,8 +22,6 @@ import { AdminService } from './admin.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Express } from 'express';
 @Controller('/admin')
-@Roles(Role.ADMIN)
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class AdminController {
 	constructor(private readonly adminService: AdminService) {}
 	@Get('testing')
@@ -35,6 +33,8 @@ export class AdminController {
 	async resetCustomerAccount(@Query('phone') phone: string) {
 		console.log(phone);
 	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@UseInterceptors(FileInterceptor('avatar'))
 	@Post('/employee/register')
 	async register(
@@ -51,7 +51,8 @@ export class AdminController {
 	// 	const responseData = await this.adminService.resetPasswordToDefault(id);
 	// 	return responseData;
 	// }
-
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@UseInterceptors(FileInterceptor('avatar'))
 	@Put('/employee/:employeeId')
 	async updateEmployeeInformation(
@@ -66,6 +67,8 @@ export class AdminController {
 		);
 		return responseData;
 	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Delete('employee/:employeeId')
 	async deleteEmployeeAccount(
 		@Param('employeeId', ParseIntPipe) employeeId: number,
@@ -75,13 +78,25 @@ export class AdminController {
 		);
 		return responseData;
 	}
+	@Roles(Role.ADMIN)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Post('/employee/reset-password/:employeeId')
-	async resetEmployeePassword(@Param('employeeId', ParseIntPipe) employeeId: number) {
-		console.log("Hello") 
-		return await this.adminService.resetEmployeePassword(Number(employeeId));
+	async resetEmployeePassword(
+		@Param('employeeId', ParseIntPipe) employeeId: number,
+	) {
+		console.log('Hello');
+		return await this.adminService.resetEmployeePassword(
+			Number(employeeId),
+		);
 	}
+	@Roles(Role.EMPLOYEE)
+	@UseGuards(JwtAuthGuard, RolesGuard)
 	@Post('/customer/reset-password/:customerId')
-	async resetCustomerPassword(@Param('customerId', ParseIntPipe) customerId: number) {
-		return await this.adminService.resetCustomerPassword(Number(customerId));
+	async resetCustomerPassword(
+		@Param('customerId', ParseIntPipe) customerId: number,
+	) {
+		return await this.adminService.resetCustomerPassword(
+			Number(customerId),
+		);
 	}
 }

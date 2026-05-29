@@ -64,6 +64,8 @@ export class CustomerService {
                     c.email,
                     c.phone,
                     c.grade,
+					c."createdAt", 
+					c."updatedAt",
                     COALESCE(SUM(bi.cost), 0) as "totalPaid", 
 					COUNT(DISTINCT b.id) as "totalBills"
                 FROM "Customer" c
@@ -72,8 +74,8 @@ export class CustomerService {
                     ON bi."billId" = b.id 
                     AND bi."deletedAt" IS NULL
                 WHERE c."deletedAt" IS NULL
-                GROUP BY c.id
-                ORDER BY "totalPaid" DESC
+                GROUP BY c.id, c."createdAt", c."updatedAt"	
+                ORDER BY "updatedAt" DESC, "createdAt" DESC, "totalPaid" DESC
             `;
 
 			// Convert Decimal string -> number (nếu cần)

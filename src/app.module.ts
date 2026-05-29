@@ -32,6 +32,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { CategoryModule } from './modules/category/category.module';
 import { EmailModule } from './modules/email/email.module';
 import { SettingModule } from './modules/settings/settings.module';
+import { HealthModule } from './modules/health/health.module';
 //Add  e module here
 @Module({
 	imports: [
@@ -60,7 +61,8 @@ import { SettingModule } from './modules/settings/settings.module';
 		InventoryModule,
 		CategoryModule,
 		EmailModule, 
-		SettingModule
+		SettingModule, 
+		HealthModule
 	],
 	controllers: [AppController],
 	providers: [
