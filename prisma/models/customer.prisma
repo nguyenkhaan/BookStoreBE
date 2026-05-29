@@ -6,6 +6,7 @@ model Customer {
     phone     String       @unique
     password  String?
     createdAt DateTime     @default(now())
+    updatedAt DateTime     @updatedAt
     bill      Bill[]
     deletedAt DateTime?
     grade     MemberGrade?
