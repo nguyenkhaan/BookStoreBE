@@ -7,6 +7,8 @@ import type { Express } from 'express';
 import convertExcelToJson from '@/utlitis/excelToJson';
 import { UploadBookService } from './helpers/book.upload';
 import { BookCategory } from '@prisma/client';
+import { EmailService } from '../email/email.service';
+import { SettingService } from '../settings/settings.service';
 
 // import { STOCK_IMPORT_NUMBER_MIN } from '@/bases/commons/constants/app.constant';
 @Injectable()
@@ -14,6 +16,8 @@ export class BookService {
 	constructor(
 		private readonly prismaService: PrismaService,
 		private readonly minioService: MinioService,
+		private readonly emailService : EmailService,
+		private readonly settingService : SettingService
 	) {}
 	private async findPublisherById(id: number) {
 		try {
@@ -222,6 +226,7 @@ export class BookService {
 		file: Express.Multer.File,
 	) {
 		try {
+			let currentStock = 0; 
 			const book = await this.prismaService.book.findFirst({
 				where: {
 					id,
@@ -307,7 +312,7 @@ export class BookService {
 			});
 
 			if (updateBook.stock !== undefined) {
-				await this.prismaService.inventory.upsert({
+				const inventory = await this.prismaService.inventory.upsert({
 					where: { bookId: id },
 					update: { stock: updateBook.stock },
 					create: {
@@ -315,8 +320,24 @@ export class BookService {
 						stock: updateBook.stock,
 					},
 				});
+				currentStock = inventory.stock; 
 			}
+			//Them mot ham de gui thong bao ve email cho admin 
+			//Sending email for admin 
+			const redAlert = await this.settingService.getSettingValue('BAO_DONG_DO')
+			if (currentStock < Number(redAlert))  
+			{
+				const context: Record<string, string> = {
+    				bookCode: book.code,
+    				bookTitle: book.title,
+    				currentStock: currentStock + '',
+    				minimumStock: redAlert + '',
+				};				
+				await this.emailService.sendWelcomeMail(
+					'admin@gmail.com', 'Báo động đỏ về sách tồn kho', 'warning_book' , context
+				)
 
+			}
 			return updatedBook;
 		} catch (err) {
 			console.log(err);
